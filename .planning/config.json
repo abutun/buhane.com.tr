@@ -1,0 +1,123 @@
+{
+  "mode": "yolo",
+  "granularity": "coarse",
+  "model_profile": "inherit",
+  "commit_docs": true,
+  "parallelization": true,
+  "search_gitignored": false,
+  "resolve_model_ids": false,
+  "context_window": 200000,
+  "phase_naming": "sequential",
+  "project_code": "BUHANE-SITE",
+  "claude_md_path": "./AGENTS.md",
+  "git": {
+    "branching_strategy": "none",
+    "create_tag": false,
+    "base_branch": null
+  },
+  "workflow": {
+    "research": false,
+    "plan_check": true,
+    "verifier": true,
+    "nyquist_validation": false,
+    "ai_integration_phase": false,
+    "human_verify_mode": "end-of-phase",
+    "auto_advance": false,
+    "_auto_chain_active": false,
+    "node_repair": true,
+    "node_repair_budget": 2,
+    "smart_zone_tokens": 100000,
+    "ui_phase": true,
+    "ui_safety_gate": true,
+    "text_mode": true,
+    "research_before_questions": false,
+    "discuss_mode": "discuss",
+    "skip_discuss": false,
+    "max_discuss_passes": 3,
+    "subagent_timeout": 300000,
+    "context_coverage_gate": true,
+    "code_review": true,
+    "code_review_depth": "standard",
+    "code_review_command": null,
+    "pattern_mapper": true,
+    "plan_bounce": false,
+    "plan_bounce_script": null,
+    "plan_bounce_passes": 2,
+    "auto_prune_state": false,
+    "post_planning_gaps": true,
+    "security_enforcement": true,
+    "security_asvs_level": 1,
+    "security_block_on": "high",
+    "context_guard_mode": "warn"
+  },
+  "planning": {
+    "commit_docs": true,
+    "search_gitignored": false,
+    "sub_repos": [],
+    "granularity": "coarse"
+  },
+  "hooks": {
+    "context_warnings": true,
+    "workflow_guard": false
+  },
+  "ship": {
+    "pr_body_sections": [
+      {
+        "heading": "User Stories & Acceptance Criteria",
+        "enabled": true,
+        "source": "REQUIREMENTS.md ## User Stories || REQUIREMENTS.md ## Acceptance Criteria",
+        "fallback": "- Acceptance criteria are covered by linked requirements and verification evidence."
+      },
+      {
+        "heading": "Risks & Dependencies",
+        "enabled": true,
+        "source": "PLAN.md ## Risks || PLAN.md ## Dependencies",
+        "fallback": "- No known high-risk rollout dependencies."
+      },
+      {
+        "heading": "Success Metrics & Release Criteria",
+        "enabled": true,
+        "source": "REQUIREMENTS.md ## Definition of Done || VERIFICATION.md ## Release Criteria",
+        "fallback": "- Release when automated verification and required manual checks pass."
+      },
+      {
+        "heading": "Stakeholder Review & Approval",
+        "enabled": false,
+        "template": "- Product owner approval pending for {phase_name}."
+      }
+    ]
+  },
+  "graphify": {
+    "auto_update": false
+  },
+  "agent_skills": {},
+  "effort": {
+    "default": "high",
+    "routing_tier_defaults": {
+      "light": "low",
+      "standard": "high",
+      "heavy": "xhigh"
+    },
+    "agent_overrides": {}
+  },
+  "fast_mode": {
+    "enabled": false,
+    "routing_tier_defaults": {
+      "light": true,
+      "standard": false,
+      "heavy": false
+    },
+    "agent_overrides": {}
+  },
+  "plan_review": {
+    "source_grounding": true,
+    "source_grounding_authority": "grep"
+  },
+  "capabilities": {
+    "strict_known_registries": null,
+    "auto_update": false
+  },
+  "security": {
+    "injection_blocking": false
+  }
+}
