@@ -23,7 +23,7 @@ See: .planning/PROJECT.md (updated 2026-07-28)
 Phase: 1 of 4 (Planning and Repository Baseline)
 Plan: 0 of 2 in current phase
 Status: Ready to plan
-Last activity: 2026-08-03 - Completed quick task 260803-s03: Add Lastimo product to the website.
+Last activity: 2026-08-03 - Completed quick task 260803-s85: Create README and push local repo to GitHub.
 
 Progress: [----------] 0%
 
@@ -64,7 +64,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- Init: Current workspace has no Git metadata or remote, so push/deploy ownership must be established.
+- Quick 260803-s85: GitHub remote is configured as `origin` and `main` tracks `origin/main`.
 - Init: No automated validation command exists yet.
 - Init: English and Turkish pages duplicate content manually.
 
@@ -73,6 +73,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260803-s03 | Add Lastimo product to the website | 2026-08-03 | 1e35b91 | [260803-s03-add-lastimo-product](./quick/260803-s03-add-lastimo-product/) |
+| 260803-s85 | Create README and push local repo to GitHub | 2026-08-03 | 1a413a2 | [260803-s85-publish-repo-readme](./quick/260803-s85-publish-repo-readme/) |
 
 ## Deferred Items
 

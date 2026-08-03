@@ -51,7 +51,7 @@ Recent portfolio updates added Gridzle, AstralPost, HiveDue, Lastimo, THECOSMICM
 - **Tech stack**: Stay in static HTML, CSS, and vanilla JavaScript for v1 - there is no build pipeline to absorb framework churn safely.
 - **Localization**: Any user-facing content change must be mirrored in `index.html` and `tr/index.html` - the pages are manually duplicated.
 - **Paths**: `tr/index.html` uses root-relative asset paths - local validation should use an HTTP server rooted at the project directory.
-- **Git**: This workspace currently has no Git metadata or remote - commit/push/deploy tasks require repository ownership to be established.
+- **Git**: Local `main` tracks `origin/main` at `https://github.com/abutun/buhane.com.tr.git` - keep remote pushes intentional and verify status before publishing.
 - **External dependencies**: Google Fonts, Google Analytics, OpenWidget, and some product domains are runtime dependencies - document purpose and fallbacks before tightening policy.
 
 ## Key Decisions
@@ -65,4 +65,4 @@ Recent portfolio updates added Gridzle, AstralPost, HiveDue, Lastimo, THECOSMICM
 | Skip external research during init | The brownfield codebase map is current and enough for a maintenance roadmap | Pending |
 
 ---
-*Last updated: 2026-08-03 after quick task 260803-s03*
+*Last updated: 2026-08-03 after quick task 260803-s85*
