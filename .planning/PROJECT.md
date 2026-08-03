@@ -27,7 +27,7 @@ Visitors can quickly understand Buhane's work and reach the correct product, ser
 
 ### Active
 
-- [ ] Keep the current nine launched products synchronized across English and Turkish pages.
+- [ ] Keep the current ten launched products synchronized across English and Turkish pages.
 - [ ] Harden product, social, footer, and contact links so they are secure and correct.
 - [ ] Add lightweight static validation for links, local assets, anchor targets, and language parity.
 - [ ] Document repository, deployment, and content-update ownership so commit/push/deploy work is repeatable.
@@ -44,7 +44,7 @@ Visitors can quickly understand Buhane's work and reach the correct product, ser
 
 The codebase is a static HTML/CSS/JavaScript site with no package manager, build step, test runner, or deployment metadata. English content lives in `index.html`; Turkish content lives in `tr/index.html`; shared styling and behavior live in `styles.css` and `script.js`. A GSD codebase map exists under `.planning/codebase/` and identifies three important risks: no Git metadata in this workspace, manual bilingual duplication, and no automated validation pipeline.
 
-Recent portfolio updates added Gridzle, AstralPost, HiveDue, THECOSMICMETA.com naming, local icons for AstralPost/Glow Spin/Swipe Slip, the Products Launched stat of 9, and corrected Glow Spin and Swipe Slip URLs.
+Recent portfolio updates added Gridzle, AstralPost, HiveDue, Lastimo, THECOSMICMETA.com naming, local icons for AstralPost/Glow Spin/Swipe Slip/Lastimo, the Products Launched stat of 10, and corrected Glow Spin and Swipe Slip URLs.
 
 ## Constraints
 
@@ -65,4 +65,4 @@ Recent portfolio updates added Gridzle, AstralPost, HiveDue, THECOSMICMETA.com n
 | Skip external research during init | The brownfield codebase map is current and enough for a maintenance roadmap | Pending |
 
 ---
-*Last updated: 2026-07-28 after GSD new-project initialization*
+*Last updated: 2026-08-03 after quick task 260803-s03*

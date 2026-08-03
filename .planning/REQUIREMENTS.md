@@ -13,8 +13,8 @@
 
 ### Portfolio Content
 
-- [ ] **PORT-01**: The English page lists the current nine launched products: THECOSMICMETA.com, U2M.io, HiveDue, Vynix, MoodJot, AstralPost, Gridzle, Glow Spin, and Swipe Slip.
-- [ ] **PORT-02**: The Turkish page exposes the same nine products with localized copy and the same target URLs.
+- [ ] **PORT-01**: The English page lists the current ten launched products: THECOSMICMETA.com, U2M.io, HiveDue, Vynix, MoodJot, AstralPost, Lastimo, Gridzle, Glow Spin, and Swipe Slip.
+- [ ] **PORT-02**: The Turkish page exposes the same ten products with localized copy and the same target URLs.
 - [ ] **PORT-03**: Product cards use stable local assets where practical and document any deliberate remote icon dependencies.
 
 ### Localization
@@ -84,4 +84,4 @@
 
 ---
 *Requirements defined: 2026-07-28*
-*Last updated: 2026-07-28 after GSD new-project initialization*
+*Last updated: 2026-08-03 after quick task 260803-s03*

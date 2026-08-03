@@ -40,7 +40,7 @@ Plans:
 **Depends on**: Phase 1
 **Requirements**: PORT-01, PORT-02, PORT-03, LOC-01, LOC-02, SEC-01
 **Success Criteria** (what must be TRUE):
-  1. Users see the same nine products in English and Turkish with matching destination URLs.
+  1. Users see the same ten products in English and Turkish with matching destination URLs.
   2. External links that open new tabs include `rel="noopener noreferrer"`.
   3. Product icon sources are local unless a deliberate remote dependency is documented.
   4. Portfolio counts and product naming stay consistent across both language pages.
