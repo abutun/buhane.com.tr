@@ -376,12 +376,52 @@ class PortfolioValidatorTests(unittest.TestCase):
         record["validation_commands"] = [
             {"argv": ["node", "-e", "process.exit(0)"], "cwd": "."}
         ]
-        with patch("scripts.validate_portfolio.subprocess.run") as run_mock:
+        with patch("scripts.validate_portfolio.subprocess.Popen") as popen_mock:
             report = self.validate(manifest, site="vynix")
 
         self.assertIn("GEN.COMMAND_REJECTED", self.rules(report))
-        run_mock.assert_not_called()
+        popen_mock.assert_not_called()
         self.assertEqual(1, report["exit_status"])
+
+    def test_native_command_timeout_emits_report_and_nonzero_exit(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        command = {"argv": ["sleep", "5"], "cwd": "."}
+        record["validation_commands"] = [command]
+        manifest_path = self.root / "manifest.json"
+        report_path = self.root / "timeout-report.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+        with (
+            patch.dict(APPROVED_SOURCE_ROOTS, {"moodjot": self.root}),
+            patch.dict(
+                APPROVED_COMMAND_CONTRACTS,
+                {"moodjot": {(".", ("sleep", "5"))}},
+            ),
+        ):
+            exit_code = run(
+                [
+                    "--manifest",
+                    str(manifest_path),
+                    "--mode",
+                    "source",
+                    "--site",
+                    "moodjot",
+                    "--timeout",
+                    "0.1",
+                    "--report",
+                    str(report_path),
+                ]
+            )
+
+        self.assertEqual(1, exit_code)
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertIn("GEN.COMMAND_TIMEOUT", self.rules(report))
+        timeout_finding = next(
+            finding for finding in report["findings"] if finding["rule_id"] == "GEN.COMMAND_TIMEOUT"
+        )
+        self.assertEqual(0.1, timeout_finding["evidence"]["timeout_seconds"])
 
     def test_passing_static_site_reuses_one_product_identity(self) -> None:
         manifest = self.manifest()

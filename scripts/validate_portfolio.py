@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -1542,17 +1543,40 @@ class PortfolioValidator:
                 ) as handle:
                     temp_report = Path(handle.name)
                 argv = [str(temp_report) if item == TEMP_REPORT_PLACEHOLDER else item for item in argv]
-            result = subprocess.run(
+            process_options: dict[str, Any] = {}
+            if os.name == "posix":
+                process_options["start_new_session"] = True
+            elif hasattr(subprocess, "CREATE_NEW_PROCESS_GROUP"):
+                process_options["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+            process = subprocess.Popen(
                 argv,
                 cwd=cwd,
                 shell=False,
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                timeout=max(30.0, self.timeout),
-                check=False,
+                **process_options,
             )
-            if result.returncode != 0:
+            try:
+                output, _ = process.communicate(timeout=self.timeout)
+            except subprocess.TimeoutExpired:
+                self._terminate_process_group(process)
+                output, _ = process.communicate()
+                self.collector.add(
+                    "GEN.COMMAND_TIMEOUT",
+                    site_id,
+                    "high",
+                    "Repository-native command exceeded its configured timeout",
+                    {
+                        "command": command_label,
+                        "timeout_seconds": self.timeout,
+                        "output_tail": (output or "")[-2000:],
+                    },
+                    publication_variant=publication_variant,
+                    route=command_label,
+                )
+                return
+            if process.returncode != 0:
                 self.collector.add(
                     rule_id,
                     site_id,
@@ -1560,15 +1584,47 @@ class PortfolioValidator:
                     "Repository-native build or validation command failed",
                     {
                         "command": command_label,
-                        "returncode": result.returncode,
-                        "output_tail": result.stdout[-2000:],
+                        "returncode": process.returncode,
+                        "output_tail": (output or "")[-2000:],
                     },
                     publication_variant=publication_variant,
                     route=command_label,
                 )
+        except OSError as exc:
+            self.collector.add(
+                "GEN.COMMAND_START_FAILED",
+                site_id,
+                "high",
+                "Repository-native command could not be started",
+                {"command": command_label, "error": str(exc)},
+                publication_variant=publication_variant,
+                route=command_label,
+            )
         finally:
             if temp_report is not None:
                 temp_report.unlink(missing_ok=True)
+
+    @staticmethod
+    def _terminate_process_group(process: subprocess.Popen[str]) -> None:
+        if process.poll() is not None:
+            return
+        try:
+            if os.name == "posix":
+                os.killpg(process.pid, signal.SIGTERM)
+            else:
+                process.terminate()
+            process.wait(timeout=2)
+            return
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        try:
+            if os.name == "posix":
+                os.killpg(process.pid, signal.SIGKILL)
+            else:
+                process.kill()
+        except OSError:
+            process.kill()
+        process.wait()
 
     def _inspect_output(
         self,
