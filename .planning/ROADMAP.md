@@ -114,4 +114,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Link, Asset, and Localization Hardening | 0/3 | Not started | - |
 | 3. Static Validation and Smoke Checks | 0/2 | Not started | - |
 | 4. Deployment Readiness and Maintenance Docs | 0/2 | Not started | - |
-| 5. Portfolio Discovery, Content, and Brand Network | 11/14 | In Progress|  |
+| 5. Portfolio Discovery, Content, and Brand Network | 12/14 | In Progress|  |
