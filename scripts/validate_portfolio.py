@@ -178,31 +178,70 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
+def _safe_urlsplit(value: Any) -> urllib.parse.SplitResult | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = urllib.parse.urlsplit(value)
+        hostname = parsed.hostname
+        port = parsed.port
+        username = parsed.username
+        password = parsed.password
+    except (UnicodeError, ValueError):
+        return None
+    if not parsed.scheme or not hostname or username is not None or password is not None:
+        return None
+
+    # urlsplit accepts a few malformed authorities (for example a trailing
+    # colon) that cannot be safely reconstructed into an origin.
+    authority_match = re.fullmatch(r"(?:\[[^\]]+\]|[^:]+)(?::([0-9]+))?", parsed.netloc)
+    if authority_match is None:
+        return None
+    return parsed
+
+
 def normalized_origin(value: str) -> str:
-    parsed = urllib.parse.urlsplit(value)
-    if not parsed.scheme or not parsed.hostname:
+    parsed = _safe_urlsplit(value)
+    if parsed is None:
+        return ""
+    hostname = parsed.hostname
+    if hostname is None:
         return ""
     port = parsed.port
     default_port = (parsed.scheme == "https" and port in (None, 443)) or (
         parsed.scheme == "http" and port in (None, 80)
     )
-    authority = parsed.hostname.lower() if default_port else f"{parsed.hostname.lower()}:{port}"
+    normalized_host = hostname.lower()
+    if ":" in normalized_host:
+        normalized_host = f"[{normalized_host}]"
+    authority = normalized_host if default_port else f"{normalized_host}:{port}"
     return f"{parsed.scheme.lower()}://{authority}"
 
 
 def normalized_url(value: str) -> str:
-    parsed = urllib.parse.urlsplit(value)
+    parsed = _safe_urlsplit(value)
+    if parsed is None:
+        return ""
+    origin = normalized_origin(value)
+    if not origin:
+        return ""
+    authority = urllib.parse.urlsplit(origin).netloc
     path = parsed.path or "/"
     return urllib.parse.urlunsplit(
-        (parsed.scheme.lower(), parsed.netloc.lower(), path, parsed.query, "")
+        (parsed.scheme.lower(), authority, path, parsed.query, "")
     )
 
 
 def is_https_origin(value: Any) -> bool:
-    if not isinstance(value, str):
+    parsed = _safe_urlsplit(value)
+    if parsed is None:
         return False
-    parsed = urllib.parse.urlsplit(value)
-    return parsed.scheme == "https" and bool(parsed.hostname) and (parsed.path in ("", "/"))
+    return (
+        parsed.scheme.lower() == "https"
+        and parsed.path in ("", "/")
+        and not parsed.query
+        and not parsed.fragment
+    )
 
 
 def is_path_within(child: Path, parent: Path) -> bool:

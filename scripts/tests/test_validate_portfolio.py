@@ -8,7 +8,15 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from scripts.validate_portfolio import FetchResult, PortfolioValidator, build_parser, run
+from scripts.validate_portfolio import (
+    FetchResult,
+    PortfolioValidator,
+    build_parser,
+    is_https_origin,
+    normalized_origin,
+    normalized_url,
+    run,
+)
 
 
 ORGANIZATION_ID = "https://buhane.com.tr/#organization"
@@ -300,6 +308,29 @@ class PortfolioValidatorTests(unittest.TestCase):
         report = self.validate(manifest, mode="registry")
         self.assertEqual(1, report["exit_status"])
         self.assertIn("REG.PREFERRED_HTTPS", self.rules(report))
+
+    def test_url_normalization_is_total_and_rejects_unsafe_authorities(self) -> None:
+        invalid_urls = (
+            "https://example.com:not-a-port/",
+            "https://example.com:70000/",
+            "https://example.com:/",
+            "https://[2001:db8::1/",
+            "https://user@example.com/",
+            "https://user:secret@example.com/",
+        )
+        for url in invalid_urls:
+            with self.subTest(url=url):
+                self.assertEqual("", normalized_origin(url))
+                self.assertEqual("", normalized_url(url))
+                self.assertFalse(is_https_origin(url))
+
+    def test_url_normalization_preserves_valid_ipv6_authority(self) -> None:
+        url = "https://[2606:4700:4700::1111]/path?q=1#fragment"
+        self.assertEqual("https://[2606:4700:4700::1111]", normalized_origin(url))
+        self.assertEqual(
+            "https://[2606:4700:4700::1111]/path?q=1",
+            normalized_url(url),
+        )
 
     def test_passing_static_site_reuses_one_product_identity(self) -> None:
         manifest = self.manifest()
