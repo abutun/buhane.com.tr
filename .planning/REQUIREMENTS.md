@@ -40,18 +40,18 @@
 
 ### Portfolio Discovery Network
 
-- [ ] **DISC-01**: A private portfolio registry records every brand's owner, lifecycle state, preferred and legacy origins, locales, approved destinations, and reviewed product claims.
-- [ ] **DISC-02**: Canonical, sitemap, social, structured-data, and portfolio-link URLs use each product's preferred HTTPS origin; legacy domains are treated only as redirects.
-- [ ] **HUB-01**: Buhane provides substantial crawlable English and Turkish company, portfolio, and product-detail content for all eleven products.
-- [ ] **ENT-01**: Buhane, Ahmet, and product sites expose truthful, consistent visible ownership relationships and stable structured-data entity identifiers.
-- [ ] **TECH-01**: Every editable public site has page-specific titles and descriptions, canonical metadata, appropriate structured data, robots rules, and a canonical-only sitemap for its public architecture.
-- [ ] **LOCALE-03**: Only stable, independently addressable localized pages receive reciprocal self-referential `hreflang`; client-side language states are not presented as separate indexed documents.
-- [ ] **CONT-01**: Guides, use cases, FAQs, glossaries, and editorial pages are factual, attributable, useful in product context, and constrained to reviewed released capabilities.
-- [ ] **LINK-01**: Every editable product site visibly identifies Buhane as owner or publisher, while sibling links are contextual and allowlisted instead of repeated portfolio-wide footer exchanges.
-- [ ] **AIPOL-01**: Search/citation crawler access and model-training crawler policy are documented separately; any optional `llms.txt` is accurate and is not treated as an indexing requirement.
-- [ ] **MEAS-01**: A privacy-safe measurement contract defines search, AI-referral, portfolio-click, and conversion signals without transmitting product user content.
-- [ ] **VAL-01**: Central source/live validation and each repository's native generator, test, or verification commands catch canonical, sitemap, locale, schema, link, asset, and product-truth regressions.
-- [ ] **EXT-01**: The Cosmic Meta is not edited through an unrelated local directory; the stale live-domain discovery data is documented as blocked until the real WordPress administration or deploy source is available.
+- [x] **DISC-01**: A private portfolio registry records every brand's owner, lifecycle state, preferred and legacy origins, locales, approved destinations, and reviewed product claims.
+- [x] **DISC-02**: Canonical, sitemap, social, structured-data, and portfolio-link URLs use each product's preferred HTTPS origin; legacy domains are treated only as redirects.
+- [x] **HUB-01**: Buhane provides substantial crawlable English and Turkish company, portfolio, and product-detail content for all eleven products.
+- [x] **ENT-01**: Buhane, Ahmet, and product sites expose truthful, consistent visible ownership relationships and stable structured-data entity identifiers.
+- [x] **TECH-01**: Every editable public site has page-specific titles and descriptions, canonical metadata, appropriate structured data, robots rules, and a canonical-only sitemap for its public architecture.
+- [x] **LOCALE-03**: Only stable, independently addressable localized pages receive reciprocal self-referential `hreflang`; client-side language states are not presented as separate indexed documents.
+- [x] **CONT-01**: Guides, use cases, FAQs, glossaries, and editorial pages are factual, attributable, useful in product context, and constrained to reviewed released capabilities.
+- [x] **LINK-01**: Every editable product site visibly identifies Buhane as owner or publisher, while sibling links are contextual and allowlisted instead of repeated portfolio-wide footer exchanges.
+- [x] **AIPOL-01**: Search/citation crawler access and model-training crawler policy are documented separately; any optional `llms.txt` is accurate and is not treated as an indexing requirement.
+- [x] **MEAS-01**: A privacy-safe measurement contract defines search, AI-referral, portfolio-click, and conversion signals without transmitting product user content.
+- [x] **VAL-01**: Central source/live validation and each repository's native generator, test, or verification commands catch canonical, sitemap, locale, schema, link, asset, and product-truth regressions.
+- [x] **EXT-01**: The Cosmic Meta is not edited through an unrelated local directory; the stale live-domain discovery data is documented as blocked until the real WordPress administration or deploy source is available.
 
 ## v2 Requirements
 
@@ -91,20 +91,21 @@
 | SEC-02 | Phase 4 | Pending |
 | DOC-01 | Phase 4 | Pending |
 | DEP-02 | Phase 4 | Pending |
-| DISC-01 | Phase 5 | Pending |
-| DISC-02 | Phase 5 | Pending |
-| HUB-01 | Phase 5 | Pending |
-| ENT-01 | Phase 5 | Pending |
-| TECH-01 | Phase 5 | Pending |
-| LOCALE-03 | Phase 5 | Pending |
-| CONT-01 | Phase 5 | Pending |
-| LINK-01 | Phase 5 | Pending |
-| AIPOL-01 | Phase 5 | Pending |
-| MEAS-01 | Phase 5 | Pending |
-| VAL-01 | Phase 5 | Pending |
-| EXT-01 | Phase 5 | Pending |
+| DISC-01 | Phase 5 | Complete |
+| DISC-02 | Phase 5 | Complete |
+| HUB-01 | Phase 5 | Complete |
+| ENT-01 | Phase 5 | Complete |
+| TECH-01 | Phase 5 | Complete |
+| LOCALE-03 | Phase 5 | Complete |
+| CONT-01 | Phase 5 | Complete |
+| LINK-01 | Phase 5 | Complete |
+| AIPOL-01 | Phase 5 | Complete |
+| MEAS-01 | Phase 5 | Complete |
+| VAL-01 | Phase 5 | Complete |
+| EXT-01 | Phase 5 | Complete |
 
 **Coverage:**
+
 - v1 requirements: 27 total
 - Mapped to phases: 27
 - Unmapped: 0
