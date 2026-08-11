@@ -39,6 +39,10 @@ EXPECTED_PRODUCTS = {
     "the-cosmic-meta": "https://thecosmicmeta.com/#product",
     "u2m": "https://u2m.io/#product",
 }
+BUHANE_PRODUCT_SLUGS = tuple(EXPECTED_PRODUCTS)
+SOURCE_HTML_EXCLUSIONS = {
+    "buhane": {"yandex_abc334285efd6c2e.html"},
+}
 EXPECTED_PROPERTIES = {"buhane", "ahmet-sh"}
 EXPECTED_ENTITIES = {
     "buhane": "https://buhane.com.tr/#organization",
@@ -914,10 +918,46 @@ class PortfolioValidator:
                         publication_variant=variant_id,
                     )
             else:
-                self._inspect_output(site_id, record, record, public_root)
+                source_contract = self._source_contract(site_id, record)
+                self._inspect_output(site_id, source_contract, source_contract, public_root)
             for command in ensure_list(record.get("validation_commands")):
                 if isinstance(command, str) and command.strip():
                     self._run_command(command, source_root, site_id, "GEN.CHECK_FAILED")
+
+    def _source_contract(
+        self,
+        site_id: str,
+        record: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Add source-owned route contracts without publishing them in the private registry."""
+        contract = dict(record)
+        if site_id != "buhane":
+            return contract
+
+        detail_routes = {
+            route: EXPECTED_PRODUCTS[slug]
+            for slug in BUHANE_PRODUCT_SLUGS
+            for route in (f"/products/{slug}/", f"/tr/urunler/{slug}/")
+        }
+        contract.update(
+            {
+                "canonical_routes": [
+                    "/",
+                    "/tr/",
+                    "/products/",
+                    "/tr/urunler/",
+                    *detail_routes,
+                ],
+                "robots_url": "https://buhane.com.tr/robots.txt",
+                "sitemap_url": "https://buhane.com.tr/sitemap.xml",
+                "product_detail_routes": detail_routes,
+                "approved_contextual_links": list(BUHANE_PRODUCT_SLUGS),
+            }
+        )
+        self._initialize_site_result(site_id, record)["product_detail_entity_ids"] = sorted(
+            set(detail_routes.values())
+        )
+        return contract
 
     def _run_command(
         self,
@@ -990,6 +1030,7 @@ class PortfolioValidator:
             if not any(part.startswith(".") for part in path.relative_to(root).parts)
             and "node_modules" not in path.parts
             and "admin" not in {part.lower() for part in path.relative_to(root).parts}
+            and path.name not in SOURCE_HTML_EXCLUSIONS.get(site_id, set())
         )
         pages: list[dict[str, Any]] = []
         for html_file in html_files:
@@ -1089,6 +1130,34 @@ class PortfolioValidator:
             sitemap_urls,
             publication_variant=publication_variant,
         )
+        schema_nodes = [
+            node
+            for page in pages
+            if page["indexable"]
+            for raw in page["parser"].json_ld_raw
+            for schema in self._parsed_schema_values(raw)
+            for node in flatten_schema_nodes(schema)
+        ]
+        source_evidence = self._initialize_site_result(site_id, base_record).setdefault(
+            "source_evidence", {}
+        )
+        source_evidence.update(
+            {
+                "indexable_route_count": sum(1 for page in pages if page["indexable"]),
+                "sitemap_url_count": len(sitemap_urls),
+                "schema_node_count": len(schema_nodes),
+                "schema_types": sorted(
+                    {schema_type for node in schema_nodes for schema_type in schema_types(node)}
+                ),
+            }
+        )
+
+    @staticmethod
+    def _parsed_schema_values(raw: str) -> list[Any]:
+        try:
+            return [json.loads(raw)]
+        except (json.JSONDecodeError, TypeError):
+            return []
 
     @staticmethod
     def _file_route(path: Path, root: Path) -> str:
@@ -1321,13 +1390,73 @@ class PortfolioValidator:
         detail_routes = record.get("product_detail_routes") or {}
         if isinstance(detail_routes, dict) and route in detail_routes:
             expected = detail_routes[route]
-            if not any(node.get("@id") == expected for node in nodes):
+            matching_nodes = [node for node in nodes if node.get("@id") == expected]
+            if not matching_nodes:
                 self.collector.add(
                     "ENTITY.HUB_PRODUCT_ID",
                     site_id,
                     "high",
                     "Buhane product detail page does not reuse the product origin's entity ID",
                     {"expected": expected},
+                    publication_variant=publication_variant,
+                    route=route,
+                )
+                return
+
+            product_id = next(
+                (key for key, value in EXPECTED_PRODUCTS.items() if value == expected),
+                None,
+            )
+            product_record = self.products.get(product_id or "", {})
+            expected_type = product_record.get("schema_type")
+            expected_origin = product_record.get("preferred_origin")
+            if expected_type and not any(
+                expected_type in schema_types(node) for node in matching_nodes
+            ):
+                self.collector.add(
+                    "SCHEMA.HUB_PRODUCT_TYPE",
+                    site_id,
+                    "Buhane detail page uses the wrong primary product schema type",
+                    {"expected_type": expected_type, "product_entity_id": expected},
+                    publication_variant=publication_variant,
+                    route=route,
+                )
+            if expected_origin and not any(
+                normalized_url(str(node.get("url", ""))) == normalized_url(str(expected_origin))
+                for node in matching_nodes
+            ):
+                self.collector.add(
+                    "ENTITY.HUB_PRODUCT_URL",
+                    site_id,
+                    "Buhane detail product node must keep the preferred product origin URL",
+                    {"expected": expected_origin},
+                    publication_variant=publication_variant,
+                    route=route,
+                )
+            if not any(
+                EXPECTED_ENTITIES["buhane"] in referenced_ids(node.get("publisher"))
+                for node in matching_nodes
+            ):
+                self.collector.add(
+                    "SCHEMA.HUB_PRODUCT_PUBLISHER",
+                    site_id,
+                    "Buhane detail product node must reference the Buhane publisher",
+                    {"expected": EXPECTED_ENTITIES["buhane"]},
+                    publication_variant=publication_variant,
+                    route=route,
+                )
+            web_page_nodes = [
+                node for node in nodes if schema_types(node).intersection({"WebPage", "CollectionPage"})
+            ]
+            if not any(
+                normalized_url(str(node.get("url", ""))) == normalized_url(canonical)
+                for node in web_page_nodes
+            ):
+                self.collector.add(
+                    "SCHEMA.WEBPAGE_CANONICAL",
+                    site_id,
+                    "Detail WebPage URL must equal the page canonical",
+                    {"canonical": canonical},
                     publication_variant=publication_variant,
                     route=route,
                 )

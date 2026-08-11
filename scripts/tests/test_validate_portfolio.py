@@ -211,6 +211,26 @@ class PortfolioValidatorTests(unittest.TestCase):
         self.assertEqual(0, report["exit_status"], report["findings"])
         self.assertEqual(record["product_entity_id"], report["sites"]["moodjot"]["product_entity_id"])
 
+    def test_buhane_source_contract_derives_all_product_detail_pairs(self) -> None:
+        manifest = self.manifest()
+        validator = PortfolioValidator(
+            manifest,
+            self.manifest_path,
+            "source",
+            selected_sites=["buhane"],
+            timeout=1,
+        )
+        contract = validator._source_contract("buhane", manifest["properties"]["buhane"])
+
+        self.assertEqual(26, len(contract["canonical_routes"]))
+        self.assertEqual("https://buhane.com.tr/robots.txt", contract["robots_url"])
+        self.assertEqual("https://buhane.com.tr/sitemap.xml", contract["sitemap_url"])
+        self.assertEqual(22, len(contract["product_detail_routes"]))
+        self.assertEqual(
+            set(record["product_entity_id"] for record in manifest["products"].values()),
+            set(contract["product_detail_routes"].values()),
+        )
+
     def test_legacy_canonical_has_stable_rule_and_high_exit(self) -> None:
         manifest = self.manifest()
         record = self.configure_site(manifest)
