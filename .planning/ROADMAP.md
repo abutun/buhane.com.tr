@@ -15,7 +15,7 @@ The first milestone stabilizes the existing static bilingual website rather than
 - [ ] **Phase 2: Link, Asset, and Localization Hardening** - Make portfolio links, assets, and bilingual content parity reliable.
 - [ ] **Phase 3: Static Validation and Smoke Checks** - Add repeatable validation and a manual smoke checklist.
 - [ ] **Phase 4: Deployment Readiness and Maintenance Docs** - Document release checks, external dependencies, and future product update workflow.
-- [ ] **Phase 5: Portfolio Discovery, Content, and Brand Network** - Make Buhane's full portfolio a truthful, crawlable, mutually reinforcing company-and-product network.
+- [x] **Phase 5: Portfolio Discovery, Content, and Brand Network** - Make Buhane's full portfolio a truthful, crawlable, mutually reinforcing company-and-product network. (completed 2026-08-11)
 
 ## Phase Details
 
@@ -136,7 +136,6 @@ Plans:
 - [x] 05-12-PLAN.md
 - [x] 05-13-PLAN.md
 - [x] 05-14-PLAN.md
-- [ ] TBD (run /gsd-plan-phase 5 to break down)
 
 ## Progress
 
@@ -149,4 +148,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 2. Link, Asset, and Localization Hardening | 0/3 | Not started | - |
 | 3. Static Validation and Smoke Checks | 0/2 | Not started | - |
 | 4. Deployment Readiness and Maintenance Docs | 0/2 | Not started | - |
-| 5. Portfolio Discovery, Content, and Brand Network | 14/14 | In Progress|  |
+| 5. Portfolio Discovery, Content, and Brand Network | 14/14 | Complete    | 2026-08-11 |
