@@ -368,6 +368,52 @@ class PortfolioValidatorTests(unittest.TestCase):
         self.assertIn("REG.PRODUCT_PUBLIC_ROUTE_CONTRACT", self.rules(report))
         self.assertEqual(1, report["exit_status"])
 
+    def test_u2m_registry_rejects_source_tree_as_public_output(self) -> None:
+        manifest = self.manifest()
+        record = manifest["products"]["u2m"]
+        record["public_root"] = str(Path(record["source_root"]) / "frontend")
+
+        report = self.validate(manifest, mode="registry", site="u2m")
+
+        self.assertIn("REG.PRODUCT_PUBLIC_ROUTE_CONTRACT", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_u2m_registry_rejects_legacy_aliases_as_canonical_routes(self) -> None:
+        for legacy_route in ("/api-docs", "/privacy"):
+            with self.subTest(legacy_route=legacy_route):
+                manifest = self.manifest()
+                manifest["products"]["u2m"]["canonical_routes"].append(legacy_route)
+
+                report = self.validate(manifest, mode="registry", site="u2m")
+
+                self.assertIn("REG.PRODUCT_PUBLIC_ROUTE_CONTRACT", self.rules(report))
+                self.assertEqual(1, report["exit_status"])
+
+    def test_u2m_registry_rejects_private_or_noindex_canonical_routes(self) -> None:
+        forbidden_routes = (
+            "/login",
+            "/register",
+            "/forgot-password",
+            "/reset-password",
+            "/dashboard",
+            "/dashboard/stats-token",
+            "/app/dashboard",
+            "/profile",
+            "/stats",
+            "/tokens",
+            "/frontend/",
+            "/frontend/profile",
+        )
+        for forbidden_route in forbidden_routes:
+            with self.subTest(forbidden_route=forbidden_route):
+                manifest = self.manifest()
+                manifest["products"]["u2m"]["canonical_routes"].append(forbidden_route)
+
+                report = self.validate(manifest, mode="registry", site="u2m")
+
+                self.assertIn("REG.PRODUCT_PUBLIC_ROUTE_CONTRACT", self.rules(report))
+                self.assertEqual(1, report["exit_status"])
+
     def test_legacy_canonical_has_stable_rule_and_high_exit(self) -> None:
         manifest = self.manifest()
         record = self.configure_site(manifest)
@@ -402,6 +448,35 @@ class PortfolioValidatorTests(unittest.TestCase):
         sitemap.write_text(text, encoding="utf-8")
         report = self.validate(manifest)
         self.assertIn("SITEMAP.PRIVATE_ROUTE", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_sitemap_route_outside_declared_canonical_contract_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        (self.root / "stats").mkdir()
+        (self.root / "stats" / "index.html").write_text(
+            self.html_page(
+                title="MoodJot Operational Statistics",
+                description="Operational statistics that are intentionally outside the public discovery contract.",
+                canonical="https://moodjot.app/stats/",
+                schema=self.editorial_schema(record),
+                body='<p>Operational data.</p><a href="/">Product overview</a>',
+            ),
+            encoding="utf-8",
+        )
+        sitemap = self.root / "sitemap.xml"
+        sitemap.write_text(
+            sitemap.read_text(encoding="utf-8").replace(
+                "</urlset>",
+                "<url><loc>https://moodjot.app/stats/</loc></url></urlset>",
+            ),
+            encoding="utf-8",
+        )
+
+        report = self.validate(manifest)
+
+        self.assertIn("SITEMAP.UNDECLARED_ROUTE", self.rules(report))
         self.assertEqual(1, report["exit_status"])
 
     def test_incomplete_hreflang_is_fatal(self) -> None:

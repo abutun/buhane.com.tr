@@ -61,7 +61,20 @@ PRODUCT_PUBLIC_ROUTE_CONTRACTS = {
             "/guides/how-to-play/",
         ),
         "support_url": "https://gridzle.app/support/",
-    }
+    },
+    "u2m": {
+        "canonical_routes": (
+            "/",
+            "/guides/",
+            "/guides/create-short-links/",
+            "/use-cases/",
+            "/use-cases/campaign-links/",
+            "/api/",
+            "/privacy/",
+        ),
+        "public_root_relative": "frontend/dist",
+        "pending_source_rules": (),
+    },
 }
 SOURCE_HTML_EXCLUSIONS = {
     "buhane": {"yandex_abc334285efd6c2e.html"},
@@ -1056,17 +1069,49 @@ class PortfolioValidator:
         expected_routes = list(expected.get("canonical_routes") or ())
         support_url = record.get("support_url")
         expected_support_url = expected.get("support_url")
-        if routes != expected_routes or support_url != expected_support_url:
+        support_matches = "support_url" not in expected or support_url == expected_support_url
+
+        public_root_matches = True
+        expected_public_root: str | None = None
+        public_root_relative = expected.get("public_root_relative")
+        source_root = record.get("source_root")
+        public_root = record.get("public_root")
+        if isinstance(public_root_relative, str):
+            if isinstance(source_root, str):
+                expected_public_root = str((Path(source_root) / public_root_relative).resolve())
+            public_root_matches = (
+                expected_public_root is not None
+                and isinstance(public_root, str)
+                and Path(public_root).resolve() == Path(expected_public_root)
+            )
+
+        pending_matches = True
+        expected_pending = list(expected.get("pending_source_rules") or ())
+        if "pending_source_rules" in expected:
+            pending_matches = ensure_list(record.get("pending_source_rules")) == expected_pending
+
+        if (
+            routes != expected_routes
+            or not support_matches
+            or not public_root_matches
+            or not pending_matches
+        ):
             self.collector.add(
                 "REG.PRODUCT_PUBLIC_ROUTE_CONTRACT",
                 product_id,
                 "high",
-                "Product routes or support URL differ from the owner-approved public contract",
+                "Product routes or public output differ from the owner-approved contract",
                 {
                     "expected_routes": expected_routes,
                     "actual_routes": routes,
                     "expected_support_url": expected_support_url,
                     "actual_support_url": support_url,
+                    "expected_public_root": expected_public_root,
+                    "actual_public_root": public_root,
+                    "expected_pending_source_rules": expected_pending,
+                    "actual_pending_source_rules": ensure_list(
+                        record.get("pending_source_rules")
+                    ),
                 },
             )
 
@@ -1950,7 +1995,13 @@ class PortfolioValidator:
             sitemap_path,
             publication_variant=publication_variant,
         )
-        preferred_origin = normalized_origin(str(contract.get("preferred_origin", "")))
+        preferred_origin_url = str(contract.get("preferred_origin", ""))
+        preferred_origin = normalized_origin(preferred_origin_url)
+        declared_canonical_urls = {
+            normalized_url(urllib.parse.urljoin(preferred_origin_url, route.lstrip("/")))
+            for route in ensure_list(contract.get("canonical_routes"))
+            if isinstance(route, str)
+        }
         canonical_to_page: dict[str, Mapping[str, Any]] = {}
         for page in pages:
             parser: PageParser = page["parser"]
@@ -1965,6 +2016,19 @@ class PortfolioValidator:
                     "high",
                     "Sitemap URL does not use the preferred publication origin",
                     {"url": url, "expected_origin": preferred_origin},
+                    publication_variant=publication_variant,
+                    route=url,
+                )
+            if normalized_url(url) not in declared_canonical_urls:
+                self.collector.add(
+                    "SITEMAP.UNDECLARED_ROUTE",
+                    site_id,
+                    "high",
+                    "Sitemap URL is outside the declared canonical route contract",
+                    {
+                        "url": url,
+                        "declared_canonical_routes": sorted(declared_canonical_urls),
+                    },
                     publication_variant=publication_variant,
                     route=url,
                 )

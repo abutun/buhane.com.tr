@@ -785,7 +785,7 @@
       "category": "url_shortening",
       "schema_type": "WebApplication",
       "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/u2m-api",
-      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/u2m-api/frontend",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/u2m-api/frontend/dist",
       "preferred_origin": "https://u2m.io/",
       "product_entity_id": "https://u2m.io/#product",
       "legacy_origins": [],
@@ -796,8 +796,12 @@
       ],
       "canonical_routes": [
         "/",
-        "/api-docs",
-        "/privacy"
+        "/guides/",
+        "/guides/create-short-links/",
+        "/use-cases/",
+        "/use-cases/campaign-links/",
+        "/api/",
+        "/privacy/"
       ],
       "sitemap_url": "https://u2m.io/sitemap.xml",
       "robots_url": "https://u2m.io/robots.txt",
@@ -827,14 +831,11 @@
       "dirty_path_exclusions": [
         "frontend/dist/**"
       ],
-      "pending_source_rules": [
-        "SRC.MISSING_DECLARED_ROUTE",
-        "SRC.MISSING_ROBOTS",
-        "SRC.MISSING_SITEMAP"
-      ],
+      "pending_source_rules": [],
       "external_status": "local_editable",
       "evidence_notes": [
-        "Auth, recovery, dashboard, and profile routes are private or noindex and must stay out of the sitemap."
+        "Central source validation inspects the ignored frontend/dist Vite publish artifact; frontend/public is generator input rather than a complete deploy root.",
+        "Legacy aliases, auth, recovery, dashboard, profile, stats, tokens, and frontend aliases are redirects, private, or noindex and must stay outside canonical_routes and the sitemap."
       ]
     }
   }
