@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-08-11T15:54:02.803Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-08-11T16:25:02.583Z"
 last_activity: 2026-08-11
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 14
-  completed_plans: 1
-  percent: 7
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-28)
 ## Current Position
 
 Phase: 5 (Portfolio Discovery, Content, and Brand Network) — EXECUTING
-Plan: 2 of 14
+Plan: 3 of 14
 Status: Ready to execute
 Last activity: 2026-08-11
 
-Progress: [█░░░░░░░░░] 7%
+Progress: [█░░░░░░░░░] 14%
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Progress: [█░░░░░░░░░] 7%
 - Trend: n/a
 
 | Phase 05 P01 | 28 min | 3 tasks | 5 files |
+| Phase 05 P02 | 23min | 3 tasks | 32 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,10 @@ Recent decisions affecting current work:
 - Init: Keep v1 on static HTML/CSS/JavaScript.
 - Init: Track EN/TR parity as an explicit requirement.
 - Init: Use `AGENTS.md` as the Codex project instruction file.
+- [Phase 05]: Buhane remains the authoritative organization and discovery hub while each detail page preserves the registry product identity and preferred origin.
+- [Phase 05]: The bilingual Buhane public inventory is fixed at 26 canonical routes: two roots, two indexes, and eleven EN/TR product pairs.
+- [Phase 05]: Hive Due and Site Hesap expose separate ROW and Türkiye destinations while reusing the one https://hivedue.com/#product identity.
+- [Phase 05]: Static verification HTML remains at the hosting root but is excluded from the indexable source inventory.
 
 ### Roadmap Evolution
 
@@ -98,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-11T15:54:02.797Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-08-11T16:25:02.577Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
