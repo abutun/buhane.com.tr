@@ -1,586 +1,322 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr" id="html">
 <head>
-    <meta charset="UTF-8">
-    <title>Buhane Bilgi Teknolojileri | Yazılım & Dijital İnovasyon</title>
-    <meta name="description" content="Buhane Bilgi Teknolojileri - 2018'den beri yazılım tasarımı, yapay zeka hizmetleri, dijital içerik ve yenilikçi teknoloji çözümlerinde ortağınız.">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Buhane Bilgi Teknolojileri | Uygulamalar, SaaS ve Oyunlar</title>
+    <meta name="description" content="Buhane Bilgi Teknolojileri'nin geliştirdiği 11 uygulama, SaaS ürünü, oyun ve dijital yayını keşfedin; doğru ürün ve iletişim adresine ulaşın.">
+    <link rel="canonical" href="https://buhane.com.tr/tr/">
+    <link rel="alternate" hreflang="en" href="https://buhane.com.tr/">
+    <link rel="alternate" hreflang="tr" href="https://buhane.com.tr/tr/">
+    <link rel="alternate" hreflang="x-default" href="https://buhane.com.tr/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Buhane">
+    <meta property="og:title" content="Buhane Bilgi Teknolojileri | Uygulamalar, SaaS ve Oyunlar">
+    <meta property="og:description" content="Buhane Bilgi Teknolojileri'nin geliştirdiği 11 uygulama, SaaS ürünü, oyun ve dijital yayını keşfedin; doğru ürün ve iletişim adresine ulaşın.">
+    <meta property="og:url" content="https://buhane.com.tr/tr/">
+    <meta property="og:image" content="https://buhane.com.tr/images/logo.png">
     <link rel="stylesheet" href="/styles.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/images/favicon.png">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Google tag (gtag.js) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://buhane.com.tr/#organization",
+          "name": "Buhane Bilgi Teknolojileri",
+          "legalName": "Buhane Bilgi Teknolojileri",
+          "url": "https://buhane.com.tr/",
+          "logo": "https://buhane.com.tr/images/logo.png",
+          "email": "info@buhane.com.tr",
+          "sameAs": [
+            "https://www.linkedin.com/company/14060186",
+            "https://twitter.com/buhanetech"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://buhane.com.tr/#website",
+          "name": "Buhane Bilgi Teknolojileri",
+          "url": "https://buhane.com.tr/",
+          "publisher": {"@id": "https://buhane.com.tr/#organization"},
+          "inLanguage": ["en", "tr"]
+        }
+      ]
+    }
+    </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-0G426EWLRW"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-0G426EWLRW');
-    </script>    
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-0G426EWLRW');
+    </script>
 </head>
 <body>
-    <!-- Header -->
     <header id="header">
         <div class="container">
             <div class="logo">
-                <a href="#home">
-                    <img src="/images/logo.png" alt="Buhane BT Logo">
-                </a>
+                <a href="https://buhane.com.tr/tr/" aria-label="Buhane ana sayfası"><img src="/images/logo.png" alt="Buhane"></a>
             </div>
-            <nav>
+            <nav aria-label="Ana navigasyon">
                 <ul class="nav-links" id="nav-links">
-                    <li><a href="#home">Ana Sayfa</a></li>
+                    <li><a href="#home">Ana sayfa</a></li>
                     <li><a href="#services">Hizmetler</a></li>
                     <li><a href="#products">Ürünler</a></li>
+                    <li><a href="/tr/urunler/">Portföy</a></li>
                     <li><a href="#about">Hakkımızda</a></li>
                     <li><a href="#contact">İletişim</a></li>
-                    <li class="nav-divider">|</li>
-                    <li><a href="/index.html">EN</a></li>
+                    <li class="nav-divider" aria-hidden="true">|</li>
+                    <li><a href="/" lang="en">EN</a></li>
                 </ul>
-                <button class="hamburger" id="hamburger" aria-label="Navigasyonu aç/kapat">&#9776;</button>
+                <button class="hamburger" id="hamburger" type="button" aria-label="Navigasyonu aç veya kapat" aria-controls="nav-links">&#9776;</button>
             </nav>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="home">
-        <div class="hero">
-            <div class="hero-orb"></div>
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span>2018'den Beri Teknoloji Ortağınız</span>
-                </div>
-                <h1 class="hero-title">
-                    Dijital Dünya İçin <span class="gradient-text">Yenilikçi Çözümler</span>
-                </h1>
-                <p class="hero-subtitle">
-                    İşletmeleri dönüştüren ve kullanıcıları memnun eden son teknoloji yazılımlar, yapay zeka destekli uygulamalar ve dijital deneyimler üretiyoruz.
-                </p>
-                <div class="hero-buttons">
-                    <a href="#services" class="btn btn-primary">
-                        Hizmetleri Keşfet
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                    </a>
-                    <a href="#products" class="btn btn-secondary">
-                        Ürünleri Gör
-                    </a>
+    <main>
+        <section id="home">
+            <div class="hero">
+                <div class="hero-orb"></div>
+                <div class="hero-content">
+                    <div class="hero-badge"><span>2018'den beri bağımsız teknoloji üretimi</span></div>
+                    <h1 class="hero-title">Odaklı ürünler, <span class="gradient-text">gerçek kullanıcı işleri</span></h1>
+                    <p class="hero-subtitle">Buhane Bilgi Teknolojileri; günlük araçlardan iş yazılımlarına ve oyunlara uzanan uygulama, SaaS ve dijital deneyimler tasarlar, geliştirir ve yayımlar.</p>
+                    <div class="hero-buttons">
+                        <a class="btn btn-primary" href="/tr/urunler/">11 ürünün tamamını keşfet</a>
+                        <a class="btn btn-secondary" href="#contact">Buhane ile iletişime geç</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Services Section -->
-    <section id="services">
-        <div class="container">
-            <h2 class="section-title fade-in"><span class="gradient-text">Hizmetlerimiz</span></h2>
-            <p class="section-subtitle fade-in">İş ihtiyaçlarınıza özel kapsamlı teknoloji çözümleri sunuyoruz</p>
-
-            <div class="services-grid">
-                <!-- Yazılım Tasarımı -->
-                <div class="service-card stagger-item">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M16 18l2-2v-8l-2-2H8l-2 2v8l2 2h8z"/>
-                            <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
-                        </svg>
-                    </div>
-                    <h3>Yazılım Tasarımı</h3>
-                    <p>İş ihtiyaçlarınıza özel, verimlilik, ölçeklenebilirlik ve kusursuz kullanıcı deneyimi sağlayan yazılım çözümleri geliştiriyoruz.</p>
-                </div>
-
-                <!-- Danışmanlık -->
-                <div class="service-card stagger-item">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="3"/>
-                            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-                        </svg>
-                    </div>
-                    <h3>Danışmanlık</h3>
-                    <p>Teknoloji dünyasında yol almanıza ve büyüme için doğru çözümleri uygulamanıza yardımcı olacak stratejik BT danışmanlığı.</p>
-                </div>
-
-                <!-- E-Ticaret -->
-                <div class="service-card stagger-item">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="9" cy="21" r="1"/>
-                            <circle cx="20" cy="21" r="1"/>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                        </svg>
-                    </div>
-                    <h3>E-Ticaret</h3>
-                    <p>Online varlığınızı güçlendiren, dönüşümleri optimize eden ve satışlarınızı artıran güçlü e-ticaret platformları.</p>
-                </div>
-
-                <!-- Dijital İçerik -->
-                <div class="service-card stagger-item">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24">
-                            <polygon points="23 7 16 12 23 17 23 7"/>
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                        </svg>
-                    </div>
-                    <h3>Dijital İçerik</h3>
-                    <p>Hedef kitlenizi etkileyen ve marka bilinirliğinizi güçlendiren çekici dijital içerik üretimi.</p>
-                </div>
-
-                <!-- Dijital Pazarlama -->
-                <div class="service-card stagger-item">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                            <path d="M12 2v2"/>
-                        </svg>
-                    </div>
-                    <h3>Dijital Pazarlama</h3>
-                    <p>Dijital kanallarda erişiminizi, etkileşiminizi ve yatırım getirinizi artıran veri odaklı pazarlama stratejileri.</p>
-                </div>
-
-                <!-- Yapay Zeka Hizmetleri -->
-                <div class="service-card stagger-item">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
-                            <path d="M16 14v2a4 4 0 0 1-8 0v-2"/>
-                            <line x1="12" y1="18" x2="12" y2="22"/>
-                            <line x1="8" y1="22" x2="16" y2="22"/>
-                        </svg>
-                    </div>
-                    <h3>Yapay Zeka Hizmetleri</h3>
-                    <p>Süreçleri otomatikleştirmek, içgörüler elde etmek ve akıllı çözümler oluşturmak için yapay zekayı kullanın.</p>
+        <section id="services">
+            <div class="container">
+                <h2 class="section-title fade-in"><span class="gradient-text">Nasıl çalışıyoruz</span></h2>
+                <p class="section-subtitle fade-in">Stratejiden ürün yayınına kadar küçük ve sürdürülebilir teknoloji yüzeyleri oluşturuyoruz.</p>
+                <div class="services-grid">
+                    <article class="service-card stagger-item"><h3>Ürün ve yazılım tasarımı</h3><p>İhtiyacı, kapsamı ve kullanıcı yolunu netleştirip web ve mobil ürünlere dönüştürüyoruz.</p></article>
+                    <article class="service-card stagger-item"><h3>Yapay zekâ destekli deneyimler</h3><p>Yapay zekâyı doğrulanabilir iş akışlarına, yararlı içerik araçlarına ve üretim deneyimlerine uyguluyoruz.</p></article>
+                    <article class="service-card stagger-item"><h3>SaaS ve dijital altyapı</h3><p>İş süreçlerini destekleyen erişilebilir arayüzler, API'ler ve statik keşif yüzeyleri kuruyoruz.</p></article>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Products Section -->
-    <section id="products">
-        <div class="container">
-            <h2 class="section-title fade-in"><span class="gradient-text">Ürünlerimiz</span></h2>
-            <p class="products-subtitle fade-in">Tutku ve inovasyonla inşa ettiğimiz platform, uygulama ve oyun portföyümüzü keşfedin</p>
-
-            <!-- Platformlar -->
-            <div class="product-category fade-in">
-                <h3 class="category-title">Platformlar</h3>
-                <div class="featured-products">
-                    <!-- THECOSMICMETA.com -->
-                    <div class="product-card featured stagger-item">
-                        <div class="product-header">
-                            <div class="product-icon platform">
-                                <svg viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                                </svg>
-                            </div>
-                            <div class="product-info">
-                                <span class="product-badge platform">Platform</span>
-                                <h3>THECOSMICMETA.com</h3>
-                                <span class="product-tagline">Yapay Zeka Destekli Teknoloji İçeriği</span>
-                            </div>
-                        </div>
-                        <p class="product-description">
-                            Yapay zeka destekli son teknoloji içerik platformu. Programlama, yapay zeka, blockchain ve yeni teknolojiler hakkında makalelerle hızla gelişen teknoloji dünyasında güncel kalın.
-                        </p>
-                        <div class="product-features">
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Yapay Zeka İçeriği
-                            </span>
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Teknoloji Haberleri
-                            </span>
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Geliştirici Kaynakları
-                            </span>
-                        </div>
-                        <div class="product-actions">
-                            <a href="https://thecosmicmeta.com/" target="_blank" rel="noopener noreferrer" class="product-link primary">
-                                Platformu Ziyaret Et
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                    <polyline points="15 3 21 3 21 9"/>
-                                    <line x1="10" y1="14" x2="21" y2="3"/>
-                                </svg>
-                            </a>
+        <section id="products">
+            <div class="container">
+                <h2 class="section-title fade-in"><span class="gradient-text">Buhane ürünleri</span></h2>
+                <p class="products-subtitle fade-in">Aşağıdaki 11 ürün, özel portföy kaydında canlı olarak doğrulanmıştır. Her kart ayrıntılı Buhane sayfasına ve tercih edilen resmî adrese gider.</p>
+                <div class="portfolio-preview-grid">
+                <article class="product-card stagger-item" data-product-id="moodjot">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">M</div>
+                        <div class="product-info">
+                            <span class="product-badge app">Uygulama</span>
+                            <h3>MoodJot</h3>
                         </div>
                     </div>
-
-                    <!-- U2M.io -->
-                    <div class="product-card featured stagger-item">
-                        <div class="product-header">
-                            <div class="product-icon platform">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                                </svg>
-                            </div>
-                            <div class="product-info">
-                                <span class="product-badge platform">Platform</span>
-                                <h3>U2M.io</h3>
-                                <span class="product-tagline">Akıllı URL Kısaltıcı</span>
-                            </div>
-                        </div>
-                        <p class="product-description">
-                            Güçlü analitik ve QR kod oluşturma özelliklerine sahip en iyi URL kısaltma hizmeti. Linklerinizi takip edin, etkileşimi ölçün ve içerikleri daha etkili paylaşın.
-                        </p>
-                        <div class="product-features">
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Link Analitiği
-                            </span>
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                QR Kod Oluşturma
-                            </span>
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Tıklama Takibi
-                            </span>
-                        </div>
-                        <div class="product-actions">
-                            <a href="https://u2m.io" target="_blank" class="product-link primary">
-                                Hemen Dene
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                    <polyline points="15 3 21 3 21 9"/>
-                                    <line x1="10" y1="14" x2="21" y2="3"/>
-                                </svg>
-                            </a>
+                    <p class="product-description">Ruh hâli kayıtlarını, notları, isteğe bağlı fotoğrafları ve hatırlatıcıları tıbbi bakım iddiası olmadan bir araya getiren günlük.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/moodjot/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://moodjot.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="vynix">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">V</div>
+                        <div class="product-info">
+                            <span class="product-badge app">Uygulama</span>
+                            <h3>Vynix</h3>
                         </div>
                     </div>
+                    <p class="product-description">Metin, görsel, ses ve video için yapay zekâ destekli üretim akışlarını tek bir çok platformlu mobil uygulamada buluşturur.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/vynix/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://vynix.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="swipe-slip">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">S</div>
+                        <div class="product-info">
+                            <span class="product-badge game">Oyun</span>
+                            <h3>Swipe Slip</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">200 aşamalı seviye ile dikey veya yatay oynanabilen bir tünelde ilerleme oyunu.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/swipe-slip/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://swipeslip.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="glow-spin">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">G</div>
+                        <div class="product-info">
+                            <span class="product-badge game">Oyun</span>
+                            <h3>Glow Spin</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Zorluğu kademeli olarak artan ritim ve refleks odaklı mobil oyun.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/glow-spin/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://glowspin.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="hive-due">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">H</div>
+                        <div class="product-info">
+                            <span class="product-badge platform">SaaS</span>
+                            <h3>Hive Due / Site Hesap</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Bölgesel kitleler için Türkçe ve İngilizce içerik sunan fatura yönetimi ve son tarih takibi ürünü.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/hive-due/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://hivedue.com/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="astral-post">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">A</div>
+                        <div class="product-info">
+                            <span class="product-badge app">Uygulama</span>
+                            <h3>Astral Post</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Tavsiye vermek yerine düşünmeye alan açan; sembolik yansımalar ve anonim herkese açık akış içeren kişisel mesaj ritüeli.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/astral-post/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://astralpost.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="gridzle">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">G</div>
+                        <div class="product-info">
+                            <span class="product-badge game">Oyun</span>
+                            <h3>Gridzle</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Hücre değiştiren yerleştirme mekaniği, beş kademe, 250 seviye ve çevrimdışı ilerleme sunan sayım odaklı bulmaca oyunu.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/gridzle/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://gridzle.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="hoskin">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">H</div>
+                        <div class="product-info">
+                            <span class="product-badge game">Oyun</span>
+                            <h3>Hoşkin</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Çevrimdışı bot oyunu, çevrimiçi hızlı masalar ve özel odalar sunan geleneksel Hoşkin kart oyunu.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/hoskin/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://hoskin.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="lastimo">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">L</div>
+                        <div class="product-info">
+                            <span class="product-badge app">Uygulama</span>
+                            <h3>Lastimo</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Altı hazır takip alanı, Şimdi kaydet eylemi ve veriyi gizleme, geri getirme veya silme kontrolleri sunan sakin zaman hatırlatıcısı.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/lastimo/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://lastimo.app/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="the-cosmic-meta">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">T</div>
+                        <div class="product-info">
+                            <span class="product-badge platform">Yayın</span>
+                            <h3>The Cosmic Meta</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Buhane'nin editoryal makaleler ve düzenli konu arşivleri sunan teknoloji ve kültür yayını.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/the-cosmic-meta/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://thecosmicmeta.com/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                <article class="product-card stagger-item" data-product-id="u2m">
+                    <div class="product-header">
+                        <div class="product-monogram" aria-hidden="true">U</div>
+                        <div class="product-info">
+                            <span class="product-badge platform">Web uygulaması</span>
+                            <h3>U2M URL Shortener</h3>
+                        </div>
+                    </div>
+                    <p class="product-description">Ölçülebilir paylaşım akışları için herkese açık API dokümantasyonu ve bağlantı istatistikleri sunan URL kısaltma hizmeti.</p>
+                    <div class="product-actions">
+                        <a class="product-link primary" href="/tr/urunler/u2m/">Ürün detayları</a>
+                        <a class="product-link secondary" href="https://u2m.io/" target="_blank" rel="noopener noreferrer">Resmî site</a>
+                    </div>
+                </article>
+                </div>
+                <p class="portfolio-more"><a class="btn btn-secondary" href="/tr/urunler/">Kategori ve kullanım alanına göre portföyü incele</a></p>
+            </div>
+        </section>
 
-                    <!-- HiveDue -->
-                    <div class="product-card featured stagger-item">
-                        <div class="product-header">
-                            <div class="product-icon platform">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M3 21h18"/>
-                                    <path d="M5 21V7l7-4 7 4v14"/>
-                                    <path d="M9 21v-8h6v8"/>
-                                    <path d="M9 9h.01M15 9h.01"/>
-                                </svg>
-                            </div>
-                            <div class="product-info">
-                                <span class="product-badge platform">Platform</span>
-                                <h3>HiveDue</h3>
-                                <span class="product-tagline">Topluluk Finans Yönetimi</span>
-                            </div>
-                        </div>
-                        <p class="product-description">
-                            Aidat, ödeme, duyuru ve belgeleri tek yerden yönetin; sakinler ve yöneticiler aynı net finans kaynağını görsün.
-                        </p>
-                        <div class="product-features">
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Aidat Takibi
-                            </span>
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Ödeme Yönetimi
-                            </span>
-                            <span class="product-feature">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Raporlar &amp; Belgeler
-                            </span>
-                        </div>
-                        <div class="product-actions">
-                            <a href="https://hivedue.com/" target="_blank" rel="noopener noreferrer" class="product-link primary">
-                                Platformu Ziyaret Et
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                    <polyline points="15 3 21 3 21 9"/>
-                                    <line x1="10" y1="14" x2="21" y2="3"/>
-                                </svg>
-                            </a>
+        <section id="about">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text fade-in-left">
+                        <h2>Bir şirket, <span class="gradient-text">bir ürün ağı</span></h2>
+                        <p>Buhane Bilgi Teknolojileri, her ürünün ne yaptığını ve nereye ait olduğunu açıkça anlatan bir portföy yaklaşımı benimser. Bu site şirket ve ürünler arasındaki yetkili bağlantıdır.</p>
+                        <p>Ürün sayfaları yayımlanmış yetenekleri, sınırları, bölgesel adresleri ve bir sonraki doğru adımı açıklar.</p>
+                    </div>
+                    <div class="about-stats fade-in-right">
+                        <div class="stat-card stagger-item"><div class="stat-number">11</div><div class="stat-label">Canlı ürün</div></div>
+                        <div class="stat-card stagger-item"><div class="stat-number">2</div><div class="stat-label">Hub dili</div></div>
+                        <div class="stat-card stagger-item"><div class="stat-number">3</div><div class="stat-label">Ürün alanı: uygulama, SaaS, oyun</div></div>
+                        <div class="stat-card stagger-item"><div class="stat-number">2018</div><div class="stat-label">Kuruluş yılı</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="container">
+                <div class="contact-content">
+                    <h2 class="section-title fade-in">Doğru sonraki adımı <span class="gradient-text">birlikte bulalım</span></h2>
+                    <p class="section-subtitle fade-in">Bir ürün, iş birliği veya teknoloji ihtiyacı hakkında Buhane'ye ulaşın.</p>
+                    <div class="contact-card fade-in">
+                        <h3>Buhane Bilgi Teknolojileri</h3>
+                        <a class="contact-email" href="mailto:info@buhane.com.tr">info@buhane.com.tr</a>
+                        <div class="social-links-contact">
+                            <a class="social-link social-text" href="https://www.linkedin.com/company/14060186" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+                            <a class="social-link social-text" href="https://twitter.com/buhanetech" target="_blank" rel="noopener noreferrer" aria-label="X / Twitter">X</a>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
+    </main>
 
-            <!-- Uygulamalar & Oyunlar -->
-            <div class="product-category fade-in">
-                <h3 class="category-title">Uygulamalar & Oyunlar</h3>
-                <div class="apps-grid">
-                    <!-- Vynix -->
-                    <a href="https://vynix.app" target="_blank" class="app-card stagger-item">
-                        <div class="app-header">
-                            <div class="app-icon app">
-                                <img src="https://vynix.app/icon-192.png" alt="Vynix">
-                            </div>
-                            <div>
-                                <span class="product-badge app">Uygulama</span>
-                                <h4>Vynix</h4>
-                            </div>
-                        </div>
-                        <p>85+ premium yapay zeka modeline erişimli AI Video & Sanat Stüdyosu. Yaratıcı fikirlerinizi çarpıcı görsel, video ve ses içeriklerine dönüştürün.</p>
-                        <div class="app-platforms">
-                            <span class="platform-tag">iOS</span>
-                            <span class="platform-tag">Android</span>
-                        </div>
-                    </a>
-
-                    <!-- MoodJot -->
-                    <a href="https://moodjot.app" target="_blank" class="app-card stagger-item">
-                        <div class="app-header">
-                            <div class="app-icon app">
-                                <img src="https://moodjot.app/icon-512.png" alt="MoodJot">
-                            </div>
-                            <div>
-                                <span class="product-badge app">Uygulama</span>
-                                <h4>MoodJot</h4>
-                            </div>
-                        </div>
-                        <p>Yapay zeka destekli duygusal içgörülerle güzel bir ruh hali takip günlüğü. Duygularınızı anlayın, kalıpları keşfedin ve daha sağlıklı alışkanlıklar edinin.</p>
-                        <div class="app-platforms">
-                            <span class="platform-tag">iOS</span>
-                            <span class="platform-tag">Android</span>
-                        </div>
-                    </a>
-
-                    <!-- AstralPost -->
-                    <a href="https://astralpost.app/" target="_blank" rel="noopener noreferrer" class="app-card stagger-item">
-                        <div class="app-header">
-                            <div class="app-icon app">
-                                <img src="/images/astralpost_icon.png" alt="AstralPost">
-                            </div>
-                            <div>
-                                <span class="product-badge app">Uygulama</span>
-                                <h4>AstralPost</h4>
-                            </div>
-                        </div>
-                        <p>Düşüncelerinizi yıldızların ötesine gönderip yapay zeka destekli kozmik yansımalar almanızı sağlayan premium ritüel günlük uygulaması.</p>
-                        <div class="app-platforms">
-                            <span class="platform-tag">iOS</span>
-                            <span class="platform-tag">Android</span>
-                        </div>
-                    </a>
-
-                    <!-- Lastimo -->
-                    <a href="https://lastimo.app/" target="_blank" rel="noopener noreferrer" class="app-card stagger-item">
-                        <div class="app-header">
-                            <div class="app-icon app">
-                                <img src="/images/lastimo_icon.png" alt="Lastimo">
-                            </div>
-                            <div>
-                                <span class="product-badge app">Uygulama</span>
-                                <h4>Lastimo</h4>
-                            </div>
-                        </div>
-                        <p>Bir şeyi en son ne zaman yaptığınızı hatırlamak için özel ve olgusal takip uygulaması. Basit yaşam kayıtlarını gürültü veya baskı olmadan tutun.</p>
-                        <div class="app-platforms">
-                            <span class="platform-tag">iOS</span>
-                            <span class="platform-tag">Android</span>
-                        </div>
-                    </a>
-
-                    <!-- Gridzle -->
-                    <a href="https://gridzle.app/" target="_blank" rel="noopener noreferrer" class="app-card game stagger-item">
-                        <div class="app-header">
-                            <div class="app-icon game">
-                                <img src="https://gridzle.app/assets/icons/apple-touch-icon.png" alt="Gridzle">
-                            </div>
-                            <div>
-                                <span class="product-badge game">Oyun</span>
-                                <h4>Gridzle</h4>
-                            </div>
-                        </div>
-                        <p>Satır ve sütun hedeflerini okuyup geometrik parçalarla tahtayı çözdüğünüz sayım odaklı bulmaca oyunu. 250 çevrimdışı seviyede her hamle tahtayı değiştirir.</p>
-                        <div class="app-platforms">
-                            <span class="platform-tag">iOS</span>
-                            <span class="platform-tag">Android</span>
-                        </div>
-                    </a>
-
-                    <!-- Glow Spin -->
-                    <a href="https://glowspin.app/" target="_blank" rel="noopener noreferrer" class="app-card game stagger-item">
-                        <div class="app-header">
-                            <div class="app-icon game">
-                                <img src="/images/glow_spin_icon.png" alt="Glow Spin">
-                            </div>
-                            <div>
-                                <span class="product-badge game">Oyun</span>
-                                <h4>Glow Spin</h4>
-                            </div>
-                        </div>
-                        <p>200+ aşamalı seviyeli ritim refleks oyunu. Dönen halka renk eşleştirme mekanikleri ve güçlendirmelerle reaksiyon hızınızı test edin.</p>
-                        <div class="app-platforms">
-                            <span class="platform-tag">iOS</span>
-                            <span class="platform-tag">Android</span>
-                        </div>
-                    </a>
-
-                    <!-- Swipe Slip -->
-                    <a href="https://swipeslip.app/" target="_blank" rel="noopener noreferrer" class="app-card game stagger-item">
-                        <div class="app-header">
-                            <div class="app-icon game">
-                                <img src="/images/swipe_slip_icon.png" alt="Swipe Slip">
-                            </div>
-                            <div>
-                                <span class="product-badge game">Oyun</span>
-                                <h4>Swipe Slip</h4>
-                            </div>
-                        </div>
-                        <p>Hassasiyet ve zamanlamanın her şey olduğu hızlı tempolu tünel koşucusu. Gerçek zamanlı engel oluşturmayla 200 seviyede ilerleyin.</p>
-                        <div class="app-platforms">
-                            <span class="platform-tag">iOS</span>
-                            <span class="platform-tag">Android</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about">
-        <div class="container">
-            <div class="about-content">
-                <div class="about-text fade-in-left">
-                    <h2>Teknolojinin <span class="gradient-text">Geleceğini</span> İnşa Ediyoruz</h2>
-                    <p>
-                        <span class="highlight">2018</span> yılında kurulan Buhane Bilgi Teknolojileri, yenilikçi ve güvenilir BT çözümleri sunmaya kendini adamıştır. Teknik uzmanlığı yaratıcı vizyonla birleştirerek fark yaratan ürünler geliştiriyoruz.
-                    </p>
-                    <p>
-                        Profesyonel ekibimiz, birinci sınıf hizmetler, son teknoloji geliştirme ve kesintisiz destek ile işletmelerin dijital çağda büyümesine yardımcı olmaya kendini adamıştır.
-                    </p>
-                </div>
-                <div class="about-stats fade-in-right">
-                    <div class="stat-card stagger-item">
-                        <div class="stat-number">7+</div>
-                        <div class="stat-label">Yıllık Deneyim</div>
-                    </div>
-                    <div class="stat-card stagger-item">
-                        <div class="stat-number">10</div>
-                        <div class="stat-label">Lansman Yapılan Ürün</div>
-                    </div>
-                    <div class="stat-card stagger-item">
-                        <div class="stat-number">6</div>
-                        <div class="stat-label">Hizmet Alanı</div>
-                    </div>
-                    <div class="stat-card stagger-item">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Destek Hizmeti</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact">
-        <div class="container">
-            <div class="contact-content">
-                <h2 class="section-title fade-in">Bizimle <span class="gradient-text">İletişime Geçin</span></h2>
-                <p class="section-subtitle fade-in">İşletmenizi dönüştürmeye hazır mısınız? Size nasıl yardımcı olabileceğimizi konuşalım.</p>
-
-                <div class="contact-card fade-in">
-                    <div class="contact-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                            <polyline points="22,6 12,13 2,6"/>
-                        </svg>
-                    </div>
-                    <h3>E-posta Gönderin</h3>
-                    <a href="mailto:info@buhane.com.tr" class="contact-email">info@buhane.com.tr</a>
-
-                    <div class="social-links-contact">
-                        <a href="https://www.linkedin.com/company/14060186" target="_blank" class="social-link" aria-label="LinkedIn">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                                <rect x="2" y="9" width="4" height="12"/>
-                                <circle cx="4" cy="4" r="2"/>
-                            </svg>
-                        </a>
-                        <a href="https://twitter.com/buhanetech" target="_blank" class="social-link" aria-label="Twitter">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="/images/logo.png" alt="Buhane BT" style="height: 50px;">
-                    <p>2018'den beri teknoloji ortağınız. İşletmeleri dönüştüren ve kullanıcıları memnun eden yenilikçi dijital çözümler üretiyoruz.</p>
-                </div>
-                <div class="footer-column">
-                    <h4>Hizmetler</h4>
-                    <ul>
-                        <li><a href="#services">Yazılım Tasarımı</a></li>
-                        <li><a href="#services">Danışmanlık</a></li>
-                        <li><a href="#services">E-Ticaret</a></li>
-                        <li><a href="#services">Yapay Zeka Hizmetleri</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h4>Ürünler</h4>
-                    <ul>
-                        <li><a href="https://thecosmicmeta.com/" target="_blank" rel="noopener noreferrer">THECOSMICMETA.com</a></li>
-                        <li><a href="https://hivedue.com/" target="_blank" rel="noopener noreferrer">HiveDue</a></li>
-                        <li><a href="https://u2m.io" target="_blank">U2M.io</a></li>
-                        <li><a href="https://vynix.app" target="_blank">Vynix</a></li>
-                        <li><a href="https://moodjot.app" target="_blank">MoodJot</a></li>
-                        <li><a href="https://lastimo.app/" target="_blank" rel="noopener noreferrer">Lastimo</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h4>Şirket</h4>
-                    <ul>
-                        <li><a href="#about">Hakkımızda</a></li>
-                        <li><a href="#contact">İletişim</a></li>
-                        <li><a href="https://www.linkedin.com/company/14060186" target="_blank">Kariyer</a></li>
-                    </ul>
-                </div>
+                <div class="footer-brand"><img src="/images/logo.png" alt="Buhane" style="height: 50px"><p>Buhane Bilgi Teknolojileri; odaklı uygulamalar, SaaS araçları, oyunlar ve dijital yayınlar geliştirir.</p></div>
+                <div class="footer-column"><h4>Keşfet</h4><ul><li><a href="/tr/urunler/">Tüm ürünler</a></li><li><a href="#services">Nasıl çalışıyoruz</a></li></ul></div>
+                <div class="footer-column"><h4>Şirket</h4><ul><li><a href="#about">Hakkımızda</a></li><li><a href="#contact">İletişim</a></li></ul></div>
+                <div class="footer-column"><h4>Dil</h4><ul><li><a href="/" lang="en">English</a></li></ul></div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2018 - 2025 Buhane Bilgi Teknolojileri. Tüm hakları saklıdır.</p>
-                <div class="footer-social">
-                    <a href="https://www.linkedin.com/company/14060186" target="_blank" aria-label="LinkedIn">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                            <rect x="2" y="9" width="4" height="12"/>
-                            <circle cx="4" cy="4" r="2"/>
-                        </svg>
-                    </a>
-                    <a href="https://twitter.com/buhanetech" target="_blank" aria-label="Twitter">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
+            <div class="footer-bottom"><p>&copy; 2018–2026 Buhane Bilgi Teknolojileri. Tüm hakları saklıdır.</p></div>
         </div>
     </footer>
-
-    <!-- JavaScript -->
     <script src="/script.js"></script>
-
-    <!-- Start of OpenWidget (www.openwidget.com) code -->
-    <script>
-      window.__ow = window.__ow || {};
-      window.__ow.organizationId = "0b35ab93-dc0e-4308-8be0-7254586d525e";
-      window.__ow.integration_name = "manual_settings";
-      window.__ow.product_name = "openwidget";
-      window.__ow.template_id = "81697108-0667-4057-9e6b-dc861d491391";
-      ;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[OpenWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.openwidget.com/openwidget.js",t.head.appendChild(n)}};!n.__ow.asyncInit&&e.init(),n.OpenWidget=n.OpenWidget||e}(window,document,[].slice))
-    </script>
-    <noscript>You need to <a href="https://www.openwidget.com/enable-javascript" rel="noopener nofollow">enable JavaScript</a> to use the communication tool powered by <a href="https://www.openwidget.com/" rel="noopener nofollow" target="_blank">OpenWidget</a></noscript>
-    <!-- End of OpenWidget code -->
 </body>
 </html>

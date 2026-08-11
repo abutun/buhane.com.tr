@@ -16,6 +16,8 @@
     // Header Scroll Effect
     // ============================================
     function handleHeaderScroll() {
+        if (!header) return;
+
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
@@ -23,8 +25,10 @@
         }
     }
 
-    window.addEventListener('scroll', handleHeaderScroll);
-    handleHeaderScroll(); // Check on load
+    if (header) {
+        window.addEventListener('scroll', handleHeaderScroll);
+        handleHeaderScroll(); // Check on load
+    }
 
     // ============================================
     // Mobile Navigation Toggle
@@ -33,6 +37,7 @@
         hamburger.addEventListener('click', function(e) {
             e.preventDefault();
             navLinks.classList.toggle('nav-active');
+            hamburger.setAttribute('aria-expanded', navLinks.classList.contains('nav-active') ? 'true' : 'false');
 
             // Animate hamburger icon
             if (navLinks.classList.contains('nav-active')) {
@@ -48,6 +53,7 @@
                 if (navLinks.classList.contains('nav-active')) {
                     navLinks.classList.remove('nav-active');
                     hamburger.innerHTML = '&#9776;';
+                    hamburger.setAttribute('aria-expanded', 'false');
                 }
             });
         });
@@ -59,6 +65,7 @@
                 !hamburger.contains(e.target)) {
                 navLinks.classList.remove('nav-active');
                 hamburger.innerHTML = '&#9776;';
+                hamburger.setAttribute('aria-expanded', 'false');
             }
         });
     }
@@ -118,6 +125,12 @@
         const fadeElements = document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right');
         const staggerElements = document.querySelectorAll('.stagger-item');
 
+        if (!('IntersectionObserver' in window)) {
+            fadeElements.forEach(function(el) { el.classList.add('visible'); });
+            staggerElements.forEach(function(el) { el.classList.add('visible'); });
+            return;
+        }
+
         const observerOptions = {
             root: null,
             rootMargin: '0px 0px -50px 0px',
@@ -144,6 +157,7 @@
                 if (entry.isIntersecting) {
                     // Find all siblings in the same container
                     const parent = entry.target.parentElement;
+                    if (!parent) return;
                     const siblings = parent.querySelectorAll('.stagger-item');
 
                     siblings.forEach(function(sibling, index) {
@@ -231,6 +245,8 @@
     // ============================================
     function animateCounters() {
         const statNumbers = document.querySelectorAll('.stat-number');
+
+        if (!statNumbers.length || !('IntersectionObserver' in window)) return;
 
         const counterObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
