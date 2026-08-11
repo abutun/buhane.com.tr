@@ -328,6 +328,36 @@ class PortfolioValidatorTests(unittest.TestCase):
             set(record["product_entity_id"] for record in manifest["products"].values()),
             set(contract["product_detail_routes"].values()),
         )
+        self.assertEqual(
+            list(manifest["products"]),
+            contract["approved_contextual_links"],
+        )
+
+    def test_ahmet_selected_work_rejects_unapproved_seventh_product(self) -> None:
+        manifest = self.manifest()
+        manifest["properties"]["ahmet-sh"]["approved_contextual_links"].append("astral-post")
+
+        report = self.validate(manifest, mode="registry", site="ahmet-sh")
+
+        self.assertIn("REG.PROPERTY_CONTEXTUAL_LINK_CONTRACT", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_gridzle_registry_rejects_stale_html_route_shapes(self) -> None:
+        manifest = self.manifest()
+        record = manifest["products"]["gridzle"]
+        record["canonical_routes"] = [
+            "/",
+            "/support.html",
+            "/privacy.html",
+            "/terms.html",
+            "/guides/how-to-play/",
+        ]
+        record["support_url"] = "https://gridzle.app/support.html"
+
+        report = self.validate(manifest, mode="registry", site="gridzle")
+
+        self.assertIn("REG.PRODUCT_PUBLIC_ROUTE_CONTRACT", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
 
     def test_legacy_canonical_has_stable_rule_and_high_exit(self) -> None:
         manifest = self.manifest()

@@ -37,6 +37,19 @@
         "/",
         "/tr/"
       ],
+      "approved_contextual_links": [
+        "moodjot",
+        "vynix",
+        "swipe-slip",
+        "glow-spin",
+        "hive-due",
+        "astral-post",
+        "gridzle",
+        "hoskin",
+        "lastimo",
+        "the-cosmic-meta",
+        "u2m"
+      ],
       "generation_model": "direct_static",
       "validation_commands": [],
       "dirty_path_exclusions": [
@@ -63,6 +76,14 @@
       ],
       "canonical_routes": [
         "/"
+      ],
+      "approved_contextual_links": [
+        "vynix",
+        "moodjot",
+        "lastimo",
+        "swipe-slip",
+        "gridzle",
+        "u2m"
       ],
       "generation_model": "direct_static",
       "validation_commands": [],
@@ -499,14 +520,15 @@
       ],
       "canonical_routes": [
         "/",
-        "/support.html",
-        "/privacy.html",
-        "/terms.html"
+        "/support/",
+        "/privacy/",
+        "/terms/",
+        "/guides/how-to-play/"
       ],
       "sitemap_url": "https://gridzle.app/sitemap.xml",
       "robots_url": "https://gridzle.app/robots.txt",
       "store_urls": [],
-      "support_url": "https://gridzle.app/support.html",
+      "support_url": "https://gridzle.app/support/",
       "contact_url": null,
       "publisher_entity_id": "https://buhane.com.tr/#organization",
       "approved_contextual_links": [

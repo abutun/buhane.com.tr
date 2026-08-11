@@ -40,6 +40,29 @@ EXPECTED_PRODUCTS = {
     "u2m": "https://u2m.io/#product",
 }
 BUHANE_PRODUCT_SLUGS = tuple(EXPECTED_PRODUCTS)
+PROPERTY_CONTEXTUAL_LINK_CONTRACTS = {
+    "buhane": BUHANE_PRODUCT_SLUGS,
+    "ahmet-sh": (
+        "vynix",
+        "moodjot",
+        "lastimo",
+        "swipe-slip",
+        "gridzle",
+        "u2m",
+    ),
+}
+PRODUCT_PUBLIC_ROUTE_CONTRACTS = {
+    "gridzle": {
+        "canonical_routes": (
+            "/",
+            "/support/",
+            "/privacy/",
+            "/terms/",
+            "/guides/how-to-play/",
+        ),
+        "support_url": "https://gridzle.app/support/",
+    }
+}
 SOURCE_HTML_EXCLUSIONS = {
     "buhane": {"yandex_abc334285efd6c2e.html"},
 }
@@ -89,6 +112,7 @@ PROPERTY_REQUIRED_FIELDS = {
     "default_locale",
     "indexable_locales",
     "canonical_routes",
+    "approved_contextual_links",
     "generation_model",
     "validation_commands",
     "dirty_path_exclusions",
@@ -600,6 +624,12 @@ class PortfolioValidator:
                 )
             self._validate_common_registry_fields(property_id, record, seen_origins)
             self._validate_locale_contract(property_id, record)
+            self._validate_contextual_links(property_id, record)
+            self._validate_exact_contextual_links(
+                property_id,
+                record,
+                PROPERTY_CONTEXTUAL_LINK_CONTRACTS[property_id],
+            )
 
         for product_id, record in self.products.items():
             self._initialize_site_result(product_id, record)
@@ -640,6 +670,9 @@ class PortfolioValidator:
                     {"actual": record.get("lifecycle_status")},
                 )
             self._validate_contextual_links(product_id, record)
+            public_route_contract = PRODUCT_PUBLIC_ROUTE_CONTRACTS.get(product_id)
+            if public_route_contract is not None:
+                self._validate_public_route_contract(product_id, record, public_route_contract)
             self._validate_variants(product_id, record)
 
         required_lastimo_exclusions = {
@@ -999,6 +1032,46 @@ class PortfolioValidator:
                 {"invalid": invalid, "links": links},
             )
 
+    def _validate_exact_contextual_links(
+        self,
+        site_id: str,
+        record: Mapping[str, Any],
+        expected_links: Sequence[str],
+    ) -> None:
+        links = ensure_list(record.get("approved_contextual_links"))
+        if links != list(expected_links):
+            self.collector.add(
+                "REG.PROPERTY_CONTEXTUAL_LINK_CONTRACT",
+                site_id,
+                "high",
+                "Property contextual links differ from the owner-approved portfolio scope",
+                {"expected": list(expected_links), "actual": links},
+            )
+
+    def _validate_public_route_contract(
+        self,
+        product_id: str,
+        record: Mapping[str, Any],
+        expected: Mapping[str, Any],
+    ) -> None:
+        routes = ensure_list(record.get("canonical_routes"))
+        expected_routes = list(expected.get("canonical_routes") or ())
+        support_url = record.get("support_url")
+        expected_support_url = expected.get("support_url")
+        if routes != expected_routes or support_url != expected_support_url:
+            self.collector.add(
+                "REG.PRODUCT_PUBLIC_ROUTE_CONTRACT",
+                product_id,
+                "high",
+                "Product routes or support URL differ from the owner-approved public contract",
+                {
+                    "expected_routes": expected_routes,
+                    "actual_routes": routes,
+                    "expected_support_url": expected_support_url,
+                    "actual_support_url": support_url,
+                },
+            )
+
     def _validate_variants(self, product_id: str, record: Mapping[str, Any]) -> None:
         variants = ensure_list(record.get("publication_variants"))
         seen: set[str] = set()
@@ -1166,7 +1239,7 @@ class PortfolioValidator:
                 "robots_url": "https://buhane.com.tr/robots.txt",
                 "sitemap_url": "https://buhane.com.tr/sitemap.xml",
                 "product_detail_routes": detail_routes,
-                "approved_contextual_links": list(BUHANE_PRODUCT_SLUGS),
+                "approved_contextual_links": ensure_list(record.get("approved_contextual_links")),
             }
         )
         self._initialize_site_result(site_id, record)["product_detail_entity_ids"] = sorted(
