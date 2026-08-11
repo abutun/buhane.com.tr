@@ -342,6 +342,15 @@ class PortfolioValidatorTests(unittest.TestCase):
         self.assertIn("REG.PROPERTY_CONTEXTUAL_LINK_CONTRACT", self.rules(report))
         self.assertEqual(1, report["exit_status"])
 
+    def test_unexpected_property_is_reported_without_contract_lookup_failure(self) -> None:
+        manifest = self.manifest()
+        manifest["properties"]["unexpected"] = copy.deepcopy(manifest["properties"]["ahmet-sh"])
+
+        report = self.validate(manifest, mode="registry", site="ahmet-sh")
+
+        self.assertIn("REG.PROPERTY_SET", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
     def test_gridzle_registry_rejects_stale_html_route_shapes(self) -> None:
         manifest = self.manifest()
         record = manifest["products"]["gridzle"]

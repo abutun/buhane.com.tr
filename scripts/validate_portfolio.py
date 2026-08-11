@@ -625,11 +625,9 @@ class PortfolioValidator:
             self._validate_common_registry_fields(property_id, record, seen_origins)
             self._validate_locale_contract(property_id, record)
             self._validate_contextual_links(property_id, record)
-            self._validate_exact_contextual_links(
-                property_id,
-                record,
-                PROPERTY_CONTEXTUAL_LINK_CONTRACTS[property_id],
-            )
+            expected_links = PROPERTY_CONTEXTUAL_LINK_CONTRACTS.get(property_id)
+            if expected_links is not None:
+                self._validate_exact_contextual_links(property_id, record, expected_links)
 
         for product_id, record in self.products.items():
             self._initialize_site_result(product_id, record)
