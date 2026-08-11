@@ -358,6 +358,9 @@
           "indexable_locales": [
             "en"
           ],
+          "canonical_routes": [
+            "/en/"
+          ],
           "robots_url": "https://hivedue.com/robots.txt",
           "sitemap_url": "https://hivedue.com/sitemap.xml"
         },
@@ -369,10 +372,27 @@
           "indexable_locales": [
             "tr"
           ],
+          "canonical_routes": [
+            "/"
+          ],
           "robots_url": "https://sitehesap.com/robots.txt",
           "sitemap_url": "https://sitehesap.com/sitemap.xml"
         }
       ],
+      "cross_publication_hreflang": {
+        "locale_variants": {
+          "en": {
+            "publication_variant": "hivedue",
+            "route_prefix": "/en"
+          },
+          "tr": {
+            "publication_variant": "sitehesap",
+            "route_prefix": ""
+          }
+        },
+        "x_default": "en",
+        "noncanonical_copies": "required_noindex"
+      },
       "evidence_notes": [
         "Both regional variants share the single product identity https://hivedue.com/#product."
       ]
@@ -395,6 +415,30 @@
       "indexable_locales": [
         "en",
         "tr"
+      ],
+      "route_locale_scopes": [
+        {
+          "routes": [
+            "/",
+            "/blog/",
+            "/blog/anonymous-sharing-with-intention/",
+            "/blog/future-self-letter-guide/",
+            "/blog/gratitude-journaling-prompts/",
+            "/blog/guided-reflection-prompts-for-self-trust/",
+            "/blog/how-to-build-a-gentle-reflection-ritual/",
+            "/blog/how-to-reflect-on-a-new-chapter/",
+            "/blog/how-to-start-a-private-journaling-practice/",
+            "/blog/journaling-for-career-clarity/",
+            "/blog/letting-go-journaling-exercise/",
+            "/blog/memory-constellation-journaling/",
+            "/community/",
+            "/privacy/",
+            "/terms/"
+          ],
+          "indexable_locales": [
+            "en"
+          ]
+        }
       ],
       "canonical_routes": [
         "/",
@@ -589,6 +633,25 @@
         "ko",
         "zh-Hans",
         "ru"
+      ],
+      "route_locale_scopes": [
+        {
+          "routes": [
+            "/en/blog/",
+            "/en/blog/days-since-last-time/",
+            "/en/blog/last-dental-visit/",
+            "/en/blog/last-gym-session/",
+            "/en/blog/last-haircut/",
+            "/en/blog/last-oil-change/",
+            "/en/blog/remember-the-last-time/",
+            "/en/blog/routine-tracker-without-streaks/",
+            "/en/blog/six-default-trackers/",
+            "/en/glossary/"
+          ],
+          "indexable_locales": [
+            "en"
+          ]
+        }
       ],
       "canonical_routes": [
         "/",

@@ -140,6 +140,104 @@ class PortfolioValidatorTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def write_route_locale_scope_site(self, record: dict) -> None:
+        origin = record["preferred_origin"]
+        alternates = {
+            "en": f"{origin}en/",
+            "tr": f"{origin}tr/",
+            "x-default": f"{origin}en/",
+        }
+        pages = {
+            "en": self.html_page(
+                title="Lastimo English Home",
+                description="The English Lastimo overview for six preset elapsed-time reminders.",
+                canonical=f"{origin}en/",
+                schema=self.product_schema(record),
+                body='<p>Use six released presets.</p><a href="https://buhane.com.tr/">A product by Buhane</a>',
+                alternates=alternates,
+            ),
+            "tr": self.html_page(
+                title="Lastimo Turkish Home",
+                description="Lastimo altı hazır alan için sakin geçen süre yanıtları sunar.",
+                canonical=f"{origin}tr/",
+                schema=self.product_schema(record),
+                body='<p>Altı hazır alanı kullanın.</p><a href="https://buhane.com.tr/tr/">Buhane ürünü</a>',
+                alternates=alternates,
+            ),
+            "en/blog": self.html_page(
+                title="Lastimo English Blog",
+                description="English-only Lastimo guidance for the current released workflow.",
+                canonical=f"{origin}en/blog/",
+                schema=self.editorial_schema(record),
+                body='<p>Follow the current released workflow.</p><a href="https://buhane.com.tr/">A product by Buhane</a>',
+            ),
+        }
+        for route, markup in pages.items():
+            output = self.root / route / "index.html"
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(markup, encoding="utf-8")
+        (self.root / "sitemap.xml").write_text(
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            f'<url><loc>{origin}en/</loc></url>'
+            f'<url><loc>{origin}tr/</loc></url>'
+            f'<url><loc>{origin}en/blog/</loc></url>'
+            "</urlset>",
+            encoding="utf-8",
+        )
+        (self.root / "robots.txt").write_text(
+            f"User-agent: *\nAllow: /\nSitemap: {record['sitemap_url']}\n",
+            encoding="utf-8",
+        )
+
+    def write_astral_locale_scope_site(self, record: dict) -> None:
+        origin = record["preferred_origin"]
+        alternates = {
+            "en": f"{origin}glossary/",
+            "tr": f"{origin}sozluk/",
+            "x-default": f"{origin}glossary/",
+        }
+        pages = {
+            "": self.html_page(
+                title="Astral Post Home",
+                description="Astral Post offers a personal message ritual and symbolic reflections.",
+                canonical=origin,
+                schema=self.product_schema(record),
+                body='<p>Use the released reflection workflow.</p><a href="https://buhane.com.tr/">A product by Buhane</a>',
+            ),
+            "glossary": self.html_page(
+                title="Astral Post Glossary",
+                description="English definitions for the Astral Post reflection experience.",
+                canonical=f"{origin}glossary/",
+                schema=self.editorial_schema(record),
+                body='<p>Read the English definitions.</p><a href="https://buhane.com.tr/">A product by Buhane</a>',
+                alternates=alternates,
+            ),
+            "sozluk": self.html_page(
+                title="Astral Post Sözlük",
+                description="Astral Post düşünme deneyimi için Türkçe tanımlar.",
+                canonical=f"{origin}sozluk/",
+                schema=self.editorial_schema(record),
+                body='<p>Türkçe tanımları okuyun.</p><a href="https://buhane.com.tr/tr/">Buhane ürünü</a>',
+                alternates=alternates,
+            ),
+        }
+        for route, markup in pages.items():
+            output = self.root / route / "index.html" if route else self.root / "index.html"
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(markup, encoding="utf-8")
+        (self.root / "sitemap.xml").write_text(
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            f"<url><loc>{origin}</loc></url>"
+            f"<url><loc>{origin}glossary/</loc></url>"
+            f"<url><loc>{origin}sozluk/</loc></url>"
+            "</urlset>",
+            encoding="utf-8",
+        )
+        (self.root / "robots.txt").write_text(
+            f"User-agent: *\nAllow: /\nSitemap: {record['sitemap_url']}\n",
+            encoding="utf-8",
+        )
+
     def validate(
         self,
         manifest: dict,
@@ -280,6 +378,130 @@ class PortfolioValidatorTests(unittest.TestCase):
         report = self.validate(manifest)
         self.assertIn("LOCALE.HREFLANG_INCOMPLETE", self.rules(report))
 
+    def test_route_locale_scope_allows_english_only_editorial_pages(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(
+            manifest,
+            "lastimo",
+            canonical_routes=["/en/", "/tr/", "/en/blog/"],
+        )
+        record["indexable_locales"] = ["en", "tr"]
+        record["route_locale_scopes"] = [
+            {"routes": ["/en/blog/"], "indexable_locales": ["en"]}
+        ]
+        self.write_route_locale_scope_site(record)
+
+        report = self.validate(manifest, site="lastimo")
+
+        self.assertEqual(0, report["exit_status"], report["findings"])
+
+    def test_route_locale_scope_rejects_fabricated_editorial_alternate(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(
+            manifest,
+            "lastimo",
+            canonical_routes=["/en/", "/tr/", "/en/blog/"],
+        )
+        record["indexable_locales"] = ["en", "tr"]
+        record["route_locale_scopes"] = [
+            {"routes": ["/en/blog/"], "indexable_locales": ["en"]}
+        ]
+        self.write_route_locale_scope_site(record)
+        blog = self.root / "en" / "blog" / "index.html"
+        blog.write_text(
+            blog.read_text(encoding="utf-8").replace(
+                '<meta property="og:url"',
+                '<link rel="alternate" hreflang="tr" href="https://lastimo.app/tr/blog/">'
+                '<meta property="og:url"',
+            ),
+            encoding="utf-8",
+        )
+
+        report = self.validate(manifest, site="lastimo")
+
+        self.assertIn("LOCALE.NONADDRESSABLE_HREFLANG", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_route_locale_scope_does_not_weaken_translated_routes(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(
+            manifest,
+            "lastimo",
+            canonical_routes=["/en/", "/tr/", "/en/blog/"],
+        )
+        record["indexable_locales"] = ["en", "tr"]
+        record["route_locale_scopes"] = [
+            {"routes": ["/en/blog/"], "indexable_locales": ["en"]}
+        ]
+        self.write_route_locale_scope_site(record)
+        english_home = self.root / "en" / "index.html"
+        english_home.write_text(
+            english_home.read_text(encoding="utf-8").replace(
+                '<link rel="alternate" hreflang="tr" href="https://lastimo.app/tr/">',
+                "",
+            ),
+            encoding="utf-8",
+        )
+
+        report = self.validate(manifest, site="lastimo")
+
+        self.assertIn("LOCALE.HREFLANG_INCOMPLETE", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_route_locale_scope_registry_rejects_overlap_and_unknown_locale(self) -> None:
+        manifest = self.manifest()
+        manifest["products"]["lastimo"]["route_locale_scopes"] = [
+            {"routes": ["/en/blog/"], "indexable_locales": ["en"]},
+            {"routes": ["/en/blog/"], "indexable_locales": ["xx"]},
+        ]
+
+        report = self.validate(manifest, mode="registry", site="lastimo")
+
+        self.assertIn("REG.ROUTE_LOCALE_SCOPE", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_astral_route_scope_keeps_only_glossary_pair_addressable(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(
+            manifest,
+            "astral-post",
+            canonical_routes=["/", "/glossary/", "/sozluk/"],
+        )
+        record["route_locale_scopes"] = [
+            {"routes": ["/"], "indexable_locales": ["en"]}
+        ]
+        self.write_astral_locale_scope_site(record)
+
+        report = self.validate(manifest, site="astral-post")
+
+        self.assertEqual(0, report["exit_status"], report["findings"])
+
+    def test_astral_glossary_pair_still_requires_reciprocal_alternates(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(
+            manifest,
+            "astral-post",
+            canonical_routes=["/", "/glossary/", "/sozluk/"],
+        )
+        record["route_locale_scopes"] = [
+            {"routes": ["/"], "indexable_locales": ["en"]}
+        ]
+        self.write_astral_locale_scope_site(record)
+        glossary = self.root / "glossary" / "index.html"
+        glossary.write_text(
+            glossary.read_text(encoding="utf-8").replace(
+                '<link rel="alternate" hreflang="tr" href="https://astralpost.app/sozluk/">',
+                "",
+            ),
+            encoding="utf-8",
+        )
+
+        report = self.validate(manifest, site="astral-post")
+
+        self.assertIn("LOCALE.HREFLANG_INCOMPLETE", self.rules(report))
+        self.assertIn("LOCALE.HREFLANG_RECIPROCAL", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
     def test_unapproved_sibling_footer_link_is_fatal(self) -> None:
         manifest = self.manifest()
         record = self.configure_site(manifest)
@@ -364,26 +586,50 @@ class PortfolioValidatorTests(unittest.TestCase):
         return record
 
     def write_hive_variants(self, record: dict) -> None:
+        alternates = {
+            "tr": "https://sitehesap.com/",
+            "en": "https://hivedue.com/en/",
+            "x-default": "https://hivedue.com/en/",
+        }
         for variant in record["publication_variants"]:
             variant_root = self.root / variant["output_root"]
-            variant_record = dict(record)
-            variant_record.update(variant)
-            variant_record["canonical_routes"] = ["/"]
-            variant_record["product_entity_id"] = record["product_entity_id"]
-            self.write_passing_site(variant_record, variant_root)
-            home = (variant_root / "index.html").read_text(encoding="utf-8")
-            (variant_root / "index.html").write_text(
-                home.replace('<a href="/guide/">Read the guide</a>', ""),
+            variant_root.mkdir(parents=True, exist_ok=True)
+            (variant_root / "en").mkdir(parents=True, exist_ok=True)
+            canonical_locale = variant["indexable_locales"][0]
+            for locale, route, canonical in (
+                ("tr", "/", "https://sitehesap.com/"),
+                ("en", "/en/", "https://hivedue.com/en/"),
+            ):
+                indexable = locale == canonical_locale
+                page_canonical = canonical
+                if variant["id"] == "hivedue" and locale == "tr":
+                    page_canonical = "https://hivedue.com/en/"
+                markup = self.html_page(
+                    title=f'{variant["id"]} {locale} Home',
+                    description=f'{variant["id"]} {locale} regional product overview and workflow.',
+                    canonical=page_canonical,
+                    schema=self.product_schema(record),
+                    body='<p>Use the released invoice workflow.</p><a href="https://buhane.com.tr/">A product by Buhane</a>',
+                    alternates=alternates if indexable else None,
+                    extra_head='' if indexable else '<meta name="robots" content="noindex,follow">',
+                )
+                output = variant_root / route.lstrip("/") / "index.html"
+                if route == "/":
+                    output = variant_root / "index.html"
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_text(markup, encoding="utf-8")
+            canonical_url = (
+                "https://hivedue.com/en/"
+                if variant["id"] == "hivedue"
+                else "https://sitehesap.com/"
+            )
+            (variant_root / "sitemap.xml").write_text(
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                f"<url><loc>{canonical_url}</loc></url></urlset>",
                 encoding="utf-8",
             )
-            guide = variant_root / "guide"
-            if guide.exists():
-                for child in guide.iterdir():
-                    child.unlink()
-                guide.rmdir()
-            sitemap = variant_root / "sitemap.xml"
-            sitemap.write_text(
-                f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>{variant["preferred_origin"]}</loc></url></urlset>',
+            (variant_root / "robots.txt").write_text(
+                f"User-agent: *\nAllow: /\nSitemap: {variant['sitemap_url']}\n",
                 encoding="utf-8",
             )
 
@@ -424,6 +670,73 @@ class PortfolioValidatorTests(unittest.TestCase):
         del manifest["products"]["hive-due"]["publication_variants"][1]["sitemap_url"]
         report = self.validate(manifest, mode="registry", site="hive-due")
         self.assertIn("REG.VARIANT_INCOMPLETE", self.rules(report))
+
+    def test_cross_publication_hreflang_missing_peer_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_hive(manifest)
+        self.write_hive_variants(record)
+        hivedue_home = self.root / "dist" / "hivedue" / "en" / "index.html"
+        hivedue_home.write_text(
+            hivedue_home.read_text(encoding="utf-8").replace(
+                '<link rel="alternate" hreflang="tr" href="https://sitehesap.com/">',
+                "",
+            ),
+            encoding="utf-8",
+        )
+
+        report = self.validate(manifest, site="hive-due")
+
+        rules = self.rules(report)
+        self.assertIn("LOCALE.CROSS_PUBLICATION_HREFLANG", rules)
+        self.assertIn("LOCALE.CROSS_PUBLICATION_RECIPROCAL", rules)
+        self.assertEqual(1, report["exit_status"])
+
+    def test_cross_publication_noncanonical_copy_must_stay_noindex(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_hive(manifest)
+        self.write_hive_variants(record)
+        sitehesap_english = self.root / "dist" / "sitehesap" / "en" / "index.html"
+        sitehesap_english.write_text(
+            sitehesap_english.read_text(encoding="utf-8").replace(
+                '<meta name="robots" content="noindex,follow">',
+                "",
+            ),
+            encoding="utf-8",
+        )
+
+        report = self.validate(manifest, site="hive-due")
+
+        self.assertIn("LOCALE.CROSS_PUBLICATION_COPY_INDEXABLE", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_cross_publication_noncanonical_copy_requires_canonical_peer(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_hive(manifest)
+        self.write_hive_variants(record)
+        sitehesap_english = self.root / "dist" / "sitehesap" / "en" / "index.html"
+        sitehesap_english.write_text(
+            sitehesap_english.read_text(encoding="utf-8").replace(
+                '<link rel="canonical" href="https://hivedue.com/en/">',
+                '<link rel="canonical" href="https://hivedue.com/missing/">',
+            ),
+            encoding="utf-8",
+        )
+
+        report = self.validate(manifest, site="hive-due")
+
+        self.assertIn("LOCALE.CROSS_PUBLICATION_COPY_TARGET", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_cross_publication_registry_rejects_unknown_variant_and_default(self) -> None:
+        manifest = self.manifest()
+        contract = manifest["products"]["hive-due"]["cross_publication_hreflang"]
+        contract["locale_variants"]["en"]["publication_variant"] = "missing"
+        contract["x_default"] = "de"
+
+        report = self.validate(manifest, mode="registry", site="hive-due")
+
+        self.assertIn("REG.CROSS_PUBLICATION_HREFLANG", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
 
     def test_allow_pending_skips_only_declared_discovery_rules(self) -> None:
         manifest = self.manifest()

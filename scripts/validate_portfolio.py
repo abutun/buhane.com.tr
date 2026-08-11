@@ -104,6 +104,13 @@ VARIANT_REQUIRED_FIELDS = {
     "robots_url",
     "sitemap_url",
 }
+ROUTE_LOCALE_SCOPE_REQUIRED_FIELDS = {"routes", "indexable_locales"}
+CROSS_PUBLICATION_HREFLANG_REQUIRED_FIELDS = {
+    "locale_variants",
+    "x_default",
+    "noncanonical_copies",
+}
+CROSS_PUBLICATION_LOCALE_REQUIRED_FIELDS = {"publication_variant", "route_prefix"}
 ALLOWED_LIFECYCLES = {"live", "beta", "coming-soon", "retired"}
 ALLOWED_EXTERNAL_STATES = {"local_editable", "external_blocked"}
 PENDING_RULES = {
@@ -592,11 +599,13 @@ class PortfolioValidator:
                     {"expected": expected_entity, "actual": record.get("entity_id")},
                 )
             self._validate_common_registry_fields(property_id, record, seen_origins)
+            self._validate_locale_contract(property_id, record)
 
         for product_id, record in self.products.items():
             self._initialize_site_result(product_id, record)
             self._validate_required_fields(product_id, record, PRODUCT_REQUIRED_FIELDS)
             self._validate_common_registry_fields(product_id, record, seen_origins)
+            self._validate_locale_contract(product_id, record)
             expected_id = EXPECTED_PRODUCTS.get(product_id)
             if record.get("product_entity_id") != expected_id:
                 self.collector.add(
@@ -781,6 +790,201 @@ class PortfolioValidator:
                     route=str(legacy),
                 )
 
+    def _validate_locale_contract(self, site_id: str, record: Mapping[str, Any]) -> None:
+        locales_value = record.get("indexable_locales")
+        locales = ensure_list(locales_value)
+        valid_locales = [locale for locale in locales if isinstance(locale, str) and locale]
+        if (
+            not isinstance(locales_value, list)
+            or not valid_locales
+            or len(valid_locales) != len(locales)
+            or len(set(valid_locales)) != len(valid_locales)
+        ):
+            self.collector.add(
+                "REG.INDEXABLE_LOCALES",
+                site_id,
+                "high",
+                "indexable_locales must be a nonempty list of unique locale identifiers",
+                {"actual": locales_value},
+            )
+
+        scopes_value = record.get("route_locale_scopes", [])
+        if not isinstance(scopes_value, list):
+            self.collector.add(
+                "REG.ROUTE_LOCALE_SCOPE",
+                site_id,
+                "high",
+                "route_locale_scopes must be a list",
+                {"actual": scopes_value},
+            )
+            scopes: list[Any] = []
+        else:
+            scopes = scopes_value
+        seen_routes: set[str] = set()
+        allowed_locales = set(valid_locales)
+        for index, scope in enumerate(scopes):
+            route_key = str(index)
+            if not isinstance(scope, dict):
+                self.collector.add(
+                    "REG.ROUTE_LOCALE_SCOPE",
+                    site_id,
+                    "high",
+                    "Every route locale scope must be an object",
+                    {"index": index},
+                    route=route_key,
+                )
+                continue
+            missing = sorted(ROUTE_LOCALE_SCOPE_REQUIRED_FIELDS - set(scope))
+            unexpected = sorted(set(scope) - ROUTE_LOCALE_SCOPE_REQUIRED_FIELDS)
+            routes = scope.get("routes")
+            scope_locales = scope.get("indexable_locales")
+            invalid_routes = [
+                route
+                for route in ensure_list(routes)
+                if not isinstance(route, str)
+                or not route.startswith("/")
+                or urllib.parse.urlsplit(route).scheme
+                or urllib.parse.urlsplit(route).query
+                or urllib.parse.urlsplit(route).fragment
+                or ".." in Path(urllib.parse.urlsplit(route).path).parts
+            ]
+            duplicate_routes = sorted(
+                route
+                for route in ensure_list(routes)
+                if isinstance(route, str) and route in seen_routes
+            )
+            if isinstance(routes, list):
+                duplicate_routes.extend(
+                    sorted(
+                        {
+                            route
+                            for route in routes
+                            if isinstance(route, str) and routes.count(route) > 1
+                        }
+                    )
+                )
+                duplicate_routes = sorted(set(duplicate_routes))
+            normalized_scope_locales = [
+                locale
+                for locale in ensure_list(scope_locales)
+                if isinstance(locale, str) and locale
+            ]
+            invalid_scope_locales = sorted(set(normalized_scope_locales) - allowed_locales)
+            if (
+                missing
+                or unexpected
+                or not isinstance(routes, list)
+                or not routes
+                or invalid_routes
+                or duplicate_routes
+                or not isinstance(scope_locales, list)
+                or not normalized_scope_locales
+                or len(normalized_scope_locales) != len(ensure_list(scope_locales))
+                or len(set(normalized_scope_locales)) != len(normalized_scope_locales)
+                or invalid_scope_locales
+            ):
+                self.collector.add(
+                    "REG.ROUTE_LOCALE_SCOPE",
+                    site_id,
+                    "high",
+                    "Route locale scopes require unique local routes and a nonempty subset of indexable_locales",
+                    {
+                        "missing": missing,
+                        "unexpected": unexpected,
+                        "invalid_routes": invalid_routes,
+                        "duplicate_routes": duplicate_routes,
+                        "invalid_locales": invalid_scope_locales,
+                    },
+                    route=route_key,
+                )
+            for route in ensure_list(routes):
+                if isinstance(route, str):
+                    seen_routes.add(route)
+
+        cross_value = record.get("cross_publication_hreflang")
+        if cross_value is None:
+            return
+        if not isinstance(cross_value, dict):
+            self.collector.add(
+                "REG.CROSS_PUBLICATION_HREFLANG",
+                site_id,
+                "high",
+                "cross_publication_hreflang must be an object",
+                {"actual": cross_value},
+            )
+            return
+        missing = sorted(CROSS_PUBLICATION_HREFLANG_REQUIRED_FIELDS - set(cross_value))
+        unexpected = sorted(set(cross_value) - CROSS_PUBLICATION_HREFLANG_REQUIRED_FIELDS)
+        locale_variants = cross_value.get("locale_variants")
+        x_default = cross_value.get("x_default")
+        copy_policy = cross_value.get("noncanonical_copies")
+        variants = {
+            variant.get("id"): variant
+            for variant in ensure_list(record.get("publication_variants"))
+            if isinstance(variant, dict) and isinstance(variant.get("id"), str)
+        }
+        invalid_entries: list[str] = []
+        used_variants: list[str] = []
+        prefixes: list[str] = []
+        if not isinstance(locale_variants, dict) or len(locale_variants) < 2:
+            invalid_entries.append("locale_variants must map at least two locales")
+            locale_variants = {}
+        for locale, target in locale_variants.items():
+            if not isinstance(locale, str) or not locale or not isinstance(target, dict):
+                invalid_entries.append(str(locale))
+                continue
+            target_missing = CROSS_PUBLICATION_LOCALE_REQUIRED_FIELDS - set(target)
+            target_unexpected = set(target) - CROSS_PUBLICATION_LOCALE_REQUIRED_FIELDS
+            variant_id = target.get("publication_variant")
+            prefix = target.get("route_prefix")
+            if target_missing or target_unexpected:
+                invalid_entries.append(locale)
+            if not isinstance(variant_id, str) or variant_id not in variants:
+                invalid_entries.append(f"{locale}:publication_variant")
+            else:
+                used_variants.append(variant_id)
+                if ensure_list(variants[variant_id].get("indexable_locales")) != [locale]:
+                    invalid_entries.append(f"{locale}:indexable_locales")
+            if (
+                not isinstance(prefix, str)
+                or (prefix and not prefix.startswith("/"))
+                or (prefix.endswith("/") and prefix != "")
+                or urllib.parse.urlsplit(prefix).scheme
+                or urllib.parse.urlsplit(prefix).query
+                or urllib.parse.urlsplit(prefix).fragment
+                or ".." in Path(urllib.parse.urlsplit(prefix).path).parts
+            ):
+                invalid_entries.append(f"{locale}:route_prefix")
+            elif isinstance(prefix, str):
+                prefixes.append(prefix)
+        if (
+            missing
+            or unexpected
+            or set(locale_variants) != allowed_locales
+            or not isinstance(x_default, str)
+            or x_default not in locale_variants
+            or copy_policy != "required_noindex"
+            or len(set(used_variants)) != len(used_variants)
+            or set(used_variants) != set(variants)
+            or len(set(prefixes)) != len(prefixes)
+            or invalid_entries
+        ):
+            self.collector.add(
+                "REG.CROSS_PUBLICATION_HREFLANG",
+                site_id,
+                "high",
+                "Cross-publication locale contracts must map every locale and variant exactly once",
+                {
+                    "missing": missing,
+                    "unexpected": unexpected,
+                    "expected_locales": sorted(allowed_locales),
+                    "actual_locales": sorted(str(locale) for locale in locale_variants),
+                    "x_default": x_default,
+                    "noncanonical_copies": copy_policy,
+                    "invalid_entries": sorted(set(invalid_entries)),
+                },
+            )
+
     def _validate_contextual_links(self, product_id: str, record: Mapping[str, Any]) -> None:
         links = ensure_list(record.get("approved_contextual_links"))
         invalid = sorted(
@@ -886,6 +1090,8 @@ class PortfolioValidator:
             source_root = Path(source_root_value)
             variants = ensure_list(record.get("publication_variants"))
             if variants:
+                variant_inspections: list[dict[str, Any]] = []
+                cross_publication = isinstance(record.get("cross_publication_hreflang"), dict)
                 for variant in variants:
                     if not isinstance(variant, dict) or not isinstance(variant.get("id"), str):
                         continue
@@ -910,12 +1116,21 @@ class PortfolioValidator:
                             "canonical_routes": variant.get("canonical_routes", ["/"]),
                         }
                     )
-                    self._inspect_output(
+                    inspection = self._inspect_output(
                         site_id,
                         record,
                         variant_contract,
                         output_root,
                         publication_variant=variant_id,
+                        validate_hreflang=not cross_publication,
+                    )
+                    if inspection is not None:
+                        variant_inspections.append(inspection)
+                if cross_publication:
+                    self._validate_cross_publication_hreflang(
+                        site_id,
+                        record,
+                        variant_inspections,
                     )
             else:
                 source_contract = self._source_contract(site_id, record)
@@ -1012,7 +1227,8 @@ class PortfolioValidator:
         root: Path,
         *,
         publication_variant: str | None = None,
-    ) -> None:
+        validate_hreflang: bool = True,
+    ) -> dict[str, Any] | None:
         if not root.is_dir():
             self.collector.add(
                 "SRC.OUTPUT_ROOT_MISSING",
@@ -1123,13 +1339,14 @@ class PortfolioValidator:
             root,
             publication_variant=publication_variant,
         )
-        self._validate_hreflang(
-            site_id,
-            contract,
-            pages,
-            sitemap_urls,
-            publication_variant=publication_variant,
-        )
+        if validate_hreflang:
+            self._validate_hreflang(
+                site_id,
+                contract,
+                pages,
+                sitemap_urls,
+                publication_variant=publication_variant,
+            )
         schema_nodes = [
             node
             for page in pages
@@ -1151,6 +1368,13 @@ class PortfolioValidator:
                 ),
             }
         )
+        return {
+            "publication_variant": publication_variant,
+            "contract": contract,
+            "root": root,
+            "pages": pages,
+            "sitemap_urls": sitemap_urls,
+        }
 
     @staticmethod
     def _parsed_schema_values(raw: str) -> list[Any]:
@@ -1877,14 +2101,19 @@ class PortfolioValidator:
         *,
         publication_variant: str | None,
     ) -> None:
-        locales = [item for item in ensure_list(contract.get("indexable_locales")) if isinstance(item, str)]
+        default_locales = [
+            item
+            for item in ensure_list(contract.get("indexable_locales"))
+            if isinstance(item, str)
+        ]
         canonical_map: dict[str, PageParser] = {}
         for page in pages:
             parser: PageParser = page["parser"]
             if page["indexable"] and len(parser.canonicals) == 1:
                 canonical_map[normalized_url(parser.canonicals[0])] = parser
-        if len(locales) <= 1:
-            for canonical, parser in canonical_map.items():
+        for canonical, parser in canonical_map.items():
+            locales = self._route_locales(contract, canonical, default_locales)
+            if len(locales) <= 1:
                 if parser.alternates:
                     self.collector.add(
                         "LOCALE.NONADDRESSABLE_HREFLANG",
@@ -1895,12 +2124,16 @@ class PortfolioValidator:
                         publication_variant=publication_variant,
                         route=canonical,
                     )
-            return
-        for canonical, parser in canonical_map.items():
-            required = set(locales)
+                continue
+            required = set(locales) | {"x-default"}
             actual = set(parser.alternates)
             missing = sorted(required - actual)
-            if missing or canonical not in {normalized_url(url) for url in parser.alternates.values()}:
+            unexpected = sorted(actual - required)
+            if (
+                missing
+                or unexpected
+                or canonical not in {normalized_url(url) for url in parser.alternates.values()}
+            ):
                 self.collector.add(
                     "LOCALE.HREFLANG_INCOMPLETE",
                     site_id,
@@ -1909,6 +2142,7 @@ class PortfolioValidator:
                     {
                         "canonical": canonical,
                         "missing_locales": missing,
+                        "unexpected_locales": unexpected,
                         "alternates": parser.alternates,
                     },
                     publication_variant=publication_variant,
@@ -1929,7 +2163,9 @@ class PortfolioValidator:
                         publication_variant=publication_variant,
                         route=f"{canonical}:{locale}",
                     )
-                elif canonical not in {normalized_url(value) for value in peer.alternates.values()}:
+                elif canonical not in {
+                    normalized_url(value) for value in peer.alternates.values()
+                }:
                     self.collector.add(
                         "LOCALE.HREFLANG_RECIPROCAL",
                         site_id,
@@ -1938,6 +2174,289 @@ class PortfolioValidator:
                         {"canonical": canonical, "alternate": alternate},
                         publication_variant=publication_variant,
                         route=f"{canonical}:{locale}",
+                    )
+
+    @staticmethod
+    def _route_locales(
+        contract: Mapping[str, Any],
+        canonical: str,
+        default_locales: Sequence[str],
+    ) -> list[str]:
+        path = urllib.parse.urlsplit(canonical).path or "/"
+        for scope in ensure_list(contract.get("route_locale_scopes")):
+            if not isinstance(scope, dict) or path not in ensure_list(scope.get("routes")):
+                continue
+            return [
+                locale
+                for locale in ensure_list(scope.get("indexable_locales"))
+                if isinstance(locale, str)
+            ]
+        return list(default_locales)
+
+    @staticmethod
+    def _logical_locale_path(path: str, prefix: str) -> str | None:
+        path = path or "/"
+        if not prefix:
+            return path
+        if path in {prefix, f"{prefix}/"}:
+            return "/"
+        if path.startswith(f"{prefix}/"):
+            return path[len(prefix) :]
+        return None
+
+    @staticmethod
+    def _publication_locale_path(prefix: str, logical_path: str) -> str:
+        if not prefix:
+            return logical_path or "/"
+        if logical_path in {"", "/"}:
+            return f"{prefix}/"
+        return f"{prefix}{logical_path}"
+
+    def _validate_cross_publication_hreflang(
+        self,
+        site_id: str,
+        record: Mapping[str, Any],
+        inspections: Sequence[Mapping[str, Any]],
+    ) -> None:
+        config = record.get("cross_publication_hreflang")
+        if not isinstance(config, dict):
+            return
+        locale_variants = config.get("locale_variants")
+        x_default = config.get("x_default")
+        if not isinstance(locale_variants, dict) or not isinstance(x_default, str):
+            return
+        inspection_by_variant = {
+            inspection.get("publication_variant"): inspection
+            for inspection in inspections
+            if isinstance(inspection.get("publication_variant"), str)
+        }
+        canonical_maps: dict[str, dict[str, Mapping[str, Any]]] = {}
+        route_maps: dict[str, dict[str, Mapping[str, Any]]] = {}
+        for variant_id, inspection in inspection_by_variant.items():
+            canonical_maps[variant_id] = {}
+            route_maps[variant_id] = {}
+            for page in inspection.get("pages", []):
+                if not isinstance(page, Mapping):
+                    continue
+                route_maps[variant_id][str(page.get("route"))] = page
+                parser = page.get("parser")
+                if (
+                    page.get("indexable")
+                    and isinstance(parser, PageParser)
+                    and len(parser.canonicals) == 1
+                ):
+                    canonical_maps[variant_id][normalized_url(parser.canonicals[0])] = page
+
+        all_canonical_urls = {
+            canonical
+            for canonical_map in canonical_maps.values()
+            for canonical in canonical_map
+        }
+        logical_routes: set[str] = set()
+        locale_details: dict[str, tuple[str, str, str]] = {}
+        for locale, target in locale_variants.items():
+            if not isinstance(locale, str) or not isinstance(target, dict):
+                continue
+            variant_id = target.get("publication_variant")
+            prefix = target.get("route_prefix")
+            inspection = inspection_by_variant.get(variant_id)
+            if not isinstance(variant_id, str) or not isinstance(prefix, str) or inspection is None:
+                self.collector.add(
+                    "LOCALE.CROSS_PUBLICATION_TARGET",
+                    site_id,
+                    "high",
+                    "Cross-publication locale target has no inspected publication variant",
+                    {"locale": locale, "publication_variant": variant_id},
+                    publication_variant=variant_id if isinstance(variant_id, str) else None,
+                    route=locale,
+                )
+                continue
+            contract = inspection.get("contract")
+            origin = normalized_origin(
+                str(contract.get("preferred_origin", ""))
+                if isinstance(contract, Mapping)
+                else ""
+            )
+            locale_details[locale] = (variant_id, prefix, origin)
+
+        for locale, (variant_id, prefix, _) in locale_details.items():
+            for canonical, page in canonical_maps.get(variant_id, {}).items():
+                parser = page["parser"]
+                canonical_path = urllib.parse.urlsplit(canonical).path or "/"
+                logical_path = self._logical_locale_path(canonical_path, prefix)
+                if logical_path is None:
+                    self.collector.add(
+                        "LOCALE.CROSS_PUBLICATION_ROUTE_PREFIX",
+                        site_id,
+                        "high",
+                        "Canonical route does not use its publication locale prefix",
+                        {"canonical": canonical, "locale": locale, "route_prefix": prefix},
+                        publication_variant=variant_id,
+                        route=canonical,
+                    )
+                    continue
+                logical_routes.add(logical_path)
+                expected: dict[str, str] = {}
+                for alternate_locale, (_, alternate_prefix, alternate_origin) in locale_details.items():
+                    alternate_path = self._publication_locale_path(alternate_prefix, logical_path)
+                    expected[alternate_locale] = f"{alternate_origin}{alternate_path}"
+                if x_default in expected:
+                    expected["x-default"] = expected[x_default]
+                actual = parser.alternates
+                missing = sorted(set(expected) - set(actual))
+                unexpected = sorted(set(actual) - set(expected))
+                mismatched = {
+                    key: {"expected": expected[key], "actual": actual.get(key)}
+                    for key in expected
+                    if key in actual
+                    and normalized_url(actual[key]) != normalized_url(expected[key])
+                }
+                if (
+                    missing
+                    or unexpected
+                    or mismatched
+                    or normalized_url(canonical) != normalized_url(expected.get(locale, ""))
+                ):
+                    self.collector.add(
+                        "LOCALE.CROSS_PUBLICATION_HREFLANG",
+                        site_id,
+                        "high",
+                        "Canonical page lacks its exact cross-publication locale alternate set",
+                        {
+                            "canonical": canonical,
+                            "missing_locales": missing,
+                            "unexpected_locales": unexpected,
+                            "mismatched": mismatched,
+                            "alternates": actual,
+                        },
+                        publication_variant=variant_id,
+                        route=canonical,
+                    )
+                for alternate_locale, alternate in expected.items():
+                    if alternate_locale == "x-default":
+                        continue
+                    alternate_variant = locale_details.get(alternate_locale, (None, "", ""))[0]
+                    peer = canonical_maps.get(str(alternate_variant), {}).get(normalized_url(alternate))
+                    if peer is None:
+                        self.collector.add(
+                            "LOCALE.CROSS_PUBLICATION_TARGET",
+                            site_id,
+                            "high",
+                            "Cross-publication hreflang target is not canonical and indexable in its variant",
+                            {
+                                "canonical": canonical,
+                                "locale": alternate_locale,
+                                "alternate": alternate,
+                            },
+                            publication_variant=variant_id,
+                            route=f"{canonical}:{alternate_locale}",
+                        )
+                    elif canonical not in {
+                        normalized_url(value) for value in peer["parser"].alternates.values()
+                    }:
+                        self.collector.add(
+                            "LOCALE.CROSS_PUBLICATION_RECIPROCAL",
+                            site_id,
+                            "high",
+                            "Cross-publication hreflang relationship is not reciprocal",
+                            {"canonical": canonical, "alternate": alternate},
+                            publication_variant=variant_id,
+                            route=f"{canonical}:{alternate_locale}",
+                        )
+
+        if config.get("noncanonical_copies") != "required_noindex":
+            return
+        for logical_path in sorted(logical_routes):
+            expected_for_logical = {
+                normalized_url(f"{origin}{self._publication_locale_path(prefix, logical_path)}")
+                for _, prefix, origin in locale_details.values()
+            }
+            for output_variant, route_map in route_maps.items():
+                own_locale = next(
+                    (
+                        locale
+                        for locale, (variant_id, _, _) in locale_details.items()
+                        if variant_id == output_variant
+                    ),
+                    None,
+                )
+                for locale, (_, prefix, _) in locale_details.items():
+                    route = self._publication_locale_path(prefix, logical_path)
+                    page = route_map.get(route)
+                    if page is None:
+                        self.collector.add(
+                            "LOCALE.CROSS_PUBLICATION_COPY_MISSING",
+                            site_id,
+                            "high",
+                            "Publication artifact is missing a declared locale route copy",
+                            {"locale": locale, "route": route},
+                            publication_variant=output_variant,
+                            route=route,
+                        )
+                        continue
+                    if locale == own_locale:
+                        continue
+                    parser = page["parser"]
+                    canonical = parser.canonicals[0] if len(parser.canonicals) == 1 else ""
+                    if page.get("indexable") or not page.get("noindex"):
+                        self.collector.add(
+                            "LOCALE.CROSS_PUBLICATION_COPY_INDEXABLE",
+                            site_id,
+                            "high",
+                            "Noncanonical locale copy must remain noindex",
+                            {"locale": locale, "route": route},
+                            publication_variant=output_variant,
+                            route=route,
+                        )
+                    if normalized_url(canonical) not in expected_for_logical:
+                        self.collector.add(
+                            "LOCALE.CROSS_PUBLICATION_COPY_TARGET",
+                            site_id,
+                            "high",
+                            "Noncanonical locale copy must canonicalize to an indexable peer for the same route",
+                            {
+                                "locale": locale,
+                                "canonical": canonical,
+                                "expected": sorted(expected_for_logical),
+                            },
+                            publication_variant=output_variant,
+                            route=route,
+                        )
+                    if parser.alternates:
+                        self.collector.add(
+                            "LOCALE.CROSS_PUBLICATION_COPY_HREFLANG",
+                            site_id,
+                            "high",
+                            "Noncanonical locale copies must not publish canonical hreflang sets",
+                            {"locale": locale, "alternates": parser.alternates},
+                            publication_variant=output_variant,
+                            route=route,
+                        )
+
+        for variant_id, route_map in route_maps.items():
+            for route, page in route_map.items():
+                if page.get("indexable") or not page.get("noindex"):
+                    continue
+                parser = page["parser"]
+                if len(parser.canonicals) != 1:
+                    self.collector.add(
+                        "LOCALE.CROSS_PUBLICATION_COPY_TARGET",
+                        site_id,
+                        "high",
+                        "Noindex publication copy requires exactly one canonical target",
+                        {"canonical_count": len(parser.canonicals)},
+                        publication_variant=variant_id,
+                        route=route,
+                    )
+                elif normalized_url(parser.canonicals[0]) not in all_canonical_urls:
+                    self.collector.add(
+                        "LOCALE.CROSS_PUBLICATION_COPY_TARGET",
+                        site_id,
+                        "high",
+                        "Noindex publication copy canonical is not indexable in the publication group",
+                        {"canonical": parser.canonicals[0]},
+                        publication_variant=variant_id,
+                        route=route,
                     )
 
     def validate_live(self) -> None:
