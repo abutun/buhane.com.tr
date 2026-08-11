@@ -4,12 +4,15 @@ import copy
 import email.message
 import io
 import json
+import os
+import ssl
+import sys
 import tempfile
+import time
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
-import urllib.error
 
 from scripts.validate_portfolio import (
     APPROVED_COMMAND_CONTRACTS,
@@ -17,6 +20,7 @@ from scripts.validate_portfolio import (
     FetchResult,
     PortfolioValidator,
     RequestBoundaryError,
+    _PinnedHTTPSConnection,
     build_parser,
     is_https_origin,
     normalized_origin,
@@ -429,6 +433,52 @@ class PortfolioValidatorTests(unittest.TestCase):
             finding for finding in report["findings"] if finding["rule_id"] == "GEN.COMMAND_TIMEOUT"
         )
         self.assertEqual(0.1, timeout_finding["evidence"]["timeout_seconds"])
+
+    @unittest.skipUnless(os.name == "posix", "process-group regression is POSIX-specific")
+    def test_timeout_kills_descendant_after_leader_exit_within_fixed_grace(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        fixture = self.root / "spawn_descendant.py"
+        fixture.write_text(
+            "import subprocess, sys\n"
+            "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(2)'])\n",
+            encoding="utf-8",
+        )
+        command = {"argv": [sys.executable, fixture.name], "cwd": "."}
+        record["validation_commands"] = [command]
+        manifest_path = self.root / "manifest.json"
+        report_path = self.root / "descendant-timeout-report.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+        started_at = time.monotonic()
+        with (
+            patch.dict(APPROVED_SOURCE_ROOTS, {"moodjot": self.root}),
+            patch.dict(
+                APPROVED_COMMAND_CONTRACTS,
+                {"moodjot": {(".", (sys.executable, fixture.name))}},
+            ),
+        ):
+            exit_code = run(
+                [
+                    "--manifest",
+                    str(manifest_path),
+                    "--mode",
+                    "source",
+                    "--site",
+                    "moodjot",
+                    "--timeout",
+                    "0.1",
+                    "--report",
+                    str(report_path),
+                ]
+            )
+        elapsed = time.monotonic() - started_at
+
+        self.assertLess(elapsed, 1.0, f"timeout cleanup took {elapsed:.3f}s")
+        self.assertEqual(1, exit_code)
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertIn("GEN.COMMAND_TIMEOUT", self.rules(report))
 
     def test_passing_static_site_reuses_one_product_identity(self) -> None:
         manifest = self.manifest()
@@ -1130,6 +1180,7 @@ class PortfolioValidatorTests(unittest.TestCase):
             "https://[::1]/",
             "https://[fe80::1]/",
             "https://[ff02::1]/",
+            "https://[::ffff:127.0.0.1]/",
         )
         for url in urls:
             with self.subTest(url=url):
@@ -1155,31 +1206,117 @@ class PortfolioValidatorTests(unittest.TestCase):
                 {"https://moodjot.app"},
             )
 
-    def test_redirect_target_is_dns_checked_before_second_open(self) -> None:
-        manifest = self.manifest()
+        mapped_validator = PortfolioValidator(
+            self.manifest(),
+            self.manifest_path,
+            "live",
+            selected_sites=["moodjot"],
+            resolver=lambda _hostname, _port: ("::ffff:192.168.1.10",),
+        )
+        with self.assertRaises(RequestBoundaryError):
+            mapped_validator._validate_request_target(
+                "https://moodjot.app/",
+                {"https://moodjot.app"},
+            )
 
-        def resolver(hostname: str, _port: int) -> tuple[str, ...]:
-            if hostname == "moodjot.com":
+    def test_pinned_connector_uses_numeric_peer_and_original_tls_hostname(self) -> None:
+        class FakeSocket:
+            def __init__(self) -> None:
+                self.timeout = None
+                self.endpoint = None
+                self.closed = False
+
+            def settimeout(self, timeout) -> None:
+                self.timeout = timeout
+
+            def connect(self, endpoint) -> None:
+                self.endpoint = endpoint
+
+            def getpeername(self):
+                return ("93.184.216.34", 443)
+
+            def close(self) -> None:
+                self.closed = True
+
+        class FakeContext:
+            check_hostname = True
+            verify_mode = ssl.CERT_REQUIRED
+
+            def __init__(self) -> None:
+                self.server_hostname = None
+
+            def wrap_socket(self, raw_socket, *, server_hostname):
+                self.server_hostname = server_hostname
+                return raw_socket
+
+        raw_socket = FakeSocket()
+        context = FakeContext()
+        connection = _PinnedHTTPSConnection(
+            "moodjot.app",
+            443,
+            "93.184.216.34",
+            timeout=1,
+            context=context,
+        )
+        with (
+            patch("scripts.validate_portfolio.socket.socket", return_value=raw_socket),
+            patch(
+                "scripts.validate_portfolio.socket.getaddrinfo",
+                side_effect=AssertionError("pinned connector must not resolve again"),
+            ) as getaddrinfo,
+        ):
+            connection.connect()
+
+        getaddrinfo.assert_not_called()
+        self.assertEqual(("93.184.216.34", 443), raw_socket.endpoint)
+        self.assertEqual("moodjot.app", context.server_hostname)
+        self.assertTrue(context.check_hostname)
+        self.assertEqual(ssl.CERT_REQUIRED, context.verify_mode)
+
+    def test_fetch_ignores_proxy_environment_and_connects_to_validated_ip_once(self) -> None:
+        manifest = self.manifest()
+        resolver_calls: list[tuple[str, int]] = []
+        connections: list[dict] = []
+
+        def resolver(hostname: str, port: int) -> tuple[str, ...]:
+            resolver_calls.append((hostname, port))
+            if len(resolver_calls) > 1:
                 return ("127.0.0.1",)
             return ("93.184.216.34",)
 
-        class RedirectingOpener:
+        class FakeResponse:
+            status = 200
+
             def __init__(self) -> None:
-                self.calls: list[str] = []
+                self.headers = email.message.Message()
+                self.headers["Content-Type"] = "text/html"
 
-            def open(self, request, timeout):
-                self.calls.append(request.full_url)
-                headers = email.message.Message()
-                headers["Location"] = "https://moodjot.com/"
-                raise urllib.error.HTTPError(
-                    request.full_url,
-                    301,
-                    "Moved Permanently",
-                    headers,
-                    io.BytesIO(),
-                )
+            def read(self, _limit: int) -> bytes:
+                return b"ok"
 
-        opener = RedirectingOpener()
+            def close(self) -> None:
+                pass
+
+        class FakeConnection:
+            def __init__(self, hostname, port, pinned_ip, *, timeout, context) -> None:
+                self.record = {
+                    "hostname": hostname,
+                    "port": port,
+                    "pinned_ip": pinned_ip,
+                    "timeout": timeout,
+                    "context": context,
+                }
+                connections.append(self.record)
+
+            def request(self, method, target, *, headers) -> None:
+                self.record.update({"method": method, "target": target, "headers": headers})
+
+            def getresponse(self):
+                return FakeResponse()
+
+            def close(self) -> None:
+                pass
+
         validator = PortfolioValidator(
             manifest,
             self.manifest_path,
@@ -1188,10 +1325,70 @@ class PortfolioValidatorTests(unittest.TestCase):
             resolver=resolver,
         )
         allowed = validator._allowed_origins("moodjot", manifest["products"]["moodjot"])
-        with patch("scripts.validate_portfolio.urllib.request.build_opener", return_value=opener):
+        proxy_environment = {
+            "HTTP_PROXY": "http://127.0.0.1:9001",
+            "HTTPS_PROXY": "http://127.0.0.1:9002",
+            "ALL_PROXY": "socks5://127.0.0.1:9003",
+            "NO_PROXY": "",
+        }
+        with (
+            patch.dict(os.environ, proxy_environment, clear=False),
+            patch("scripts.validate_portfolio._PinnedHTTPSConnection", FakeConnection),
+        ):
+            result = validator._safe_fetch("https://moodjot.app/", allowed, "test-agent")
+
+        self.assertEqual(200, result.status)
+        self.assertEqual([("moodjot.app", 443)], resolver_calls)
+        self.assertEqual("93.184.216.34", connections[0]["pinned_ip"])
+        self.assertEqual("moodjot.app", connections[0]["hostname"])
+        self.assertEqual("moodjot.app", connections[0]["headers"]["Host"])
+
+    def test_redirect_target_is_dns_checked_before_second_open(self) -> None:
+        manifest = self.manifest()
+
+        def resolver(hostname: str, _port: int) -> tuple[str, ...]:
+            if hostname == "moodjot.com":
+                return ("127.0.0.1",)
+            return ("93.184.216.34",)
+
+        connections: list[str] = []
+
+        class RedirectResponse:
+            status = 301
+
+            def __init__(self) -> None:
+                headers = email.message.Message()
+                headers["Location"] = "https://moodjot.com/"
+                self.headers = headers
+
+            def close(self) -> None:
+                pass
+
+        class RedirectingConnection:
+            def __init__(self, hostname, port, pinned_ip, *, timeout, context) -> None:
+                connections.append(hostname)
+
+            def request(self, method, target, *, headers) -> None:
+                pass
+
+            def getresponse(self):
+                return RedirectResponse()
+
+            def close(self) -> None:
+                pass
+
+        validator = PortfolioValidator(
+            manifest,
+            self.manifest_path,
+            "live",
+            selected_sites=["moodjot"],
+            resolver=resolver,
+        )
+        allowed = validator._allowed_origins("moodjot", manifest["products"]["moodjot"])
+        with patch("scripts.validate_portfolio._PinnedHTTPSConnection", RedirectingConnection):
             with self.assertRaises(RequestBoundaryError):
                 validator._safe_fetch("https://moodjot.app/", allowed, "test-agent")
-        self.assertEqual(["https://moodjot.app/"], opener.calls)
+        self.assertEqual(["moodjot.app"], connections)
 
     def test_findings_have_complete_unique_schema(self) -> None:
         manifest = self.manifest()

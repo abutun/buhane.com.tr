@@ -9,18 +9,19 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
 import ipaddress
 import json
 import os
 import re
 import signal
 import socket
+import ssl
 import subprocess
 import sys
 import tempfile
 import urllib.error
 import urllib.parse
-import urllib.request
 import xml.etree.ElementTree as ET
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -148,6 +149,8 @@ VARIANT_REQUIRED_FIELDS = {
 COMMAND_SPEC_REQUIRED_FIELDS = {"argv", "cwd"}
 TEMP_REPORT_PLACEHOLDER = "{temp_report}"
 SHELL_METACHAR_RE = re.compile(r"[;&|><`$()\r\n]")
+COMMAND_TERMINATION_GRACE_SECONDS = 0.25
+COMMAND_DRAIN_GRACE_SECONDS = 0.25
 APPROVED_SOURCE_ROOTS = {
     "vynix": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/Vynix"),
     "hive-due": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/HiveDue"),
@@ -396,9 +399,47 @@ class RequestBoundaryError(Exception):
     pass
 
 
-class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req: Any, fp: Any, code: int, msg: str, headers: Any, newurl: str) -> None:
-        return None
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """HTTPS connection whose socket can only reach one prevalidated numeric IP."""
+
+    def __init__(
+        self,
+        hostname: str,
+        port: int,
+        pinned_ip: str,
+        *,
+        timeout: float,
+        context: ssl.SSLContext,
+    ) -> None:
+        super().__init__(hostname, port=port, timeout=timeout, context=context)
+        self._pinned_ip = ipaddress.ip_address(pinned_ip)
+        self._tls_context = context
+
+    def connect(self) -> None:
+        if self._tunnel_host:
+            raise RequestBoundaryError("proxy tunnels are disabled for live validation")
+        family = socket.AF_INET6 if self._pinned_ip.version == 6 else socket.AF_INET
+        raw_socket = socket.socket(family, socket.SOCK_STREAM)
+        raw_socket.settimeout(self.timeout)
+        endpoint: tuple[Any, ...]
+        if family == socket.AF_INET6:
+            endpoint = (str(self._pinned_ip), self.port, 0, 0)
+        else:
+            endpoint = (str(self._pinned_ip), self.port)
+        try:
+            # Numeric socket.connect avoids a second resolver lookup and therefore
+            # cannot swap the approved address for a private rebinding target.
+            raw_socket.connect(endpoint)
+            peer_ip = ipaddress.ip_address(str(raw_socket.getpeername()[0]).split("%", 1)[0])
+            if peer_ip != self._pinned_ip:
+                raise RequestBoundaryError(
+                    f"connected peer {peer_ip} does not match pinned address {self._pinned_ip}"
+                )
+            # Keep the original hostname for TLS SNI and default-context certificate checks.
+            self.sock = self._tls_context.wrap_socket(raw_socket, server_hostname=self.host)
+        except BaseException:
+            raw_socket.close()
+            raise
 
 
 class PageParser(HTMLParser):
@@ -605,7 +646,7 @@ class PortfolioValidator:
         self.records: dict[str, dict[str, Any]] = {**self.properties, **self.products}
         self.selected_sites = list(selected_sites or self.records.keys())
         self.collector = FindingCollector(allow_pending, self.records)
-        self.fetcher = fetcher or self.fetch_url
+        self.fetcher = fetcher
         self.resolver = resolver or self._resolve_host_addresses
         self.started_at = utc_now()
         self.site_results: dict[str, dict[str, Any]] = {}
@@ -1611,11 +1652,12 @@ class PortfolioValidator:
                 stderr=subprocess.STDOUT,
                 **process_options,
             )
+            process_group_id = process.pid
             try:
                 output, _ = process.communicate(timeout=self.timeout)
-            except subprocess.TimeoutExpired:
-                self._terminate_process_group(process)
-                output, _ = process.communicate()
+            except subprocess.TimeoutExpired as exc:
+                self._terminate_process_group(process, process_group_id)
+                output = self._drain_process_output(process, exc.output)
                 self.collector.add(
                     "GEN.COMMAND_TIMEOUT",
                     site_id,
@@ -1659,26 +1701,64 @@ class PortfolioValidator:
                 temp_report.unlink(missing_ok=True)
 
     @staticmethod
-    def _terminate_process_group(process: subprocess.Popen[str]) -> None:
-        if process.poll() is not None:
-            return
+    def _terminate_process_group(
+        process: subprocess.Popen[str], process_group_id: int
+    ) -> None:
+        if os.name == "posix":
+            try:
+                os.killpg(process_group_id, signal.SIGTERM)
+            except OSError:
+                pass
+            try:
+                process.wait(timeout=COMMAND_TERMINATION_GRACE_SECONDS)
+            except subprocess.TimeoutExpired:
+                pass
+            # Always kill the original group after the grace period. The leader
+            # may already have exited while descendants still own captured pipes.
+            try:
+                os.killpg(process_group_id, signal.SIGKILL)
+            except OSError:
+                pass
+        else:
+            # CREATE_NEW_PROCESS_GROUP alone does not make process.kill() recursive.
+            # taskkill /T covers descendants, first gracefully and then forcibly.
+            for force in (False, True):
+                argv = ["taskkill", "/PID", str(process_group_id), "/T"]
+                if force:
+                    argv.append("/F")
+                try:
+                    subprocess.run(
+                        argv,
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        timeout=COMMAND_TERMINATION_GRACE_SECONDS,
+                    )
+                except (OSError, subprocess.TimeoutExpired):
+                    pass
         try:
-            if os.name == "posix":
-                os.killpg(process.pid, signal.SIGTERM)
-            else:
-                process.terminate()
-            process.wait(timeout=2)
-            return
-        except (OSError, subprocess.TimeoutExpired):
-            pass
-        try:
-            if os.name == "posix":
-                os.killpg(process.pid, signal.SIGKILL)
-            else:
+            process.wait(timeout=COMMAND_TERMINATION_GRACE_SECONDS)
+        except subprocess.TimeoutExpired:
+            try:
                 process.kill()
-        except OSError:
-            process.kill()
-        process.wait()
+            except OSError:
+                pass
+
+    @staticmethod
+    def _drain_process_output(
+        process: subprocess.Popen[str], partial_output: str | bytes | None
+    ) -> str:
+        output: str | bytes | None = partial_output
+        try:
+            output, _ = process.communicate(timeout=COMMAND_DRAIN_GRACE_SECONDS)
+        except subprocess.TimeoutExpired as exc:
+            output = exc.output if exc.output is not None else output
+            for stream in (process.stdout, process.stderr, process.stdin):
+                if stream is not None and not stream.closed:
+                    stream.close()
+        if isinstance(output, bytes):
+            return output.decode("utf-8", errors="replace")
+        return output or ""
 
     def _inspect_output(
         self,
@@ -3070,8 +3150,10 @@ class PortfolioValidator:
         )
 
     def _safe_fetch(self, url: str, allowed_origins: set[str], user_agent: str) -> FetchResult:
-        self._validate_request_target(url, allowed_origins)
-        return self.fetcher(url, allowed_origins, self.timeout, user_agent)
+        if self.fetcher is not None:
+            self._validate_request_target(url, allowed_origins)
+            return self.fetcher(url, allowed_origins, self.timeout, user_agent)
+        return self.fetch_url(url, allowed_origins, self.timeout, user_agent)
 
     @staticmethod
     def _resolve_host_addresses(hostname: str, port: int) -> Sequence[str]:
@@ -3088,7 +3170,9 @@ class PortfolioValidator:
             )
         )
 
-    def _validate_request_target(self, url: str, allowed_origins: set[str]) -> None:
+    def _validate_request_target(
+        self, url: str, allowed_origins: set[str]
+    ) -> tuple[urllib.parse.SplitResult, tuple[str, ...]]:
         parsed = _safe_urlsplit(url)
         origin = normalized_origin(url)
         if parsed is None or parsed.scheme.lower() != "https" or not origin:
@@ -3131,6 +3215,8 @@ class PortfolioValidator:
             str(address)
             for address in addresses
             if (
+                (isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped is not None)
+                or
                 not address.is_global
                 or address.is_private
                 or address.is_loopback
@@ -3144,6 +3230,7 @@ class PortfolioValidator:
             raise RequestBoundaryError(
                 f"hostname {normalized_host!r} resolves to non-global addresses: {', '.join(non_global)}"
             )
+        return parsed, tuple(str(address) for address in addresses)
 
     def fetch_url(
         self, url: str, allowed_origins: set[str], timeout: float, user_agent: str
@@ -3151,50 +3238,59 @@ class PortfolioValidator:
         current = url
         redirects = 0
         redirect_statuses: list[int] = []
-        opener = urllib.request.build_opener(NoRedirectHandler())
+        # This direct transport never constructs a ProxyHandler and never consults
+        # HTTP(S)_PROXY/ALL_PROXY. Each hop is connected to a validated numeric IP.
+        tls_context = ssl.create_default_context()
         while True:
-            self._validate_request_target(current, allowed_origins)
-            request = urllib.request.Request(
-                current,
-                headers={
-                    "User-Agent": user_agent,
-                    "Accept": "text/html,application/xml,text/xml,text/plain;q=0.9,*/*;q=0.1",
-                },
-                method="GET",
+            parsed, validated_addresses = self._validate_request_target(current, allowed_origins)
+            hostname = parsed.hostname
+            if hostname is None:  # Defensive; validation above already rejects this.
+                raise RequestBoundaryError("request URL has no hostname")
+            connection = _PinnedHTTPSConnection(
+                hostname.rstrip(".").lower(),
+                parsed.port or 443,
+                validated_addresses[0],
+                timeout=timeout,
+                context=tls_context,
             )
+            request_target = urllib.parse.urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
             try:
-                response = opener.open(request, timeout=timeout)
-            except urllib.error.HTTPError as exc:
-                if exc.code in {301, 302, 303, 307, 308} and exc.headers.get("Location"):
-                    location = exc.headers["Location"]
-                    exc.close()
+                connection.request(
+                    "GET",
+                    request_target,
+                    headers={
+                        "Host": parsed.netloc,
+                        "User-Agent": user_agent,
+                        "Accept": "text/html,application/xml,text/xml,text/plain;q=0.9,*/*;q=0.1",
+                    },
+                )
+                response = connection.getresponse()
+                location = response.headers.get("Location")
+                if response.status in {301, 302, 303, 307, 308} and location:
+                    response.close()
                     redirects += 1
-                    redirect_statuses.append(exc.code)
+                    redirect_statuses.append(response.status)
                     if redirects > 3:
                         raise RedirectOverflow(f"more than 3 redirects while requesting {url}")
                     current = urllib.parse.urljoin(current, location)
                     continue
-                body = exc.read(2_000_000)
+                body = response.read(2_000_000)
+                status = response.status
+                content_type = response.headers.get_content_type()
+                response.close()
                 return FetchResult(
                     requested_url=url,
                     final_url=current,
-                    status=exc.code,
-                    content_type=exc.headers.get_content_type(),
+                    status=status,
+                    content_type=content_type,
                     body=body,
                     redirects=redirects,
                     redirect_statuses=tuple(redirect_statuses),
                 )
-            with response:
-                self._validate_request_target(response.geturl(), allowed_origins)
-                return FetchResult(
-                    requested_url=url,
-                    final_url=response.geturl(),
-                    status=response.getcode(),
-                    content_type=response.headers.get_content_type(),
-                    body=response.read(2_000_000),
-                    redirects=redirects,
-                    redirect_statuses=tuple(redirect_statuses),
-                )
+            except http.client.HTTPException as exc:
+                raise urllib.error.URLError(str(exc)) from exc
+            finally:
+                connection.close()
 
     def _validate_live_home(
         self,
