@@ -1,0 +1,496 @@
+from __future__ import annotations
+
+import copy
+import io
+import json
+import tempfile
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
+
+from scripts.validate_portfolio import FetchResult, PortfolioValidator, build_parser, run
+
+
+ORGANIZATION_ID = "https://buhane.com.tr/#organization"
+
+
+class PortfolioValidatorTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.repo_root = Path(__file__).resolve().parents[2]
+        cls.manifest_path = cls.repo_root / ".planning" / "portfolio-sites.json"
+        cls.base_manifest = json.loads(cls.manifest_path.read_text(encoding="utf-8"))
+
+    def setUp(self) -> None:
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.root = Path(self.temp_dir.name)
+
+    def manifest(self) -> dict:
+        return copy.deepcopy(self.base_manifest)
+
+    def configure_site(
+        self,
+        manifest: dict,
+        site_id: str = "moodjot",
+        *,
+        canonical_routes: list[str] | None = None,
+    ) -> dict:
+        record = manifest["products"][site_id]
+        record["source_root"] = str(self.root)
+        record["public_root"] = str(self.root)
+        record["validation_commands"] = []
+        record["dirty_path_exclusions"] = []
+        record["pending_source_rules"] = []
+        record["canonical_routes"] = canonical_routes or ["/", "/guide/"]
+        return record
+
+    @staticmethod
+    def product_schema(record: dict, product_id: str | None = None) -> dict:
+        return {
+            "@context": "https://schema.org",
+            "@type": record["schema_type"],
+            "@id": product_id or record["product_entity_id"],
+            "name": record["display_name"],
+            "url": record["preferred_origin"],
+            "publisher": {"@id": ORGANIZATION_ID},
+        }
+
+    @staticmethod
+    def editorial_schema(record: dict, product_id: str | None = None) -> dict:
+        return {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "@id": f"{record['preferred_origin']}guide/#article",
+            "headline": f"{record['display_name']} Guide",
+            "about": {"@id": product_id or record["product_entity_id"]},
+            "publisher": {"@id": ORGANIZATION_ID},
+        }
+
+    @staticmethod
+    def html_page(
+        *,
+        title: str,
+        description: str,
+        canonical: str,
+        schema: dict | str,
+        body: str,
+        alternates: dict[str, str] | None = None,
+        extra_head: str = "",
+    ) -> str:
+        schema_text = schema if isinstance(schema, str) else json.dumps(schema)
+        alternate_markup = "".join(
+            f'<link rel="alternate" hreflang="{locale}" href="{href}">'
+            for locale, href in (alternates or {}).items()
+        )
+        return f"""<!doctype html>
+<html lang="en"><head>
+<title>{title}</title>
+<meta name="description" content="{description}">
+<link rel="canonical" href="{canonical}">
+{alternate_markup}
+<meta property="og:url" content="{canonical}">
+<script type="application/ld+json">{schema_text}</script>
+{extra_head}
+</head><body><h1>{title}</h1>{body}</body></html>
+"""
+
+    def write_passing_site(self, record: dict, root: Path | None = None) -> None:
+        root = root or self.root
+        root.mkdir(parents=True, exist_ok=True)
+        origin = record["preferred_origin"]
+        (root / "guide").mkdir(parents=True, exist_ok=True)
+        (root / "index.html").write_text(
+            self.html_page(
+                title=f"{record['display_name']} Home",
+                description=f"Official {record['display_name']} product overview and getting started information.",
+                canonical=origin,
+                schema=self.product_schema(record),
+                body=(
+                    '<p>Use the current released product for its documented purpose.</p>'
+                    '<a href="/guide/">Read the guide</a>'
+                    '<a href="https://buhane.com.tr/">A product by Buhane Information Technologies</a>'
+                ),
+            ),
+            encoding="utf-8",
+        )
+        (root / "guide" / "index.html").write_text(
+            self.html_page(
+                title=f"{record['display_name']} Guide",
+                description=f"A factual guide to using {record['display_name']} in its current release.",
+                canonical=f"{origin}guide/",
+                schema=self.editorial_schema(record),
+                body='<p>Follow the documented workflow.</p><a href="/">Product overview</a>',
+            ),
+            encoding="utf-8",
+        )
+        sitemap_name = Path(record["sitemap_url"].split("/", 3)[-1]).name
+        (root / sitemap_name).write_text(
+            """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>{origin}</loc></url>
+  <url><loc>{origin}guide/</loc></url>
+</urlset>
+""".format(origin=origin),
+            encoding="utf-8",
+        )
+        robots_name = Path(record["robots_url"].split("/", 3)[-1]).name
+        (root / robots_name).write_text(
+            f"User-agent: *\nAllow: /\n\nSitemap: {record['sitemap_url']}\n",
+            encoding="utf-8",
+        )
+
+    def validate(
+        self,
+        manifest: dict,
+        mode: str = "source",
+        site: str = "moodjot",
+        *,
+        allow_pending: bool = False,
+        fetcher=None,
+    ) -> dict:
+        return PortfolioValidator(
+            manifest,
+            self.manifest_path,
+            mode,
+            selected_sites=[site],
+            timeout=1,
+            allow_pending=allow_pending,
+            fetcher=fetcher,
+        ).validate()
+
+    @staticmethod
+    def rules(report: dict) -> set[str]:
+        return {finding["rule_id"] for finding in report["findings"]}
+
+    def test_help_lists_all_cli_options(self) -> None:
+        help_text = build_parser().format_help()
+        for option in (
+            "--help",
+            "--manifest",
+            "--mode",
+            "--site",
+            "--timeout",
+            "--report",
+            "--allow-pending",
+        ):
+            self.assertIn(option, help_text)
+
+    def test_registry_manifest_passes_and_report_path_is_exact(self) -> None:
+        report_path = self.root / "chosen" / "registry.json"
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            exit_code = run(
+                [
+                    "--manifest",
+                    str(self.manifest_path),
+                    "--mode",
+                    "registry",
+                    "--report",
+                    str(report_path),
+                ]
+            )
+        self.assertEqual(0, exit_code, stdout.getvalue())
+        self.assertTrue(report_path.is_file())
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertEqual(0, report["exit_status"])
+        self.assertEqual({}, report["skipped_pending_rules"])
+
+    def test_registry_high_finding_exits_nonzero(self) -> None:
+        manifest = self.manifest()
+        manifest["products"]["vynix"]["preferred_origin"] = "http://vynix.app/"
+        report = self.validate(manifest, mode="registry")
+        self.assertEqual(1, report["exit_status"])
+        self.assertIn("REG.PREFERRED_HTTPS", self.rules(report))
+
+    def test_passing_static_site_reuses_one_product_identity(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        report = self.validate(manifest)
+        self.assertEqual(0, report["exit_status"], report["findings"])
+        self.assertEqual(record["product_entity_id"], report["sites"]["moodjot"]["product_entity_id"])
+
+    def test_legacy_canonical_has_stable_rule_and_high_exit(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        home = (self.root / "index.html").read_text(encoding="utf-8")
+        home = home.replace("https://moodjot.app/", "https://moodjot.com/", 2)
+        (self.root / "index.html").write_text(home, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("CANON.LEGACY_ORIGIN", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_invalid_json_ld_has_stable_schema_rule(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        home = (self.root / "index.html").read_text(encoding="utf-8")
+        start = home.index('<script type="application/ld+json">')
+        end = home.index("</script>", start)
+        home = home[:start] + '<script type="application/ld+json">{"bad":</script>' + home[end + 9 :]
+        (self.root / "index.html").write_text(home, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("SCHEMA.INVALID_JSON", self.rules(report))
+
+    def test_sitemap_auth_leakage_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        sitemap = self.root / "sitemap.xml"
+        text = sitemap.read_text(encoding="utf-8").replace(
+            "</urlset>", "<url><loc>https://moodjot.app/login/</loc></url></urlset>"
+        )
+        sitemap.write_text(text, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("SITEMAP.PRIVATE_ROUTE", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_incomplete_hreflang_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        record["indexable_locales"] = ["en", "tr"]
+        self.write_passing_site(record)
+        home = (self.root / "index.html").read_text(encoding="utf-8").replace(
+            '<meta property="og:url"',
+            '<link rel="alternate" hreflang="en" href="https://moodjot.app/">\n<meta property="og:url"',
+        )
+        (self.root / "index.html").write_text(home, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("LOCALE.HREFLANG_INCOMPLETE", self.rules(report))
+
+    def test_unapproved_sibling_footer_link_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        record["approved_contextual_links"] = []
+        self.write_passing_site(record)
+        home = (self.root / "index.html").read_text(encoding="utf-8").replace(
+            "</body>", '<footer><a href="https://vynix.app/">Try Vynix</a></footer></body>'
+        )
+        (self.root / "index.html").write_text(home, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("LINK.SIBLING_NOT_ALLOWED", self.rules(report))
+
+    def test_private_registry_exposure_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        home = (self.root / "index.html").read_text(encoding="utf-8").replace(
+            "</body>", '<a href="/.planning/portfolio-sites.json">Registry</a></body>'
+        )
+        (self.root / "index.html").write_text(home, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("SEC.PRIVATE_REGISTRY_EXPOSED", self.rules(report))
+
+    def test_lastimo_excluded_claim_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest, "lastimo", canonical_routes=["/"])
+        record["indexable_locales"] = ["en"]
+        self.root.mkdir(parents=True, exist_ok=True)
+        (self.root / "index.html").write_text(
+            self.html_page(
+                title="Lastimo Home",
+                description="Remember the last time you completed one of six preset activities.",
+                canonical="https://lastimo.app/",
+                schema=self.product_schema(record),
+                body=(
+                    "<p>Review your history after each update.</p>"
+                    '<a href="https://buhane.com.tr/">A product by Buhane</a>'
+                ),
+            ),
+            encoding="utf-8",
+        )
+        (self.root / "sitemap.xml").write_text(
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://lastimo.app/</loc></url></urlset>',
+            encoding="utf-8",
+        )
+        (self.root / "robots.txt").write_text(
+            "User-agent: *\nAllow: /\nSitemap: https://lastimo.app/sitemap.xml\n",
+            encoding="utf-8",
+        )
+        report = self.validate(manifest, site="lastimo")
+        self.assertIn("CLAIM.EXCLUDED", self.rules(report))
+
+    def test_home_product_id_mismatch_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        home = (self.root / "index.html").read_text(encoding="utf-8").replace(
+            record["product_entity_id"], "https://moodjot.app/home/#product", 1
+        )
+        (self.root / "index.html").write_text(home, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("ENTITY.PRODUCT_ID_MISMATCH", self.rules(report))
+
+    def test_editorial_route_local_product_id_is_fatal(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        guide = (self.root / "guide" / "index.html").read_text(encoding="utf-8").replace(
+            record["product_entity_id"], "https://moodjot.app/guide/#product", 1
+        )
+        (self.root / "guide" / "index.html").write_text(guide, encoding="utf-8")
+        report = self.validate(manifest)
+        self.assertIn("ENTITY.EDITORIAL_PRODUCT_REFERENCE", self.rules(report))
+
+    def configure_hive(self, manifest: dict) -> dict:
+        record = manifest["products"]["hive-due"]
+        record["source_root"] = str(self.root)
+        record["public_root"] = str(self.root)
+        record["validation_commands"] = []
+        for variant in record["publication_variants"]:
+            variant["build_command"] = 'python3 -c "pass"'
+        return record
+
+    def write_hive_variants(self, record: dict) -> None:
+        for variant in record["publication_variants"]:
+            variant_root = self.root / variant["output_root"]
+            variant_record = dict(record)
+            variant_record.update(variant)
+            variant_record["canonical_routes"] = ["/"]
+            variant_record["product_entity_id"] = record["product_entity_id"]
+            self.write_passing_site(variant_record, variant_root)
+            home = (variant_root / "index.html").read_text(encoding="utf-8")
+            (variant_root / "index.html").write_text(
+                home.replace('<a href="/guide/">Read the guide</a>', ""),
+                encoding="utf-8",
+            )
+            guide = variant_root / "guide"
+            if guide.exists():
+                for child in guide.iterdir():
+                    child.unlink()
+                guide.rmdir()
+            sitemap = variant_root / "sitemap.xml"
+            sitemap.write_text(
+                f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>{variant["preferred_origin"]}</loc></url></urlset>',
+                encoding="utf-8",
+            )
+
+    def test_passing_two_host_hive_reuses_one_product_id(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_hive(manifest)
+        self.write_hive_variants(record)
+        report = self.validate(manifest, site="hive-due")
+        self.assertEqual(0, report["exit_status"], report["findings"])
+        variants = report["sites"]["hive-due"]["publication_variants"]
+        self.assertEqual({"hivedue", "sitehesap"}, set(variants))
+        self.assertEqual(
+            {"https://hivedue.com/#product"},
+            {item["product_entity_id"] for item in variants.values()},
+        )
+
+    def test_hive_crossed_origin_robots_sitemap_and_product_id_fail(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_hive(manifest)
+        self.write_hive_variants(record)
+        sitehesap = self.root / "dist" / "sitehesap"
+        home = (sitehesap / "index.html").read_text(encoding="utf-8")
+        home = home.replace("https://sitehesap.com/", "https://hivedue.com/", 2)
+        home = home.replace(record["product_entity_id"], "https://sitehesap.com/#product", 1)
+        (sitehesap / "index.html").write_text(home, encoding="utf-8")
+        (sitehesap / "robots.txt").write_text(
+            "User-agent: *\nAllow: /\nSitemap: https://hivedue.com/sitemap.xml\n",
+            encoding="utf-8",
+        )
+        report = self.validate(manifest, site="hive-due")
+        rules = self.rules(report)
+        self.assertIn("CANON.PREFERRED_ORIGIN", rules)
+        self.assertIn("ROBOTS.SITEMAP_MISMATCH", rules)
+        self.assertIn("ENTITY.PRODUCT_ID_MISMATCH", rules)
+
+    def test_incomplete_publication_variant_is_fatal(self) -> None:
+        manifest = self.manifest()
+        del manifest["products"]["hive-due"]["publication_variants"][1]["sitemap_url"]
+        report = self.validate(manifest, mode="registry", site="hive-due")
+        self.assertIn("REG.VARIANT_INCOMPLETE", self.rules(report))
+
+    def test_allow_pending_skips_only_declared_discovery_rules(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        record["pending_source_rules"] = ["SRC.MISSING_SITEMAP"]
+        self.write_passing_site(record)
+        (self.root / "sitemap.xml").unlink()
+        report = self.validate(manifest, allow_pending=True)
+        self.assertEqual(0, report["exit_status"], report["findings"])
+        self.assertEqual(["SRC.MISSING_SITEMAP"], report["skipped_pending_rules"]["moodjot"])
+
+        home = (self.root / "index.html").read_text(encoding="utf-8").replace(
+            json.dumps(self.product_schema(record)), '{"@context":'
+        )
+        (self.root / "index.html").write_text(home, encoding="utf-8")
+        fatal_report = self.validate(manifest, allow_pending=True)
+        self.assertIn("SCHEMA.INVALID_JSON", self.rules(fatal_report))
+        self.assertEqual(1, fatal_report["exit_status"])
+
+    @staticmethod
+    def fake_live_fetcher(calls: list[str], overflow: bool = False):
+        def fetch(url: str, allowed: set[str], timeout: float, user_agent: str) -> FetchResult:
+            calls.append(url)
+            if url.endswith("robots.txt"):
+                return FetchResult(url, url, 200, "text/plain", b"User-agent: *\nAllow: /", 0)
+            if url.endswith("sitemap.xml") or url.endswith("sitemap_index.xml"):
+                return FetchResult(
+                    url,
+                    url,
+                    200,
+                    "application/xml",
+                    b'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>',
+                    0,
+                )
+            final_url = "https://moodjot.app/" if "moodjot.com" in url else url
+            redirects = 4 if overflow and url == "https://moodjot.app/" else (1 if final_url != url else 0)
+            body = (
+                f'<html><head><link rel="canonical" href="{final_url}"></head><body>OK</body></html>'
+            ).encode()
+            return FetchResult(url, final_url, 200, "text/html", body, redirects)
+
+        return fetch
+
+    def test_live_redirect_overflow_is_fatal(self) -> None:
+        manifest = self.manifest()
+        calls: list[str] = []
+        report = self.validate(
+            manifest,
+            mode="live",
+            fetcher=self.fake_live_fetcher(calls, overflow=True),
+        )
+        self.assertIn("LIVE.REDIRECT_OVERFLOW", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_live_refuses_arbitrary_host_before_network_open(self) -> None:
+        manifest = self.manifest()
+        manifest["products"]["moodjot"]["sitemap_url"] = "https://evil.example/sitemap.xml"
+        calls: list[str] = []
+        report = self.validate(
+            manifest,
+            mode="live",
+            fetcher=self.fake_live_fetcher(calls),
+        )
+        self.assertIn("LIVE.REQUEST_BOUNDARY", self.rules(report))
+        self.assertNotIn("https://evil.example/sitemap.xml", calls)
+        self.assertEqual(1, report["exit_status"])
+
+    def test_findings_have_complete_unique_schema(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        self.write_passing_site(record)
+        (self.root / "sitemap.xml").write_text("<bad", encoding="utf-8")
+        report = self.validate(manifest)
+        required = {
+            "finding_id",
+            "rule_id",
+            "property_id",
+            "publication_variant",
+            "severity",
+            "message",
+            "evidence",
+        }
+        self.assertTrue(report["findings"])
+        self.assertTrue(all(set(finding) == required for finding in report["findings"]))
+        ids = [finding["finding_id"] for finding in report["findings"]]
+        self.assertEqual(len(ids), len(set(ids)))
+
+
+if __name__ == "__main__":
+    unittest.main()
