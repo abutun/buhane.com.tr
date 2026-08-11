@@ -7,8 +7,11 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.validate_portfolio import (
+    APPROVED_COMMAND_CONTRACTS,
+    APPROVED_SOURCE_ROOTS,
     FetchResult,
     PortfolioValidator,
     build_parser,
@@ -331,6 +334,54 @@ class PortfolioValidatorTests(unittest.TestCase):
             "https://[2606:4700:4700::1111]/path?q=1",
             normalized_url(url),
         )
+
+    def test_registry_rejects_legacy_and_malformed_command_specs(self) -> None:
+        invalid_commands = (
+            "cd www && node scripts/build-seo-content.mjs --check",
+            {"argv": "node", "cwd": "www"},
+            {"argv": [], "cwd": "www"},
+            {"argv": ["node", "scripts/build-seo-content.mjs", "--check"], "cwd": "www", "shell": True},
+        )
+        for command in invalid_commands:
+            with self.subTest(command=command):
+                manifest = self.manifest()
+                manifest["products"]["vynix"]["validation_commands"] = [command]
+                report = self.validate(manifest, mode="registry", site="vynix")
+                self.assertIn("REG.COMMAND_SPEC", self.rules(report))
+                self.assertEqual(1, report["exit_status"])
+
+    def test_registry_rejects_command_metacharacters_and_path_escape(self) -> None:
+        invalid_commands = (
+            {
+                "argv": ["node", "scripts/build-seo-content.mjs;touch", "--check"],
+                "cwd": "www",
+            },
+            {
+                "argv": ["node", "scripts/build-seo-content.mjs", "--check"],
+                "cwd": "../Vynix",
+            },
+        )
+        for command in invalid_commands:
+            with self.subTest(command=command):
+                manifest = self.manifest()
+                manifest["products"]["vynix"]["validation_commands"] = [command]
+                report = self.validate(manifest, mode="registry", site="vynix")
+                self.assertIn("REG.COMMAND_SPEC", self.rules(report))
+                self.assertEqual(1, report["exit_status"])
+
+    def test_source_rejects_unapproved_command_without_spawning_process(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest, "vynix")
+        self.write_passing_site(record)
+        record["validation_commands"] = [
+            {"argv": ["node", "-e", "process.exit(0)"], "cwd": "."}
+        ]
+        with patch("scripts.validate_portfolio.subprocess.run") as run_mock:
+            report = self.validate(manifest, site="vynix")
+
+        self.assertIn("GEN.COMMAND_REJECTED", self.rules(report))
+        run_mock.assert_not_called()
+        self.assertEqual(1, report["exit_status"])
 
     def test_passing_static_site_reuses_one_product_identity(self) -> None:
         manifest = self.manifest()
@@ -726,8 +777,18 @@ class PortfolioValidatorTests(unittest.TestCase):
         record["source_root"] = str(self.root)
         record["public_root"] = str(self.root)
         record["validation_commands"] = []
+        command = {"argv": ["python3", "-c", "pass"], "cwd": "."}
+        source_patch = patch.dict(APPROVED_SOURCE_ROOTS, {"hive-due": self.root})
+        command_patch = patch.dict(
+            APPROVED_COMMAND_CONTRACTS,
+            {"hive-due": {(".", ("python3", "-c", "pass"))}},
+        )
+        source_patch.start()
+        command_patch.start()
+        self.addCleanup(source_patch.stop)
+        self.addCleanup(command_patch.stop)
         for variant in record["publication_variants"]:
-            variant["build_command"] = 'python3 -c "pass"'
+            variant["build_command"] = command
             variant["canonical_routes"] = [
                 "/en/" if variant["id"] == "hivedue" else "/"
             ]

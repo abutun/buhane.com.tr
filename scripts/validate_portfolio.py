@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -140,6 +141,72 @@ VARIANT_REQUIRED_FIELDS = {
     "indexable_locales",
     "robots_url",
     "sitemap_url",
+}
+COMMAND_SPEC_REQUIRED_FIELDS = {"argv", "cwd"}
+TEMP_REPORT_PLACEHOLDER = "{temp_report}"
+SHELL_METACHAR_RE = re.compile(r"[;&|><`$()\r\n]")
+APPROVED_SOURCE_ROOTS = {
+    "vynix": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/Vynix"),
+    "hive-due": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/HiveDue"),
+    "astral-post": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/AstralPost"),
+    "gridzle": Path("/Users/ahmet/Documents/Workspaces/Buhane/games/Gridzle"),
+    "hoskin": Path("/Users/ahmet/Documents/Workspaces/Buhane/games/Hosgin"),
+    "lastimo": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/Lastimo"),
+    "u2m": Path("/Users/ahmet/Documents/Workspaces/Buhane/u2m-api"),
+}
+APPROVED_COMMAND_CONTRACTS = {
+    "vynix": {
+        ("www", ("node", "scripts/build-seo-content.mjs", "--check")),
+    },
+    "hive-due": {
+        ("www", ("npm", "run", "check")),
+        ("www", ("npm", "test")),
+        ("www", ("npm", "run", "build:hivedue")),
+        ("www", ("npm", "run", "build:sitehesap")),
+    },
+    "astral-post": {
+        ("www", ("node", "scripts/build-content-pages.mjs")),
+        ("www", ("node", "scripts/verify-content-hub.mjs")),
+    },
+    "gridzle": {
+        (
+            "www",
+            (
+                "python3",
+                "../tools/verify_www_foundation.py",
+                "--root",
+                ".",
+                "--output",
+                TEMP_REPORT_PLACEHOLDER,
+            ),
+        ),
+        (
+            "www",
+            (
+                "python3",
+                "../tools/verify_www_hosting.py",
+                "--root",
+                ".",
+                "--output",
+                TEMP_REPORT_PLACEHOLDER,
+            ),
+        ),
+    },
+    "hoskin": {
+        ("www", ("node", "scripts/build.mjs")),
+        ("www", ("node", "scripts/validate.mjs")),
+    },
+    "lastimo": {
+        ("www", ("npm", "run", "build")),
+        ("www", ("npm", "run", "check")),
+        ("www", ("npm", "test")),
+        ("www", ("npm", "run", "verify")),
+    },
+    "u2m": {
+        ("frontend", ("npm", "run", "build")),
+        ("frontend", ("npm", "run", "test:unit")),
+        ("frontend", ("npm", "run", "test:e2e")),
+    },
 }
 ROUTE_LOCALE_SCOPE_REQUIRED_FIELDS = {"routes", "indexable_locales"}
 CROSS_PUBLICATION_HREFLANG_REQUIRED_FIELDS = {
@@ -675,6 +742,12 @@ class PortfolioValidator:
                     {"expected": expected_entity, "actual": record.get("entity_id")},
                 )
             self._validate_common_registry_fields(property_id, record, seen_origins)
+            self._validate_command_specs(
+                property_id,
+                record.get("source_root"),
+                record.get("validation_commands"),
+                "validation_commands",
+            )
             self._validate_locale_contract(property_id, record)
             self._validate_contextual_links(property_id, record)
             expected_links = PROPERTY_CONTEXTUAL_LINK_CONTRACTS.get(property_id)
@@ -685,6 +758,12 @@ class PortfolioValidator:
             self._initialize_site_result(product_id, record)
             self._validate_required_fields(product_id, record, PRODUCT_REQUIRED_FIELDS)
             self._validate_common_registry_fields(product_id, record, seen_origins)
+            self._validate_command_specs(
+                product_id,
+                record.get("source_root"),
+                record.get("validation_commands"),
+                "validation_commands",
+            )
             self._validate_locale_contract(product_id, record)
             expected_id = EXPECTED_PRODUCTS.get(product_id)
             if record.get("product_entity_id") != expected_id:
@@ -871,6 +950,80 @@ class PortfolioValidator:
                     "A preferred origin cannot also be a legacy alias",
                     {"origin": legacy},
                     route=str(legacy),
+                )
+
+    def _command_spec_error(
+        self,
+        site_id: str,
+        source_root_value: Any,
+        command: Any,
+    ) -> str | None:
+        if not isinstance(command, dict) or set(command) != COMMAND_SPEC_REQUIRED_FIELDS:
+            return "command must be an object containing only argv and cwd"
+        argv = command.get("argv")
+        cwd_value = command.get("cwd")
+        if (
+            not isinstance(argv, list)
+            or not argv
+            or any(not isinstance(argument, str) or not argument or "\x00" in argument for argument in argv)
+        ):
+            return "argv must be a nonempty array of nonempty strings"
+        if any(SHELL_METACHAR_RE.search(argument) for argument in argv):
+            return "argv may not contain shell metacharacters"
+        if (
+            not isinstance(cwd_value, str)
+            or not cwd_value
+            or "\x00" in cwd_value
+            or SHELL_METACHAR_RE.search(cwd_value)
+        ):
+            return "cwd must be a nonempty relative path without shell metacharacters"
+        cwd_relative = Path(cwd_value)
+        if cwd_relative.is_absolute() or ".." in cwd_relative.parts:
+            return "cwd must stay within the approved source root"
+        if not isinstance(source_root_value, str):
+            return "command requires a string source_root"
+        approved_root = APPROVED_SOURCE_ROOTS.get(site_id)
+        try:
+            source_root = Path(source_root_value).resolve()
+        except (OSError, RuntimeError):
+            return "source_root cannot be resolved"
+        if approved_root is None or source_root != approved_root.resolve():
+            return "source_root is not the code-approved command boundary"
+        command_cwd = source_root / cwd_relative
+        if not is_path_within(command_cwd, source_root):
+            return "cwd escapes the approved source root"
+        contract = (cwd_value, tuple(argv))
+        if contract not in APPROVED_COMMAND_CONTRACTS.get(site_id, set()):
+            return "argv and cwd do not match the code-approved command contract"
+        return None
+
+    def _validate_command_specs(
+        self,
+        site_id: str,
+        source_root_value: Any,
+        commands: Any,
+        field: str,
+    ) -> None:
+        if not isinstance(commands, list):
+            self.collector.add(
+                "REG.COMMAND_SPEC",
+                site_id,
+                "high",
+                f"{field} must be a list of structured command objects",
+                {"field": field, "actual_type": type(commands).__name__},
+                route=field,
+            )
+            return
+        for index, command in enumerate(commands):
+            error = self._command_spec_error(site_id, source_root_value, command)
+            if error:
+                self.collector.add(
+                    "REG.COMMAND_SPEC",
+                    site_id,
+                    "high",
+                    "Manifest command is outside the approved no-shell contract",
+                    {"field": field, "index": index, "error": error},
+                    route=f"{field}:{index}",
                 )
 
     def _validate_locale_contract(self, site_id: str, record: Mapping[str, Any]) -> None:
@@ -1202,6 +1355,22 @@ class PortfolioValidator:
                     {"actual": variant.get("product_entity_id")},
                     publication_variant=variant_id,
                 )
+            build_command = variant.get("build_command")
+            error = self._command_spec_error(
+                product_id,
+                self.products.get(product_id, {}).get("source_root"),
+                build_command,
+            )
+            if error:
+                self.collector.add(
+                    "REG.COMMAND_SPEC",
+                    product_id,
+                    "high",
+                    "Publication build command is outside the approved no-shell contract",
+                    {"field": "build_command", "index": index, "error": error},
+                    publication_variant=variant_id,
+                    route=f"build_command:{index}",
+                )
             output_root = variant.get("output_root")
             if not isinstance(output_root, str) or Path(output_root).is_absolute() or ".." in Path(output_root).parts:
                 self.collector.add(
@@ -1252,10 +1421,10 @@ class PortfolioValidator:
                         continue
                     variant_id = variant["id"]
                     build_command = variant.get("build_command")
-                    if isinstance(build_command, str) and build_command.strip():
+                    if build_command is not None:
                         self._run_command(
                             build_command,
-                            public_root,
+                            source_root,
                             site_id,
                             "GEN.BUILD_FAILED",
                             publication_variant=variant_id,
@@ -1291,8 +1460,7 @@ class PortfolioValidator:
                 source_contract = self._source_contract(site_id, record)
                 self._inspect_output(site_id, source_contract, source_contract, public_root)
             for command in ensure_list(record.get("validation_commands")):
-                if isinstance(command, str) and command.strip():
-                    self._run_command(command, source_root, site_id, "GEN.CHECK_FAILED")
+                self._run_command(command, source_root, site_id, "GEN.CHECK_FAILED")
 
     def _source_contract(
         self,
@@ -1331,48 +1499,76 @@ class PortfolioValidator:
 
     def _run_command(
         self,
-        command: str,
-        cwd: Path,
+        command: Any,
+        source_root: Path,
         site_id: str,
         rule_id: str,
         *,
         publication_variant: str | None = None,
     ) -> None:
+        error = self._command_spec_error(site_id, str(source_root), command)
+        if error:
+            self.collector.add(
+                "GEN.COMMAND_REJECTED",
+                site_id,
+                "high",
+                "Repository-native command was rejected before execution",
+                {"error": error},
+                publication_variant=publication_variant,
+                route=rule_id,
+            )
+            return
+        argv = list(command["argv"])
+        cwd = source_root / command["cwd"]
+        command_label = json.dumps({"argv": argv, "cwd": command["cwd"]}, sort_keys=True)
         if not cwd.is_dir():
             self.collector.add(
                 "SRC.OUTPUT_ROOT_MISSING",
                 site_id,
                 "high",
                 "Command working directory does not exist",
-                {"cwd": str(cwd), "command": command},
+                {"cwd": str(cwd), "command": command_label},
                 publication_variant=publication_variant,
                 route=str(cwd),
             )
             return
-        result = subprocess.run(
-            command,
-            cwd=cwd,
-            shell=True,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            timeout=max(30.0, self.timeout),
-            check=False,
-        )
-        if result.returncode != 0:
-            self.collector.add(
-                rule_id,
-                site_id,
-                "high",
-                "Repository-native build or validation command failed",
-                {
-                    "command": command,
-                    "returncode": result.returncode,
-                    "output_tail": result.stdout[-2000:],
-                },
-                publication_variant=publication_variant,
-                route=command,
+        temp_report: Path | None = None
+        try:
+            if TEMP_REPORT_PLACEHOLDER in argv:
+                with tempfile.NamedTemporaryFile(
+                    prefix=f"portfolio-{site_id}-",
+                    suffix=".json",
+                    delete=False,
+                ) as handle:
+                    temp_report = Path(handle.name)
+                argv = [str(temp_report) if item == TEMP_REPORT_PLACEHOLDER else item for item in argv]
+            result = subprocess.run(
+                argv,
+                cwd=cwd,
+                shell=False,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=max(30.0, self.timeout),
+                check=False,
             )
+            if result.returncode != 0:
+                self.collector.add(
+                    rule_id,
+                    site_id,
+                    "high",
+                    "Repository-native build or validation command failed",
+                    {
+                        "command": command_label,
+                        "returncode": result.returncode,
+                        "output_tail": result.stdout[-2000:],
+                    },
+                    publication_variant=publication_variant,
+                    route=command_label,
+                )
+        finally:
+            if temp_report is not None:
+                temp_report.unlink(missing_ok=True)
 
     def _inspect_output(
         self,

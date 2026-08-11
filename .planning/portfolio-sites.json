@@ -257,7 +257,14 @@
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "hybrid_tracked_generator",
       "validation_commands": [
-        "cd www && node scripts/build-seo-content.mjs --check"
+        {
+          "argv": [
+            "node",
+            "scripts/build-seo-content.mjs",
+            "--check"
+          ],
+          "cwd": "www"
+        }
       ],
       "dirty_path_exclusions": [
         "www/admin/dist/index.html"
@@ -450,8 +457,21 @@
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "astro_static_variants",
       "validation_commands": [
-        "cd www && npm run check",
-        "cd www && npm test"
+        {
+          "argv": [
+            "npm",
+            "run",
+            "check"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "npm",
+            "test"
+          ],
+          "cwd": "www"
+        }
       ],
       "dirty_path_exclusions": [
         "www/dist/**",
@@ -466,7 +486,14 @@
       "publication_variants": [
         {
           "id": "hivedue",
-          "build_command": "npm run build:hivedue",
+          "build_command": {
+            "argv": [
+              "npm",
+              "run",
+              "build:hivedue"
+            ],
+            "cwd": "www"
+          },
           "output_root": "dist/hivedue",
           "preferred_origin": "https://hivedue.com/",
           "indexable_locales": [
@@ -521,7 +548,14 @@
         },
         {
           "id": "sitehesap",
-          "build_command": "npm run build:sitehesap",
+          "build_command": {
+            "argv": [
+              "npm",
+              "run",
+              "build:sitehesap"
+            ],
+            "cwd": "www"
+          },
           "output_root": "dist/sitehesap",
           "preferred_origin": "https://sitehesap.com/",
           "indexable_locales": [
@@ -679,8 +713,20 @@
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "hybrid_tracked_generator",
       "validation_commands": [
-        "cd www && node scripts/build-content-pages.mjs",
-        "cd www && node scripts/verify-content-hub.mjs"
+        {
+          "argv": [
+            "node",
+            "scripts/build-content-pages.mjs"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "node",
+            "scripts/verify-content-hub.mjs"
+          ],
+          "cwd": "www"
+        }
       ],
       "dirty_path_exclusions": [],
       "pending_source_rules": [],
@@ -739,8 +785,28 @@
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "direct_static",
       "validation_commands": [
-        "cd www && gridzle_foundation_report=\"$(mktemp /tmp/gridzle-foundation-XXXXXX)\" && python3 ../tools/verify_www_foundation.py --root . --output \"$gridzle_foundation_report\"",
-        "cd www && gridzle_hosting_report=\"$(mktemp /tmp/gridzle-hosting-XXXXXX)\" && python3 ../tools/verify_www_hosting.py --root . --output \"$gridzle_hosting_report\""
+        {
+          "argv": [
+            "python3",
+            "../tools/verify_www_foundation.py",
+            "--root",
+            ".",
+            "--output",
+            "{temp_report}"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "python3",
+            "../tools/verify_www_hosting.py",
+            "--root",
+            ".",
+            "--output",
+            "{temp_report}"
+          ],
+          "cwd": "www"
+        }
       ],
       "dirty_path_exclusions": [
         "shared/build/reports/www/**"
@@ -881,8 +947,20 @@
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "full_multilingual_generator",
       "validation_commands": [
-        "cd www && node scripts/build.mjs",
-        "cd www && node scripts/validate.mjs"
+        {
+          "argv": [
+            "node",
+            "scripts/build.mjs"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "node",
+            "scripts/validate.mjs"
+          ],
+          "cwd": "www"
+        }
       ],
       "dirty_path_exclusions": [],
       "pending_source_rules": [],
@@ -1015,10 +1093,37 @@
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "full_multilingual_generator",
       "validation_commands": [
-        "cd www && npm run build",
-        "cd www && npm run check",
-        "cd www && npm test",
-        "cd www && npm run verify"
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "check"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "npm",
+            "test"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "verify"
+          ],
+          "cwd": "www"
+        }
       ],
       "dirty_path_exclusions": [],
       "pending_source_rules": [],
@@ -1123,9 +1228,30 @@
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "vue_spa",
       "validation_commands": [
-        "cd frontend && npm run build",
-        "cd frontend && npm run test:unit",
-        "cd frontend && npm run test:e2e"
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "frontend"
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:unit"
+          ],
+          "cwd": "frontend"
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:e2e"
+          ],
+          "cwd": "frontend"
+        }
       ],
       "dirty_path_exclusions": [
         "frontend/dist/**"
