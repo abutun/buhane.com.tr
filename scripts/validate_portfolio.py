@@ -224,7 +224,7 @@ APPROVED_PUBLIC_ORIGINS = {
     "hoskin": frozenset({"https://hoskin.app", "https://gethoskin.com"}),
     "lastimo": frozenset({"https://lastimo.app", "https://getlastimo.com"}),
     "the-cosmic-meta": frozenset({"https://thecosmicmeta.com"}),
-    "u2m": frozenset({"https://u2m.io"}),
+    "u2m": frozenset({"https://u2m.io", "https://www.u2m.io"}),
 }
 ROUTE_LOCALE_SCOPE_REQUIRED_FIELDS = {"routes", "indexable_locales"}
 CROSS_PUBLICATION_HREFLANG_REQUIRED_FIELDS = {

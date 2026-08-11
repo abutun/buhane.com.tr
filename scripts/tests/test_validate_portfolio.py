@@ -518,6 +518,14 @@ class PortfolioValidatorTests(unittest.TestCase):
                 self.assertIn("REG.PRODUCT_PUBLIC_ROUTE_CONTRACT", self.rules(report))
                 self.assertEqual(1, report["exit_status"])
 
+    def test_u2m_registry_declares_www_as_legacy_origin_only(self) -> None:
+        manifest = self.manifest()
+        record = manifest["products"]["u2m"]
+        self.assertEqual(["https://www.u2m.io/"], record["legacy_origins"])
+        self.assertEqual("https://u2m.io/", record["preferred_origin"])
+        report = self.validate(manifest, mode="registry", site="u2m")
+        self.assertEqual(0, report["exit_status"], report["findings"])
+
     def test_u2m_registry_rejects_private_or_noindex_canonical_routes(self) -> None:
         forbidden_routes = (
             "/login",

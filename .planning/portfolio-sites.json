@@ -1192,7 +1192,9 @@
       "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/u2m-api/frontend/dist",
       "preferred_origin": "https://u2m.io/",
       "product_entity_id": "https://u2m.io/#product",
-      "legacy_origins": [],
+      "legacy_origins": [
+        "https://www.u2m.io/"
+      ],
       "regional_origins": [],
       "default_locale": "en",
       "indexable_locales": [
