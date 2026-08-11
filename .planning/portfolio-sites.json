@@ -5,6 +5,37 @@
     "SRC.MISSING_ROBOTS",
     "SRC.MISSING_SITEMAP"
   ],
+  "release_evidence": {
+    "phase_plan": "05-14",
+    "generated_at": "2026-08-11T18:32:34Z",
+    "editable_source_status": "source_complete",
+    "source_validator_exit": 0,
+    "source_report": "/tmp/buhane-05-14-source.json",
+    "live_validator_exit": 1,
+    "live_report": "/tmp/buhane-05-14-live.json",
+    "live_finding_count": 40,
+    "external_blocked": [
+      "the-cosmic-meta"
+    ],
+    "training_policy": "owner_decision_required",
+    "release_status_report": ".planning/phases/05-portfolio-discovery-content-and-brand-network/05-RELEASE-STATUS.json",
+    "measurement_baseline": ".planning/phases/05-portfolio-discovery-content-and-brand-network/05-MEASUREMENT-BASELINE.md",
+    "property_statuses": {
+      "buhane": "deployment_pending",
+      "ahmet-sh": "deployment_pending",
+      "moodjot": "deployment_pending",
+      "vynix": "deployment_pending",
+      "swipe-slip": "deployment_pending",
+      "glow-spin": "deployment_pending",
+      "hive-due": "deployment_pending",
+      "astral-post": "deployment_pending",
+      "gridzle": "deployment_pending",
+      "hoskin": "deployment_pending",
+      "lastimo": "deployment_pending",
+      "the-cosmic-meta": "externally_blocked",
+      "u2m": "deployment_pending"
+    }
+  },
   "entities": {
     "buhane": {
       "entity_id": "https://buhane.com.tr/#organization",

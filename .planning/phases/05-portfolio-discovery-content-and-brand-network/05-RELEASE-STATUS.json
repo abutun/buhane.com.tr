@@ -1,0 +1,157 @@
+{
+  "live_validator_exit": 1,
+  "live_report": "/tmp/buhane-05-14-live.json",
+  "generated_at": "2026-08-11T18:32:34Z",
+  "execution_bounds": {
+    "strategy": "central-validator-per-property",
+    "parallel_workers": 4,
+    "per_property_process_timeout_seconds": 90,
+    "per_request_timeout_seconds": 20
+  },
+  "source_validator_exit": 0,
+  "source_report": "/tmp/buhane-05-14-source.json",
+  "properties": [
+    {
+      "property_id": "buhane",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-cfa992c197ab1721"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "ahmet-sh",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-dfa514434ec827ec"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "moodjot",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-6915378c9ae16342",
+        "F-f05398b0cf4c514f"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "vynix",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-17b5b5593224dbc8",
+        "F-1c660e7a52b60d93",
+        "F-397a2fa10ad20a70",
+        "F-439571e5fe91ef60",
+        "F-45ce1087bf044a69",
+        "F-47315182c220414b",
+        "F-4be8eaf3100a9db1",
+        "F-4c46e4e0c2bd39b5",
+        "F-4e269485a88fb1b1",
+        "F-56351c6cd33d3306",
+        "F-608e4ded69390232",
+        "F-63280cc3dff170a7",
+        "F-8e52c2b0cb68cee4",
+        "F-c71222e8e105a3b2",
+        "F-d15db8d4c423cfd1",
+        "F-d38a1daea158bb5a",
+        "F-d3bcec5a01017bd1",
+        "F-eb10d4d2bed2f687"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "swipe-slip",
+      "status": "deployment_pending",
+      "finding_ids": [],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "glow-spin",
+      "status": "deployment_pending",
+      "finding_ids": [],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "hive-due",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-0d8b1c6b5751fcdd",
+        "F-27d5d31bd8060291",
+        "F-58ab1cf9bea7bc90",
+        "F-60ab916071fb0c59",
+        "F-8dab86daf14bab8b",
+        "F-e24e3bf969481e1a",
+        "F-e88effc4a1d6d008"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "astral-post",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-48306a0027f8364e",
+        "F-c8e25f381429eea3",
+        "F-e98d24226f52a79d"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "gridzle",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-072e66b5a9d07772",
+        "F-62352df6eadb5241",
+        "F-b7da51e2c26876c1"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "hoskin",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-665fd7c2c77cc7b5"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "lastimo",
+      "status": "deployment_pending",
+      "finding_ids": [],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "the-cosmic-meta",
+      "status": "externally_blocked",
+      "finding_ids": [
+        "F-fc00002d888278fb"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    },
+    {
+      "property_id": "u2m",
+      "status": "deployment_pending",
+      "finding_ids": [
+        "F-0fe6af4079788211",
+        "F-1d00d2f2878770eb",
+        "F-7f946f590444980f"
+      ],
+      "evidence_timestamp": "2026-08-11T18:32:34Z",
+      "evidence_report": "/tmp/buhane-05-14-live.json"
+    }
+  ],
+  "unmapped_finding_ids": []
+}

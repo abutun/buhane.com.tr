@@ -42,6 +42,27 @@ The table has exactly one row for each registry property or product. Counts are 
 - Direct-static HTTP-root smoke: Buhane six routes, MoodJot five, Swipe Slip five, Glow Spin five, and ahmet.sh three all returned HTTP 200 with the expected HTML/text/XML content types.
 - Feed inspection: Swipe Slip 10 entries, Astral Post 10, Hoşkin 10 per locale across five feeds, Lastimo 8. Other editable properties do not publish a feed in the reviewed source contract.
 
+## Read-only live and deployment evidence
+
+The initial all-property live process used the documented 20-second per-request timeout, but recursive sitemap-page fetches made its aggregate process duration too broad. It was interrupted without writing or mutating a repository. The same central validator was then run once per allowlisted property with four bounded workers, the same 20-second request timeout, and a 90-second overall deadline per property. Per-property JSON was combined deterministically at `/tmp/buhane-05-14-live.json`; a property that exceeded its process deadline received a fail-closed `LIVE.PROCESS_TIMEOUT` finding rather than disappearing.
+
+The combined report started at `2026-08-11T18:32:34Z`, contains all 13 property records, and records exit `1` with 40 high findings and no lower-severity findings. Every finding ID is mapped exactly once in `05-RELEASE-STATUS.json`; `unmapped_finding_ids` is empty.
+
+| Live result group | Finding count and raw-HTTP result | Honest disposition |
+|---|---|---|
+| Buhane, ahmet.sh | One home canonical mismatch each | `deployment_pending` |
+| MoodJot | Two sitemap pages do not expose the expected deployed canonical | `deployment_pending` |
+| Vynix | One home canonical mismatch and 17 sitemap entries on the non-preferred `www` origin | `deployment_pending` |
+| Hive Due / Site Hesap | Seven preferred/discovery/canonical/XML findings across the two publications | `deployment_pending` |
+| Astral Post | Three sitemap-page canonical mismatches | `deployment_pending` |
+| Gridzle | Home canonical plus sitemap response/XML findings | `deployment_pending` |
+| Hoşkin | Preferred home currently returns a noindex signal | `deployment_pending` |
+| U2M | Home canonical plus sitemap response/XML findings | `deployment_pending` |
+| Swipe Slip, Glow Spin, Lastimo | Zero live findings in this crawl, but no evidence ties the response to the local Phase 05 revision | `deployment_pending`, not `deployed_verified` |
+| The Cosmic Meta | Explicit bounded-process timeout; separate read-only dossier evidence remains available | `externally_blocked` |
+
+These are production observations, not new source failures. All affected properties remain non-pass, and none of the three zero-finding sites is promoted without a traceable deployed revision. Preferred, discovery, sitemap-page, configured search/citation-agent, and legacy-origin requests were raw HTTP checks restricted to manifest origins. DNS/CDN, deploy, crawler policy, search accounts, analytics, and IndexNow remained unmodified.
+
 The production route inventories added to the private registry close the validator's fail-closed `SITEMAP.UNDECLARED_ROUTE` gap. A narrow test-maintenance deviation was necessary: the synthetic two-host Hive fixture now declares only the `/en/` and `/` pages it creates. Commit `76fc57a` changes three test lines only; it does not weaken production validation or modify a sibling repository.
 
 ## Repository-local summary evidence
