@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import email.message
 import io
 import json
 import tempfile
@@ -8,12 +9,14 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
+import urllib.error
 
 from scripts.validate_portfolio import (
     APPROVED_COMMAND_CONTRACTS,
     APPROVED_SOURCE_ROOTS,
     FetchResult,
     PortfolioValidator,
+    RequestBoundaryError,
     build_parser,
     is_https_origin,
     normalized_origin,
@@ -257,7 +260,10 @@ class PortfolioValidatorTests(unittest.TestCase):
         *,
         allow_pending: bool = False,
         fetcher=None,
+        resolver=None,
     ) -> dict:
+        if fetcher is not None and resolver is None:
+            resolver = lambda _hostname, _port: ("93.184.216.34",)
         return PortfolioValidator(
             manifest,
             self.manifest_path,
@@ -266,6 +272,7 @@ class PortfolioValidatorTests(unittest.TestCase):
             timeout=1,
             allow_pending=allow_pending,
             fetcher=fetcher,
+            resolver=resolver,
         ).validate()
 
     @staticmethod
@@ -1078,10 +1085,105 @@ class PortfolioValidatorTests(unittest.TestCase):
             manifest,
             mode="live",
             fetcher=self.fake_live_fetcher(calls),
+            resolver=lambda _hostname, _port: ("93.184.216.34",),
         )
         self.assertIn("LIVE.REQUEST_BOUNDARY", self.rules(report))
         self.assertNotIn("https://evil.example/sitemap.xml", calls)
         self.assertEqual(1, report["exit_status"])
+
+    def test_live_origin_contract_rejects_manifest_selected_public_host(self) -> None:
+        manifest = self.manifest()
+        manifest["products"]["moodjot"]["preferred_origin"] = "https://attacker.example/"
+        calls: list[str] = []
+        report = self.validate(
+            manifest,
+            mode="live",
+            fetcher=self.fake_live_fetcher(calls),
+            resolver=lambda _hostname, _port: ("93.184.216.34",),
+        )
+        self.assertIn("REG.ORIGIN_CONTRACT", self.rules(report))
+        self.assertIn("LIVE.REQUEST_BOUNDARY", self.rules(report))
+        self.assertNotIn("https://attacker.example/", calls)
+
+    def test_request_boundary_rejects_local_and_non_global_literal_ips(self) -> None:
+        validator = PortfolioValidator(
+            self.manifest(),
+            self.manifest_path,
+            "live",
+            selected_sites=["moodjot"],
+            resolver=lambda _hostname, _port: ("93.184.216.34",),
+        )
+        urls = (
+            "https://127.0.0.1/",
+            "https://10.0.0.1/",
+            "https://169.254.169.254/",
+            "https://224.0.0.1/",
+            "https://0.0.0.0/",
+            "https://[::1]/",
+            "https://[fe80::1]/",
+            "https://[ff02::1]/",
+        )
+        for url in urls:
+            with self.subTest(url=url):
+                with self.assertRaises(RequestBoundaryError):
+                    validator._validate_request_target(url, {normalized_origin(url)})
+
+    def test_request_boundary_rejects_userinfo_and_private_dns_answers(self) -> None:
+        validator = PortfolioValidator(
+            self.manifest(),
+            self.manifest_path,
+            "live",
+            selected_sites=["moodjot"],
+            resolver=lambda _hostname, _port: ("192.168.1.10",),
+        )
+        with self.assertRaises(RequestBoundaryError):
+            validator._validate_request_target(
+                "https://user:secret@moodjot.app/",
+                {"https://moodjot.app"},
+            )
+        with self.assertRaises(RequestBoundaryError):
+            validator._validate_request_target(
+                "https://moodjot.app/",
+                {"https://moodjot.app"},
+            )
+
+    def test_redirect_target_is_dns_checked_before_second_open(self) -> None:
+        manifest = self.manifest()
+
+        def resolver(hostname: str, _port: int) -> tuple[str, ...]:
+            if hostname == "moodjot.com":
+                return ("127.0.0.1",)
+            return ("93.184.216.34",)
+
+        class RedirectingOpener:
+            def __init__(self) -> None:
+                self.calls: list[str] = []
+
+            def open(self, request, timeout):
+                self.calls.append(request.full_url)
+                headers = email.message.Message()
+                headers["Location"] = "https://moodjot.com/"
+                raise urllib.error.HTTPError(
+                    request.full_url,
+                    301,
+                    "Moved Permanently",
+                    headers,
+                    io.BytesIO(),
+                )
+
+        opener = RedirectingOpener()
+        validator = PortfolioValidator(
+            manifest,
+            self.manifest_path,
+            "live",
+            selected_sites=["moodjot"],
+            resolver=resolver,
+        )
+        allowed = validator._allowed_origins("moodjot", manifest["products"]["moodjot"])
+        with patch("scripts.validate_portfolio.urllib.request.build_opener", return_value=opener):
+            with self.assertRaises(RequestBoundaryError):
+                validator._safe_fetch("https://moodjot.app/", allowed, "test-agent")
+        self.assertEqual(["https://moodjot.app/"], opener.calls)
 
     def test_findings_have_complete_unique_schema(self) -> None:
         manifest = self.manifest()

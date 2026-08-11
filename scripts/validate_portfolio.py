@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import ipaddress
 import json
 import os
 import re
 import signal
+import socket
 import subprocess
 import sys
 import tempfile
@@ -208,6 +210,21 @@ APPROVED_COMMAND_CONTRACTS = {
         ("frontend", ("npm", "run", "test:unit")),
         ("frontend", ("npm", "run", "test:e2e")),
     },
+}
+APPROVED_PUBLIC_ORIGINS = {
+    "buhane": frozenset({"https://buhane.com.tr"}),
+    "ahmet-sh": frozenset({"https://ahmet.sh"}),
+    "moodjot": frozenset({"https://moodjot.app", "https://moodjot.com"}),
+    "vynix": frozenset({"https://vynix.app", "https://getvynix.com"}),
+    "swipe-slip": frozenset({"https://swipeslip.app"}),
+    "glow-spin": frozenset({"https://glowspin.app"}),
+    "hive-due": frozenset({"https://hivedue.com", "https://sitehesap.com"}),
+    "astral-post": frozenset({"https://astralpost.app", "https://astralpost.com"}),
+    "gridzle": frozenset({"https://gridzle.app", "https://gridzle.com"}),
+    "hoskin": frozenset({"https://hoskin.app", "https://gethoskin.com"}),
+    "lastimo": frozenset({"https://lastimo.app", "https://getlastimo.com"}),
+    "the-cosmic-meta": frozenset({"https://thecosmicmeta.com"}),
+    "u2m": frozenset({"https://u2m.io"}),
 }
 ROUTE_LOCALE_SCOPE_REQUIRED_FIELDS = {"routes", "indexable_locales"}
 CROSS_PUBLICATION_HREFLANG_REQUIRED_FIELDS = {
@@ -568,6 +585,7 @@ class PortfolioValidator:
         timeout: float = 20.0,
         allow_pending: bool = False,
         fetcher: Callable[[str, set[str], float, str], FetchResult] | None = None,
+        resolver: Callable[[str, int], Sequence[str]] | None = None,
     ) -> None:
         self.manifest = dict(manifest)
         self.manifest_path = manifest_path
@@ -588,6 +606,7 @@ class PortfolioValidator:
         self.selected_sites = list(selected_sites or self.records.keys())
         self.collector = FindingCollector(allow_pending, self.records)
         self.fetcher = fetcher or self.fetch_url
+        self.resolver = resolver or self._resolve_host_addresses
         self.started_at = utc_now()
         self.site_results: dict[str, dict[str, Any]] = {}
         self.product_origins = {
@@ -743,6 +762,7 @@ class PortfolioValidator:
                     {"expected": expected_entity, "actual": record.get("entity_id")},
                 )
             self._validate_common_registry_fields(property_id, record, seen_origins)
+            self._validate_origin_contract(property_id, record)
             self._validate_command_specs(
                 property_id,
                 record.get("source_root"),
@@ -759,6 +779,7 @@ class PortfolioValidator:
             self._initialize_site_result(product_id, record)
             self._validate_required_fields(product_id, record, PRODUCT_REQUIRED_FIELDS)
             self._validate_common_registry_fields(product_id, record, seen_origins)
+            self._validate_origin_contract(product_id, record)
             self._validate_command_specs(
                 product_id,
                 record.get("source_root"),
@@ -997,6 +1018,39 @@ class PortfolioValidator:
         if contract not in APPROVED_COMMAND_CONTRACTS.get(site_id, set()):
             return "argv and cwd do not match the code-approved command contract"
         return None
+
+    @staticmethod
+    def _manifest_origins(record: Mapping[str, Any]) -> set[str]:
+        values: list[Any] = [record.get("preferred_origin")]
+        values.extend(ensure_list(record.get("legacy_origins")))
+        for regional in ensure_list(record.get("regional_origins")):
+            if isinstance(regional, dict):
+                values.append(regional.get("origin"))
+        for variant in ensure_list(record.get("publication_variants")):
+            if isinstance(variant, dict):
+                values.append(variant.get("preferred_origin"))
+        return {
+            normalized_origin(value)
+            for value in values
+            if isinstance(value, str) and normalized_origin(value)
+        }
+
+    def _validate_origin_contract(
+        self,
+        site_id: str,
+        record: Mapping[str, Any],
+    ) -> None:
+        actual = self._manifest_origins(record)
+        approved = set(APPROVED_PUBLIC_ORIGINS.get(site_id, frozenset()))
+        if actual != approved:
+            self.collector.add(
+                "REG.ORIGIN_CONTRACT",
+                site_id,
+                "high",
+                "Manifest origins differ from the immutable public-origin contract",
+                {"approved": sorted(approved), "actual": sorted(actual)},
+                route="origins",
+            )
 
     def _validate_command_specs(
         self,
@@ -2891,7 +2945,7 @@ class PortfolioValidator:
             if not record:
                 continue
             self._initialize_site_result(site_id, record)
-            allowed_origins = self._allowed_origins(record)
+            allowed_origins = self._allowed_origins(site_id, record)
             targets = ensure_list(record.get("publication_variants")) or [record]
             for target in targets:
                 if not isinstance(target, dict):
@@ -3010,25 +3064,86 @@ class PortfolioValidator:
                         route=legacy,
                     )
 
-    def _allowed_origins(self, record: Mapping[str, Any]) -> set[str]:
-        values: list[Any] = [record.get("preferred_origin")]
-        values.extend(ensure_list(record.get("legacy_origins")))
-        for regional in ensure_list(record.get("regional_origins")):
-            if isinstance(regional, dict):
-                values.append(regional.get("origin"))
-        for variant in ensure_list(record.get("publication_variants")):
-            if isinstance(variant, dict):
-                values.append(variant.get("preferred_origin"))
-        return {
-            normalized_origin(value)
-            for value in values
-            if isinstance(value, str) and normalized_origin(value)
-        }
+    def _allowed_origins(self, site_id: str, record: Mapping[str, Any]) -> set[str]:
+        return self._manifest_origins(record).intersection(
+            APPROVED_PUBLIC_ORIGINS.get(site_id, frozenset())
+        )
 
     def _safe_fetch(self, url: str, allowed_origins: set[str], user_agent: str) -> FetchResult:
-        if normalized_origin(url) not in allowed_origins:
-            raise RequestBoundaryError(f"origin {normalized_origin(url)!r} is not manifest-approved")
+        self._validate_request_target(url, allowed_origins)
         return self.fetcher(url, allowed_origins, self.timeout, user_agent)
+
+    @staticmethod
+    def _resolve_host_addresses(hostname: str, port: int) -> Sequence[str]:
+        return tuple(
+            sorted(
+                {
+                    address[4][0]
+                    for address in socket.getaddrinfo(
+                        hostname,
+                        port,
+                        type=socket.SOCK_STREAM,
+                    )
+                }
+            )
+        )
+
+    def _validate_request_target(self, url: str, allowed_origins: set[str]) -> None:
+        parsed = _safe_urlsplit(url)
+        origin = normalized_origin(url)
+        if parsed is None or parsed.scheme.lower() != "https" or not origin:
+            raise RequestBoundaryError("request URL is not a valid credential-free HTTPS URL")
+        if origin not in allowed_origins:
+            raise RequestBoundaryError(f"origin {origin!r} is not code-and-manifest approved")
+        hostname = parsed.hostname
+        if hostname is None:
+            raise RequestBoundaryError("request URL has no hostname")
+        normalized_host = hostname.rstrip(".").lower()
+        if normalized_host == "localhost" or normalized_host.endswith(".localhost"):
+            raise RequestBoundaryError("localhost names are never valid live targets")
+
+        try:
+            literal = ipaddress.ip_address(normalized_host.split("%", 1)[0])
+        except ValueError:
+            literal = None
+        if literal is not None:
+            addresses = (literal,)
+        else:
+            try:
+                resolved = self.resolver(normalized_host, parsed.port or 443)
+            except (OSError, socket.gaierror) as exc:
+                raise RequestBoundaryError(
+                    f"hostname {normalized_host!r} could not be resolved safely: {exc}"
+                ) from exc
+            if not resolved:
+                raise RequestBoundaryError(
+                    f"hostname {normalized_host!r} resolved to no addresses"
+                )
+            try:
+                addresses = tuple(
+                    ipaddress.ip_address(str(address).split("%", 1)[0]) for address in resolved
+                )
+            except ValueError as exc:
+                raise RequestBoundaryError(
+                    f"hostname {normalized_host!r} produced an invalid address"
+                ) from exc
+        non_global = sorted(
+            str(address)
+            for address in addresses
+            if (
+                not address.is_global
+                or address.is_private
+                or address.is_loopback
+                or address.is_link_local
+                or address.is_multicast
+                or address.is_reserved
+                or address.is_unspecified
+            )
+        )
+        if non_global:
+            raise RequestBoundaryError(
+                f"hostname {normalized_host!r} resolves to non-global addresses: {', '.join(non_global)}"
+            )
 
     def fetch_url(
         self, url: str, allowed_origins: set[str], timeout: float, user_agent: str
@@ -3038,10 +3153,7 @@ class PortfolioValidator:
         redirect_statuses: list[int] = []
         opener = urllib.request.build_opener(NoRedirectHandler())
         while True:
-            if normalized_origin(current) not in allowed_origins:
-                raise RequestBoundaryError(
-                    f"redirect target origin {normalized_origin(current)!r} is not manifest-approved"
-                )
+            self._validate_request_target(current, allowed_origins)
             request = urllib.request.Request(
                 current,
                 headers={
@@ -3054,11 +3166,13 @@ class PortfolioValidator:
                 response = opener.open(request, timeout=timeout)
             except urllib.error.HTTPError as exc:
                 if exc.code in {301, 302, 303, 307, 308} and exc.headers.get("Location"):
+                    location = exc.headers["Location"]
+                    exc.close()
                     redirects += 1
                     redirect_statuses.append(exc.code)
                     if redirects > 3:
                         raise RedirectOverflow(f"more than 3 redirects while requesting {url}")
-                    current = urllib.parse.urljoin(current, exc.headers["Location"])
+                    current = urllib.parse.urljoin(current, location)
                     continue
                 body = exc.read(2_000_000)
                 return FetchResult(
@@ -3071,6 +3185,7 @@ class PortfolioValidator:
                     redirect_statuses=tuple(redirect_statuses),
                 )
             with response:
+                self._validate_request_target(response.geturl(), allowed_origins)
                 return FetchResult(
                     requested_url=url,
                     final_url=response.geturl(),
