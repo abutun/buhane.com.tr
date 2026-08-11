@@ -1,0 +1,756 @@
+{
+  "schema_version": "1.0",
+  "pending_source_rule_allowlist": [
+    "SRC.MISSING_DECLARED_ROUTE",
+    "SRC.MISSING_ROBOTS",
+    "SRC.MISSING_SITEMAP"
+  ],
+  "entities": {
+    "buhane": {
+      "entity_id": "https://buhane.com.tr/#organization",
+      "type": "Organization",
+      "name": "Buhane Bilgi Teknolojileri",
+      "preferred_origin": "https://buhane.com.tr/"
+    },
+    "ahmet": {
+      "entity_id": "https://ahmet.sh/#person",
+      "type": "Person",
+      "name": "Ahmet Butun",
+      "preferred_origin": "https://ahmet.sh/",
+      "works_for": "https://buhane.com.tr/#organization"
+    }
+  },
+  "properties": {
+    "buhane": {
+      "display_name": "Buhane Bilgi Teknolojileri",
+      "property_type": "company_hub",
+      "entity_id": "https://buhane.com.tr/#organization",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/buhane.com.tr",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/buhane.com.tr",
+      "preferred_origin": "https://buhane.com.tr/",
+      "default_locale": "en",
+      "indexable_locales": [
+        "en",
+        "tr"
+      ],
+      "canonical_routes": [
+        "/",
+        "/tr/"
+      ],
+      "generation_model": "direct_static",
+      "validation_commands": [],
+      "dirty_path_exclusions": [
+        ".planning/**",
+        "app-ads.txt",
+        "yandex_abc334285efd6c2e.html"
+      ],
+      "pending_source_rules": [
+        "SRC.MISSING_ROBOTS",
+        "SRC.MISSING_SITEMAP"
+      ],
+      "external_status": "local_editable"
+    },
+    "ahmet-sh": {
+      "display_name": "ahmet.sh",
+      "property_type": "personal_site",
+      "entity_id": "https://ahmet.sh/#person",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/ahmet.sh",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/ahmet.sh",
+      "preferred_origin": "https://ahmet.sh/",
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/"
+      ],
+      "generation_model": "direct_static",
+      "validation_commands": [],
+      "dirty_path_exclusions": [
+        ".DS_Store"
+      ],
+      "pending_source_rules": [
+        "SRC.MISSING_ROBOTS",
+        "SRC.MISSING_SITEMAP"
+      ],
+      "external_status": "local_editable"
+    }
+  },
+  "products": {
+    "moodjot": {
+      "display_name": "MoodJot",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "mood_tracking_and_journaling",
+      "schema_type": "SoftwareApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/MoodJot",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/MoodJot/www",
+      "preferred_origin": "https://moodjot.app/",
+      "product_entity_id": "https://moodjot.app/#product",
+      "legacy_origins": [
+        "https://moodjot.com/"
+      ],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/"
+      ],
+      "sitemap_url": "https://moodjot.app/sitemap.xml",
+      "robots_url": "https://moodjot.app/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "astral-post",
+        "lastimo"
+      ],
+      "verified_features": [
+        "mood_entries",
+        "journal_notes",
+        "optional_photos",
+        "reminders"
+      ],
+      "excluded_claims": [
+        "medical_diagnosis",
+        "medical_treatment",
+        "guaranteed_wellbeing_outcomes"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "direct_static",
+      "validation_commands": [],
+      "dirty_path_exclusions": [
+        "www/admin/**"
+      ],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Store, support, and contact destinations remain null until a reviewed public destination is recorded."
+      ]
+    },
+    "vynix": {
+      "display_name": "Vynix",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "ai_content_creation",
+      "schema_type": "SoftwareApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/Vynix",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/Vynix/www",
+      "preferred_origin": "https://vynix.app/",
+      "product_entity_id": "https://vynix.app/#product",
+      "legacy_origins": [
+        "https://getvynix.com/"
+      ],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/"
+      ],
+      "sitemap_url": "https://vynix.app/sitemap.xml",
+      "robots_url": "https://vynix.app/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "the-cosmic-meta"
+      ],
+      "verified_features": [
+        "ai_assisted_content_generation",
+        "text_image_audio_and_video_workflows",
+        "cross_platform_mobile_application"
+      ],
+      "excluded_claims": [
+        "unreviewed_model_counts",
+        "unverified_testimonials",
+        "unverified_customer_totals"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "hybrid_tracked_generator",
+      "validation_commands": [
+        "cd www && node scripts/build-seo-content.mjs --check"
+      ],
+      "dirty_path_exclusions": [
+        "www/admin/dist/index.html"
+      ],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "The canonical host is vynix.app without www; store, support, and contact destinations await reviewed evidence."
+      ]
+    },
+    "swipe-slip": {
+      "display_name": "Swipe Slip",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "mobile_game",
+      "schema_type": "VideoGame",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Swipe-Slip",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Swipe-Slip/www",
+      "preferred_origin": "https://swipeslip.app/",
+      "product_entity_id": "https://swipeslip.app/#product",
+      "legacy_origins": [],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/"
+      ],
+      "sitemap_url": "https://swipeslip.app/sitemap.xml",
+      "robots_url": "https://swipeslip.app/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "glow-spin",
+        "gridzle",
+        "hoskin"
+      ],
+      "verified_features": [
+        "tunnel_navigation_gameplay",
+        "two_hundred_progressive_levels",
+        "portrait_and_landscape_play"
+      ],
+      "excluded_claims": [
+        "fabricated_ratings",
+        "fabricated_review_counts"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "direct_static",
+      "validation_commands": [],
+      "dirty_path_exclusions": [
+        "shared/src/**/audio/**"
+      ],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Store, support, and contact destinations await reviewed public evidence."
+      ]
+    },
+    "glow-spin": {
+      "display_name": "Glow Spin",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "mobile_game",
+      "schema_type": "VideoGame",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Glow-Spin",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Glow-Spin/www",
+      "preferred_origin": "https://glowspin.app/",
+      "product_entity_id": "https://glowspin.app/#product",
+      "legacy_origins": [],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/"
+      ],
+      "sitemap_url": "https://glowspin.app/sitemap.xml",
+      "robots_url": "https://glowspin.app/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "swipe-slip",
+        "gridzle",
+        "hoskin"
+      ],
+      "verified_features": [
+        "rhythm_reflex_gameplay",
+        "progressive_difficulty",
+        "cross_platform_mobile_application"
+      ],
+      "excluded_claims": [
+        "fabricated_ratings",
+        "fabricated_review_counts"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "direct_static",
+      "validation_commands": [],
+      "dirty_path_exclusions": [],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Store, support, and contact destinations await reviewed public evidence."
+      ]
+    },
+    "hive-due": {
+      "display_name": "Hive Due / Site Hesap",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "invoice_and_due_date_management",
+      "schema_type": "WebApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/HiveDue",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/HiveDue/www",
+      "preferred_origin": "https://hivedue.com/",
+      "product_entity_id": "https://hivedue.com/#product",
+      "legacy_origins": [],
+      "regional_origins": [
+        {
+          "region": "world_except_turkiye",
+          "origin": "https://hivedue.com/"
+        },
+        {
+          "region": "TR",
+          "origin": "https://sitehesap.com/"
+        }
+      ],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en",
+        "tr"
+      ],
+      "canonical_routes": [
+        "/",
+        "/en/"
+      ],
+      "sitemap_url": "https://hivedue.com/sitemap.xml",
+      "robots_url": "https://hivedue.com/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "u2m"
+      ],
+      "verified_features": [
+        "invoice_management",
+        "due_date_tracking",
+        "english_and_turkish_public_content"
+      ],
+      "excluded_claims": [
+        "unverified_payment_processing",
+        "unverified_financial_outcomes"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "astro_static_variants",
+      "validation_commands": [
+        "cd www && npm run check",
+        "cd www && npm test"
+      ],
+      "dirty_path_exclusions": [
+        "www/dist/**",
+        "www/.astro/**"
+      ],
+      "pending_source_rules": [
+        "SRC.MISSING_DECLARED_ROUTE",
+        "SRC.MISSING_ROBOTS",
+        "SRC.MISSING_SITEMAP"
+      ],
+      "external_status": "local_editable",
+      "publication_variants": [
+        {
+          "id": "hivedue",
+          "build_command": "npm run build:hivedue",
+          "output_root": "dist/hivedue",
+          "preferred_origin": "https://hivedue.com/",
+          "indexable_locales": [
+            "en"
+          ],
+          "robots_url": "https://hivedue.com/robots.txt",
+          "sitemap_url": "https://hivedue.com/sitemap.xml"
+        },
+        {
+          "id": "sitehesap",
+          "build_command": "npm run build:sitehesap",
+          "output_root": "dist/sitehesap",
+          "preferred_origin": "https://sitehesap.com/",
+          "indexable_locales": [
+            "tr"
+          ],
+          "robots_url": "https://sitehesap.com/robots.txt",
+          "sitemap_url": "https://sitehesap.com/sitemap.xml"
+        }
+      ],
+      "evidence_notes": [
+        "Both regional variants share the single product identity https://hivedue.com/#product."
+      ]
+    },
+    "astral-post": {
+      "display_name": "Astral Post",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "reflection_and_symbolic_messaging",
+      "schema_type": "SoftwareApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/AstralPost",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/AstralPost/www",
+      "preferred_origin": "https://astralpost.app/",
+      "product_entity_id": "https://astralpost.app/#product",
+      "legacy_origins": [
+        "https://astralpost.com/"
+      ],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en",
+        "tr"
+      ],
+      "canonical_routes": [
+        "/",
+        "/glossary/",
+        "/sozluk/"
+      ],
+      "sitemap_url": "https://astralpost.app/sitemap.xml",
+      "robots_url": "https://astralpost.app/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "moodjot",
+        "lastimo"
+      ],
+      "verified_features": [
+        "personal_message_ritual",
+        "symbolic_reflections",
+        "anonymous_public_feed"
+      ],
+      "excluded_claims": [
+        "medical_advice",
+        "legal_advice",
+        "financial_advice",
+        "guaranteed_outcomes"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "hybrid_tracked_generator",
+      "validation_commands": [
+        "cd www && node scripts/build-content-pages.mjs",
+        "cd www && node scripts/verify-content-hub.mjs"
+      ],
+      "dirty_path_exclusions": [],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Store, support, and contact destinations await reviewed public evidence."
+      ]
+    },
+    "gridzle": {
+      "display_name": "Gridzle",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "mobile_puzzle_game",
+      "schema_type": "VideoGame",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Gridzle",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Gridzle/www",
+      "preferred_origin": "https://gridzle.app/",
+      "product_entity_id": "https://gridzle.app/#product",
+      "legacy_origins": [
+        "https://gridzle.com/"
+      ],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/",
+        "/support.html",
+        "/privacy.html",
+        "/terms.html"
+      ],
+      "sitemap_url": "https://gridzle.app/sitemap.xml",
+      "robots_url": "https://gridzle.app/robots.txt",
+      "store_urls": [],
+      "support_url": "https://gridzle.app/support.html",
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "swipe-slip",
+        "glow-spin",
+        "hoskin"
+      ],
+      "verified_features": [
+        "counts_first_puzzles",
+        "cell_toggle_placement_mechanic",
+        "five_tiers_and_two_hundred_fifty_levels",
+        "offline_first_progression"
+      ],
+      "excluded_claims": [
+        "active_cloud_sync",
+        "active_store_delivery",
+        "fabricated_ratings"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "direct_static",
+      "validation_commands": [
+        "cd www && python3 ../tools/verify_www_foundation.py --root . --output ../shared/build/reports/www/www-foundation.json",
+        "cd www && python3 ../tools/verify_www_hosting.py --root . --output ../shared/build/reports/www/www-hosting-smoke.json"
+      ],
+      "dirty_path_exclusions": [
+        "shared/build/reports/www/**"
+      ],
+      "pending_source_rules": [
+        "SRC.MISSING_SITEMAP"
+      ],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "The verified support route is local; contact and store destinations remain null pending review."
+      ]
+    },
+    "hoskin": {
+      "display_name": "Hoşkin",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "card_game",
+      "schema_type": "VideoGame",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Hosgin",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/games/Hosgin/www",
+      "preferred_origin": "https://hoskin.app/",
+      "product_entity_id": "https://hoskin.app/#product",
+      "legacy_origins": [
+        "https://gethoskin.com/"
+      ],
+      "regional_origins": [],
+      "default_locale": "tr",
+      "indexable_locales": [
+        "tr",
+        "en",
+        "de",
+        "fr",
+        "ar"
+      ],
+      "canonical_routes": [
+        "/tr/",
+        "/en/",
+        "/de/",
+        "/fr/",
+        "/ar/"
+      ],
+      "sitemap_url": "https://hoskin.app/sitemap.xml",
+      "robots_url": "https://hoskin.app/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "swipe-slip",
+        "glow-spin",
+        "gridzle"
+      ],
+      "verified_features": [
+        "traditional_hoskin_card_rules",
+        "offline_bot_play",
+        "online_quick_tables",
+        "private_rooms"
+      ],
+      "excluded_claims": [
+        "unverified_store_availability",
+        "unverified_player_counts"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "full_multilingual_generator",
+      "validation_commands": [
+        "cd www && node scripts/build.mjs",
+        "cd www && node scripts/validate.mjs"
+      ],
+      "dirty_path_exclusions": [],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Store, support, and contact destinations await reviewed public evidence."
+      ]
+    },
+    "lastimo": {
+      "display_name": "Lastimo",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "elapsed_time_reminder",
+      "schema_type": "SoftwareApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/Lastimo",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/Lastimo/www",
+      "preferred_origin": "https://lastimo.app/",
+      "product_entity_id": "https://lastimo.app/#product",
+      "legacy_origins": [
+        "https://getlastimo.com/"
+      ],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en",
+        "tr",
+        "es",
+        "pt-BR",
+        "pt-PT",
+        "fr",
+        "de",
+        "it",
+        "ja",
+        "ko",
+        "zh-Hans",
+        "ru"
+      ],
+      "canonical_routes": [
+        "/",
+        "/tr/",
+        "/es/",
+        "/pt-br/",
+        "/pt-pt/",
+        "/fr/",
+        "/de/",
+        "/it/",
+        "/ja/",
+        "/ko/",
+        "/zh-hans/",
+        "/ru/"
+      ],
+      "sitemap_url": "https://lastimo.app/sitemap.xml",
+      "robots_url": "https://lastimo.app/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "moodjot",
+        "astral-post"
+      ],
+      "verified_features": [
+        "six_default_preset_trackers",
+        "plain_elapsed_time_answers",
+        "log_current_time",
+        "hide_restore_and_delete_data"
+      ],
+      "excluded_claims": [
+        "history",
+        "statistics",
+        "analytics",
+        "past_logs",
+        "custom_trackers",
+        "past_date_correction"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "full_multilingual_generator",
+      "validation_commands": [
+        "cd www && npm run build",
+        "cd www && npm run check",
+        "cd www && npm test",
+        "cd www && npm run verify"
+      ],
+      "dirty_path_exclusions": [],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Public marketing must not describe any excluded v1 capability. Store, support, and contact destinations await reviewed evidence."
+      ]
+    },
+    "the-cosmic-meta": {
+      "display_name": "The Cosmic Meta",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "technology_and_culture_publication",
+      "schema_type": "WebSite",
+      "source_root": null,
+      "public_root": null,
+      "preferred_origin": "https://thecosmicmeta.com/",
+      "product_entity_id": "https://thecosmicmeta.com/#product",
+      "legacy_origins": [],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/"
+      ],
+      "sitemap_url": "https://thecosmicmeta.com/sitemap_index.xml",
+      "robots_url": "https://thecosmicmeta.com/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "vynix"
+      ],
+      "verified_features": [
+        "editorial_articles",
+        "wordpress_taxonomy_archives"
+      ],
+      "excluded_claims": [
+        "unverified_identity_profiles",
+        "stale_cosmicmeta_ai_urls"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "external_wordpress",
+      "validation_commands": [],
+      "dirty_path_exclusions": [
+        "/Users/ahmet/Documents/Workspaces/Buhane/cosmicmeta/**",
+        "/Users/ahmet/Documents/Workspaces/Buhane/cosmicmeta.ai/**",
+        "/Users/ahmet/Documents/Workspaces/Buhane/cosmic-meta-api/**"
+      ],
+      "pending_source_rules": [],
+      "external_status": "external_blocked",
+      "evidence_notes": [
+        "The live WordPress administration or deploy source is not available locally; similarly named local directories are explicitly excluded."
+      ]
+    },
+    "u2m": {
+      "display_name": "U2M URL Shortener",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "url_shortening",
+      "schema_type": "WebApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/u2m-api",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/u2m-api/frontend",
+      "preferred_origin": "https://u2m.io/",
+      "product_entity_id": "https://u2m.io/#product",
+      "legacy_origins": [],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/",
+        "/api-docs",
+        "/privacy"
+      ],
+      "sitemap_url": "https://u2m.io/sitemap.xml",
+      "robots_url": "https://u2m.io/robots.txt",
+      "store_urls": [],
+      "support_url": null,
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [
+        "hive-due"
+      ],
+      "verified_features": [
+        "url_shortening",
+        "public_api_documentation",
+        "link_statistics"
+      ],
+      "excluded_claims": [
+        "unverified_redirect_volume",
+        "unverified_uptime_guarantees"
+      ],
+      "claim_reviewed_at": "2026-08-11",
+      "generation_model": "vue_spa",
+      "validation_commands": [
+        "cd frontend && npm run build",
+        "cd frontend && npm run test:unit",
+        "cd frontend && npm run test:e2e"
+      ],
+      "dirty_path_exclusions": [
+        "frontend/dist/**"
+      ],
+      "pending_source_rules": [
+        "SRC.MISSING_DECLARED_ROUTE",
+        "SRC.MISSING_ROBOTS",
+        "SRC.MISSING_SITEMAP"
+      ],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Auth, recovery, dashboard, and profile routes are private or noindex and must stay out of the sitemap."
+      ]
+    }
+  }
+}
