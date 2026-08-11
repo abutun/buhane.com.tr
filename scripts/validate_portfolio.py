@@ -213,6 +213,7 @@ class FetchResult:
     content_type: str
     body: bytes
     redirects: int
+    redirect_statuses: tuple[int, ...] = ()
 
 
 class RedirectOverflow(Exception):
@@ -1897,6 +1898,7 @@ class PortfolioValidator:
                     if (
                         result.status != 200
                         or result.redirects != 1
+                        or result.redirect_statuses not in {(301,), (308,)}
                         or normalized_origin(result.final_url) != normalized_origin(preferred_origin)
                     ):
                         self.collector.add(
@@ -1909,6 +1911,7 @@ class PortfolioValidator:
                                 "final_url": result.final_url,
                                 "status": result.status,
                                 "redirects": result.redirects,
+                                "redirect_statuses": list(result.redirect_statuses),
                             },
                             route=legacy,
                         )
@@ -1958,6 +1961,7 @@ class PortfolioValidator:
     ) -> FetchResult:
         current = url
         redirects = 0
+        redirect_statuses: list[int] = []
         opener = urllib.request.build_opener(NoRedirectHandler())
         while True:
             if normalized_origin(current) not in allowed_origins:
@@ -1977,6 +1981,7 @@ class PortfolioValidator:
             except urllib.error.HTTPError as exc:
                 if exc.code in {301, 302, 303, 307, 308} and exc.headers.get("Location"):
                     redirects += 1
+                    redirect_statuses.append(exc.code)
                     if redirects > 3:
                         raise RedirectOverflow(f"more than 3 redirects while requesting {url}")
                     current = urllib.parse.urljoin(current, exc.headers["Location"])
@@ -1989,6 +1994,7 @@ class PortfolioValidator:
                     content_type=exc.headers.get_content_type(),
                     body=body,
                     redirects=redirects,
+                    redirect_statuses=tuple(redirect_statuses),
                 )
             with response:
                 return FetchResult(
@@ -1998,6 +2004,7 @@ class PortfolioValidator:
                     content_type=response.headers.get_content_type(),
                     body=response.read(2_000_000),
                     redirects=redirects,
+                    redirect_statuses=tuple(redirect_statuses),
                 )
 
     def _validate_live_home(
@@ -2072,6 +2079,7 @@ class PortfolioValidator:
         expected_kind: str,
         allowed_origins: set[str],
         publication_variant: str | None,
+        depth: int = 0,
     ) -> None:
         try:
             result = self._safe_fetch(url, allowed_origins, "PortfolioValidator/1.0")
@@ -2139,7 +2147,20 @@ class PortfolioValidator:
                 for node in xml_root.iter()
                 if node.tag.rsplit("}", 1)[-1] == "loc" and (node.text or "").strip()
             ]
+            sitemap_kind = xml_root.tag.rsplit("}", 1)[-1]
+            expected_origin = normalized_origin(url)
             for page_url in sitemap_urls:
+                if normalized_origin(page_url) != expected_origin:
+                    self.collector.add(
+                        "LIVE.SITEMAP_ORIGIN",
+                        site_id,
+                        "high",
+                        "Live sitemap contains a URL outside its publication origin",
+                        {"sitemap": url, "url": page_url, "expected_origin": expected_origin},
+                        publication_variant=publication_variant,
+                        route=page_url,
+                    )
+                    continue
                 if normalized_origin(page_url) not in allowed_origins:
                     self._live_boundary_finding(
                         site_id,
@@ -2147,6 +2168,107 @@ class PortfolioValidator:
                         RequestBoundaryError("sitemap URL is outside manifest origins"),
                         publication_variant,
                     )
+                    continue
+                if sitemap_kind == "sitemapindex":
+                    if depth >= 3:
+                        self.collector.add(
+                            "LIVE.SITEMAP_DEPTH",
+                            site_id,
+                            "high",
+                            "Live sitemap index nesting exceeds the validation cap",
+                            {"sitemap": url, "child": page_url},
+                            publication_variant=publication_variant,
+                            route=page_url,
+                        )
+                    else:
+                        self._validate_live_discovery(
+                            site_id,
+                            page_url,
+                            "xml",
+                            allowed_origins,
+                            publication_variant,
+                            depth + 1,
+                        )
+                else:
+                    self._validate_live_sitemap_page(
+                        site_id,
+                        page_url,
+                        allowed_origins,
+                        publication_variant,
+                    )
+
+    def _validate_live_sitemap_page(
+        self,
+        site_id: str,
+        page_url: str,
+        allowed_origins: set[str],
+        publication_variant: str | None,
+    ) -> None:
+        try:
+            result = self._safe_fetch(page_url, allowed_origins, "PortfolioValidator/1.0")
+        except RequestBoundaryError as exc:
+            self._live_boundary_finding(site_id, page_url, exc, publication_variant)
+            return
+        except RedirectOverflow as exc:
+            self.collector.add(
+                "LIVE.REDIRECT_OVERFLOW",
+                site_id,
+                "high",
+                "Sitemap page exceeded the three-redirect cap",
+                {"url": page_url, "error": str(exc)},
+                publication_variant=publication_variant,
+                route=page_url,
+            )
+            return
+        except (OSError, urllib.error.URLError) as exc:
+            self.collector.add(
+                "LIVE.REQUEST_FAILED",
+                site_id,
+                "high",
+                "Sitemap page request failed",
+                {"url": page_url, "error": str(exc)},
+                publication_variant=publication_variant,
+                route=page_url,
+            )
+            return
+        if result.status != 200 or result.redirects or "html" not in result.content_type:
+            self.collector.add(
+                "LIVE.SITEMAP_PAGE_RESPONSE",
+                site_id,
+                "high",
+                "Sitemap page must return HTML with HTTP 200 and no redirect",
+                {
+                    "url": page_url,
+                    "status": result.status,
+                    "redirects": result.redirects,
+                    "content_type": result.content_type,
+                },
+                publication_variant=publication_variant,
+                route=page_url,
+            )
+            return
+        parser = PageParser()
+        parser.feed(result.body.decode("utf-8", errors="replace"))
+        if len(parser.canonicals) != 1 or normalized_url(parser.canonicals[0]) != normalized_url(page_url):
+            self.collector.add(
+                "LIVE.SITEMAP_PAGE_CANONICAL",
+                site_id,
+                "high",
+                "Sitemap page canonical does not equal the sitemap URL",
+                {"url": page_url, "canonical": parser.canonicals},
+                publication_variant=publication_variant,
+                route=page_url,
+            )
+        if any("noindex" in value for value in parser.robots):
+            self.collector.add(
+                "LIVE.SITEMAP_PAGE_NOINDEX",
+                site_id,
+                "high",
+                "Sitemap contains a noindex page",
+                {"url": page_url, "robots": parser.robots},
+                publication_variant=publication_variant,
+                route=page_url,
+            )
 
     def _live_boundary_finding(
         self,

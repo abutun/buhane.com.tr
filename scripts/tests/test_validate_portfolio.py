@@ -443,7 +443,15 @@ class PortfolioValidatorTests(unittest.TestCase):
             body = (
                 f'<html><head><link rel="canonical" href="{final_url}"></head><body>OK</body></html>'
             ).encode()
-            return FetchResult(url, final_url, 200, "text/html", body, redirects)
+            return FetchResult(
+                url,
+                final_url,
+                200,
+                "text/html",
+                body,
+                redirects,
+                (301,) if final_url != url else (),
+            )
 
         return fetch
 
@@ -456,6 +464,28 @@ class PortfolioValidatorTests(unittest.TestCase):
             fetcher=self.fake_live_fetcher(calls, overflow=True),
         )
         self.assertIn("LIVE.REDIRECT_OVERFLOW", self.rules(report))
+        self.assertEqual(1, report["exit_status"])
+
+    def test_live_legacy_redirect_must_be_permanent(self) -> None:
+        manifest = self.manifest()
+        calls: list[str] = []
+        normal_fetch = self.fake_live_fetcher(calls)
+
+        def temporary_legacy_fetch(url: str, allowed: set[str], timeout: float, user_agent: str):
+            if url == "https://moodjot.com/":
+                return FetchResult(
+                    url,
+                    "https://moodjot.app/",
+                    200,
+                    "text/html",
+                    b'<html><head><link rel="canonical" href="https://moodjot.app/"></head></html>',
+                    1,
+                    (302,),
+                )
+            return normal_fetch(url, allowed, timeout, user_agent)
+
+        report = self.validate(manifest, mode="live", fetcher=temporary_legacy_fetch)
+        self.assertIn("LIVE.LEGACY_REDIRECT", self.rules(report))
         self.assertEqual(1, report["exit_status"])
 
     def test_live_refuses_arbitrary_host_before_network_open(self) -> None:
