@@ -697,6 +697,9 @@ class PortfolioValidatorTests(unittest.TestCase):
         record["validation_commands"] = []
         for variant in record["publication_variants"]:
             variant["build_command"] = 'python3 -c "pass"'
+            variant["canonical_routes"] = [
+                "/en/" if variant["id"] == "hivedue" else "/"
+            ]
         return record
 
     def write_hive_variants(self, record: dict) -> None:
