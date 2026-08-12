@@ -4,10 +4,10 @@ milestone: v1.0
 current_phase: 1
 current_phase_name: Planning and Repository Baseline
 status: planning
-stopped_at: Phase 5 verified and completed; ready to resume Phase 1 planning
-last_updated: "2026-08-11T20:29:20.211Z"
-last_activity: 2026-08-11
-last_activity_desc: Phase 5 complete, transitioned to Phase 1
+stopped_at: Completed quick task 260812-lnc for contextual game links, U2M footer link affordance, and Community Finance Management content
+last_updated: "2026-08-12T12:43:28Z"
+last_activity: 2026-08-12
+last_activity_desc: Completed quick task 260812-lnc across Buhane, Gridzle, Hoşkin, and U2M
 progress:
   total_phases: 5
   completed_phases: 1
@@ -100,6 +100,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260803-s03 | Add Lastimo product to the website | 2026-08-03 | 1e35b91 | [260803-s03-add-lastimo-product](./quick/260803-s03-add-lastimo-product/) |
 | 260803-s85 | Create README and push local repo to GitHub | 2026-08-03 | 1a413a2 | [260803-s85-publish-repo-readme](./quick/260803-s85-publish-repo-readme/) |
+| 260812-lnc | Add contextual game links, U2M footer link affordance, and Community Finance Management content | 2026-08-12 | 395788f | [260812-lnc](./quick/260812-lnc-contextual-game-links-community-finance/) |
 
 ## Deferred Items
 
