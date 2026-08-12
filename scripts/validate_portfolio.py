@@ -463,6 +463,7 @@ class PageParser(HTMLParser):
         self._json_parts: list[str] | None = None
         self._anchor_parts: list[str] | None = None
         self._anchor_href: str | None = None
+        self._anchor_classes: tuple[str, ...] = ()
         self._anchor_in_footer = False
         self._footer_depth = 0
         self._hidden_depth = 0
@@ -513,6 +514,7 @@ class PageParser(HTMLParser):
         elif tag == "a":
             self._anchor_parts = []
             self._anchor_href = values.get("href", "").strip()
+            self._anchor_classes = tuple(values.get("class", "").split())
             self._anchor_in_footer = self._footer_depth > 0
 
     def handle_startendtag(self, tag: str, attrs: Sequence[tuple[str, str | None]]) -> None:
@@ -535,11 +537,13 @@ class PageParser(HTMLParser):
                 {
                     "href": self._anchor_href or "",
                     "text": " ".join("".join(self._anchor_parts).split()),
+                    "classes": self._anchor_classes,
                     "in_footer": self._anchor_in_footer,
                 }
             )
             self._anchor_parts = None
             self._anchor_href = None
+            self._anchor_classes = ()
             self._anchor_in_footer = False
         if tag == "footer" and self._footer_depth:
             self._footer_depth -= 1
@@ -812,6 +816,7 @@ class PortfolioValidator:
             )
             self._validate_locale_contract(property_id, record)
             self._validate_contextual_links(property_id, record)
+            self._validate_footer_card_links(property_id, record)
             expected_links = PROPERTY_CONTEXTUAL_LINK_CONTRACTS.get(property_id)
             if expected_links is not None:
                 self._validate_exact_contextual_links(property_id, record, expected_links)
@@ -862,6 +867,7 @@ class PortfolioValidator:
                     {"actual": record.get("lifecycle_status")},
                 )
             self._validate_contextual_links(product_id, record)
+            self._validate_footer_card_links(product_id, record)
             public_route_contract = PRODUCT_PUBLIC_ROUTE_CONTRACTS.get(product_id)
             if public_route_contract is not None:
                 self._validate_public_route_contract(product_id, record, public_route_contract)
@@ -1328,6 +1334,27 @@ class PortfolioValidator:
                 product_id,
                 "high",
                 "approved_contextual_links contains an unknown, duplicate, or self link",
+                {"invalid": invalid, "links": links},
+            )
+
+    def _validate_footer_card_links(self, product_id: str, record: Mapping[str, Any]) -> None:
+        """Allow an explicitly approved, card-based footer game cluster."""
+        if "footer_card_links" not in record:
+            return
+        links = ensure_list(record.get("footer_card_links"))
+        approved_links = set(ensure_list(record.get("approved_contextual_links")))
+        invalid = sorted(
+            link
+            for link in links
+            if not isinstance(link, str) or link not in approved_links
+        )
+        unique_links = {link for link in links if isinstance(link, str)}
+        if len(links) != len(unique_links) or invalid:
+            self.collector.add(
+                "REG.FOOTER_CARD_LINKS",
+                product_id,
+                "high",
+                "footer_card_links must contain unique approved contextual links",
                 {"invalid": invalid, "links": links},
             )
 
@@ -2268,7 +2295,7 @@ class PortfolioValidator:
         )
         own_origin = normalized_origin(str(contract.get("preferred_origin", "")))
         owner_link_found = site_id not in self.products
-        sibling_links: list[tuple[str, bool]] = []
+        sibling_links: list[tuple[str, bool, tuple[str, ...]]] = []
         all_refs: list[str] = [item["href"] for item in parser.links] + parser.resources
         for ref in all_refs:
             if not ref or ref.startswith(("#", "mailto:", "tel:", "javascript:", "data:")):
@@ -2308,7 +2335,9 @@ class PortfolioValidator:
                 owner_link_found = True
             sibling_id = self.product_origins.get(origin)
             if sibling_id and sibling_id != site_id:
-                sibling_links.append((sibling_id, bool(link["in_footer"])))
+                sibling_links.append(
+                    (sibling_id, bool(link["in_footer"]), tuple(link.get("classes", ())))
+                )
                 if sibling_id not in ensure_list(record.get("approved_contextual_links")):
                     self.collector.add(
                         "LINK.SIBLING_NOT_ALLOWED",
@@ -2319,17 +2348,30 @@ class PortfolioValidator:
                         publication_variant=publication_variant,
                         route=f"{route}:{sibling_id}",
                     )
-        footer_siblings = {sibling_id for sibling_id, in_footer in sibling_links if in_footer}
+        footer_siblings = {
+            sibling_id for sibling_id, in_footer, _classes in sibling_links if in_footer
+        }
         if len(footer_siblings) >= 3:
-            self.collector.add(
-                "LINK.BLANKET_SIBLING_LIST",
-                site_id,
-                "high",
-                "Footer contains a blanket sibling-product portfolio list",
-                {"products": sorted(footer_siblings)},
-                publication_variant=publication_variant,
-                route=route,
-            )
+            footer_card_siblings = {
+                sibling_id
+                for sibling_id, in_footer, classes in sibling_links
+                if in_footer and "footer-network-card" in classes
+            }
+            approved_footer_cards = set(ensure_list(record.get("footer_card_links")))
+            if footer_siblings != approved_footer_cards or footer_card_siblings != footer_siblings:
+                self.collector.add(
+                    "LINK.BLANKET_SIBLING_LIST",
+                    site_id,
+                    "high",
+                    "Footer contains a blanket sibling-product portfolio list",
+                    {
+                        "products": sorted(footer_siblings),
+                        "approved_footer_cards": sorted(approved_footer_cards),
+                        "card_products": sorted(footer_card_siblings),
+                    },
+                    publication_variant=publication_variant,
+                    route=route,
+                )
         if site_id in self.products and page["indexable"] and route == "/" and not owner_link_found:
             self.collector.add(
                 "LINK.OWNER_MISSING",

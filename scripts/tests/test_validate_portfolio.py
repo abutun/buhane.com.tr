@@ -815,6 +815,62 @@ class PortfolioValidatorTests(unittest.TestCase):
         report = self.validate(manifest)
         self.assertIn("LINK.SIBLING_NOT_ALLOWED", self.rules(report))
 
+    def test_allowlisted_footer_game_cards_are_permitted(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        record["approved_contextual_links"] = ["vynix", "lastimo", "u2m"]
+        record["footer_card_links"] = ["vynix", "lastimo", "u2m"]
+        self.write_passing_site(record)
+        home_path = self.root / "index.html"
+        home = home_path.read_text(encoding="utf-8").replace(
+            "</body>",
+            (
+                '<footer>'
+                '<a class="footer-network-card" href="https://vynix.app/">Vynix</a>'
+                '<a class="footer-network-card" href="https://lastimo.app/">Lastimo</a>'
+                '<a class="footer-network-card" href="https://u2m.io/">U2M</a>'
+                "</footer></body>"
+            ),
+        )
+        home_path.write_text(home, encoding="utf-8")
+
+        report = self.validate(manifest)
+
+        self.assertEqual(0, report["exit_status"], report["findings"])
+
+    def test_footer_game_cards_require_the_card_markup(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        record["approved_contextual_links"] = ["vynix", "lastimo", "u2m"]
+        record["footer_card_links"] = ["vynix", "lastimo", "u2m"]
+        self.write_passing_site(record)
+        home_path = self.root / "index.html"
+        home = home_path.read_text(encoding="utf-8").replace(
+            "</body>",
+            (
+                '<footer>'
+                '<a href="https://vynix.app/">Vynix</a>'
+                '<a href="https://lastimo.app/">Lastimo</a>'
+                '<a href="https://u2m.io/">U2M</a>'
+                "</footer></body>"
+            ),
+        )
+        home_path.write_text(home, encoding="utf-8")
+
+        report = self.validate(manifest)
+
+        self.assertIn("LINK.BLANKET_SIBLING_LIST", self.rules(report))
+
+    def test_footer_game_cards_must_be_contextually_approved(self) -> None:
+        manifest = self.manifest()
+        record = self.configure_site(manifest)
+        record["approved_contextual_links"] = ["vynix"]
+        record["footer_card_links"] = ["vynix", "u2m"]
+
+        report = self.validate(manifest, mode="registry")
+
+        self.assertIn("REG.FOOTER_CARD_LINKS", self.rules(report))
+
     def test_private_registry_exposure_is_fatal(self) -> None:
         manifest = self.manifest()
         record = self.configure_site(manifest)

@@ -941,6 +941,11 @@
         "glow-spin",
         "gridzle"
       ],
+      "footer_card_links": [
+        "swipe-slip",
+        "glow-spin",
+        "gridzle"
+      ],
       "verified_features": [
         "traditional_hoskin_card_rules",
         "offline_bot_play",
