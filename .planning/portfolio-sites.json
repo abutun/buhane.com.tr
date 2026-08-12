@@ -410,7 +410,7 @@
       "display_name": "Hive Due / Site Hesap",
       "legal_owner": "https://buhane.com.tr/#organization",
       "lifecycle_status": "live",
-      "category": "invoice_and_due_date_management",
+      "category": "community_finance_management",
       "schema_type": "WebApplication",
       "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/HiveDue",
       "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/HiveDue/www",
@@ -446,15 +446,22 @@
         "u2m"
       ],
       "verified_features": [
+        "community_finance_management",
         "invoice_management",
         "due_date_tracking",
+        "dues_and_shared_expense_tracking",
+        "resident_and_manager_finance_visibility",
+        "area_based_calculation",
+        "bulk_record_import",
+        "advance_balance_tracking",
+        "announcements_documents_and_reports",
         "english_and_turkish_public_content"
       ],
       "excluded_claims": [
         "unverified_payment_processing",
         "unverified_financial_outcomes"
       ],
-      "claim_reviewed_at": "2026-08-11",
+      "claim_reviewed_at": "2026-08-12",
       "generation_model": "astro_static_variants",
       "validation_commands": [
         {
