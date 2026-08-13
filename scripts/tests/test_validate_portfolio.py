@@ -768,6 +768,7 @@ class PortfolioValidatorTests(unittest.TestCase):
             "astral-post",
             canonical_routes=["/", "/glossary/", "/sozluk/"],
         )
+        record["indexable_locales"] = ["en", "tr"]
         record["route_locale_scopes"] = [
             {"routes": ["/"], "indexable_locales": ["en"]}
         ]
@@ -784,6 +785,7 @@ class PortfolioValidatorTests(unittest.TestCase):
             "astral-post",
             canonical_routes=["/", "/glossary/", "/sozluk/"],
         )
+        record["indexable_locales"] = ["en", "tr"]
         record["route_locale_scopes"] = [
             {"routes": ["/"], "indexable_locales": ["en"]}
         ]
