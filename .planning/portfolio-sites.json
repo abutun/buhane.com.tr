@@ -145,7 +145,26 @@
       "regional_origins": [],
       "default_locale": "en",
       "indexable_locales": [
-        "en"
+        "en",
+        "tr",
+        "es",
+        "de",
+        "fr",
+        "pt-BR",
+        "ru",
+        "zh-Hans"
+      ],
+      "route_locale_scopes": [
+        {
+          "routes": [
+            "/",
+            "/privacy/",
+            "/tos/"
+          ],
+          "indexable_locales": [
+            "en"
+          ]
+        }
       ],
       "canonical_routes": [
         "/",
@@ -162,7 +181,91 @@
         "/blog/what-is-mood-tracking/",
         "/glossary/",
         "/privacy/",
-        "/tos/"
+        "/tos/",
+        "/tr/blog/",
+        "/tr/blog/daily-mood-check-in-habit/",
+        "/tr/blog/digital-wellbeing-mood-journal/",
+        "/tr/blog/gratitude-and-mood-tracking/",
+        "/tr/blog/how-to-start-a-mood-journal/",
+        "/tr/blog/mood-tracker-vs-journal/",
+        "/tr/blog/sleep-and-mood-patterns/",
+        "/tr/blog/stress-journal-prompts/",
+        "/tr/blog/understanding-emotional-triggers/",
+        "/tr/blog/using-mood-data-in-therapy/",
+        "/tr/blog/what-is-mood-tracking/",
+        "/tr/glossary/",
+        "/es/blog/",
+        "/es/blog/daily-mood-check-in-habit/",
+        "/es/blog/digital-wellbeing-mood-journal/",
+        "/es/blog/gratitude-and-mood-tracking/",
+        "/es/blog/how-to-start-a-mood-journal/",
+        "/es/blog/mood-tracker-vs-journal/",
+        "/es/blog/sleep-and-mood-patterns/",
+        "/es/blog/stress-journal-prompts/",
+        "/es/blog/understanding-emotional-triggers/",
+        "/es/blog/using-mood-data-in-therapy/",
+        "/es/blog/what-is-mood-tracking/",
+        "/es/glossary/",
+        "/de/blog/",
+        "/de/blog/daily-mood-check-in-habit/",
+        "/de/blog/digital-wellbeing-mood-journal/",
+        "/de/blog/gratitude-and-mood-tracking/",
+        "/de/blog/how-to-start-a-mood-journal/",
+        "/de/blog/mood-tracker-vs-journal/",
+        "/de/blog/sleep-and-mood-patterns/",
+        "/de/blog/stress-journal-prompts/",
+        "/de/blog/understanding-emotional-triggers/",
+        "/de/blog/using-mood-data-in-therapy/",
+        "/de/blog/what-is-mood-tracking/",
+        "/de/glossary/",
+        "/fr/blog/",
+        "/fr/blog/daily-mood-check-in-habit/",
+        "/fr/blog/digital-wellbeing-mood-journal/",
+        "/fr/blog/gratitude-and-mood-tracking/",
+        "/fr/blog/how-to-start-a-mood-journal/",
+        "/fr/blog/mood-tracker-vs-journal/",
+        "/fr/blog/sleep-and-mood-patterns/",
+        "/fr/blog/stress-journal-prompts/",
+        "/fr/blog/understanding-emotional-triggers/",
+        "/fr/blog/using-mood-data-in-therapy/",
+        "/fr/blog/what-is-mood-tracking/",
+        "/fr/glossary/",
+        "/pt/blog/",
+        "/pt/blog/daily-mood-check-in-habit/",
+        "/pt/blog/digital-wellbeing-mood-journal/",
+        "/pt/blog/gratitude-and-mood-tracking/",
+        "/pt/blog/how-to-start-a-mood-journal/",
+        "/pt/blog/mood-tracker-vs-journal/",
+        "/pt/blog/sleep-and-mood-patterns/",
+        "/pt/blog/stress-journal-prompts/",
+        "/pt/blog/understanding-emotional-triggers/",
+        "/pt/blog/using-mood-data-in-therapy/",
+        "/pt/blog/what-is-mood-tracking/",
+        "/pt/glossary/",
+        "/ru/blog/",
+        "/ru/blog/daily-mood-check-in-habit/",
+        "/ru/blog/digital-wellbeing-mood-journal/",
+        "/ru/blog/gratitude-and-mood-tracking/",
+        "/ru/blog/how-to-start-a-mood-journal/",
+        "/ru/blog/mood-tracker-vs-journal/",
+        "/ru/blog/sleep-and-mood-patterns/",
+        "/ru/blog/stress-journal-prompts/",
+        "/ru/blog/understanding-emotional-triggers/",
+        "/ru/blog/using-mood-data-in-therapy/",
+        "/ru/blog/what-is-mood-tracking/",
+        "/ru/glossary/",
+        "/zh/blog/",
+        "/zh/blog/daily-mood-check-in-habit/",
+        "/zh/blog/digital-wellbeing-mood-journal/",
+        "/zh/blog/gratitude-and-mood-tracking/",
+        "/zh/blog/how-to-start-a-mood-journal/",
+        "/zh/blog/mood-tracker-vs-journal/",
+        "/zh/blog/sleep-and-mood-patterns/",
+        "/zh/blog/stress-journal-prompts/",
+        "/zh/blog/understanding-emotional-triggers/",
+        "/zh/blog/using-mood-data-in-therapy/",
+        "/zh/blog/what-is-mood-tracking/",
+        "/zh/glossary/"
       ],
       "sitemap_url": "https://moodjot.app/sitemap.xml",
       "robots_url": "https://moodjot.app/robots.txt",
@@ -187,7 +290,23 @@
       ],
       "claim_reviewed_at": "2026-08-11",
       "generation_model": "direct_static",
-      "validation_commands": [],
+      "validation_commands": [
+        {
+          "argv": [
+            "node",
+            "scripts/build-localized-editorial.mjs",
+            "--check"
+          ],
+          "cwd": "www"
+        },
+        {
+          "argv": [
+            "node",
+            "scripts/verify-localized-editorial.mjs"
+          ],
+          "cwd": "www"
+        }
+      ],
       "dirty_path_exclusions": [
         "www/admin/**"
       ],

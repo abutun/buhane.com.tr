@@ -152,6 +152,7 @@ SHELL_METACHAR_RE = re.compile(r"[;&|><`$()\r\n]")
 COMMAND_TERMINATION_GRACE_SECONDS = 0.25
 COMMAND_DRAIN_GRACE_SECONDS = 0.25
 APPROVED_SOURCE_ROOTS = {
+    "moodjot": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/MoodJot"),
     "vynix": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/Vynix"),
     "hive-due": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/HiveDue"),
     "astral-post": Path("/Users/ahmet/Documents/Workspaces/Buhane/apps/AstralPost"),
@@ -161,6 +162,10 @@ APPROVED_SOURCE_ROOTS = {
     "u2m": Path("/Users/ahmet/Documents/Workspaces/Buhane/u2m-api"),
 }
 APPROVED_COMMAND_CONTRACTS = {
+    "moodjot": {
+        ("www", ("node", "scripts/build-localized-editorial.mjs", "--check")),
+        ("www", ("node", "scripts/verify-localized-editorial.mjs")),
+    },
     "vynix": {
         ("www", ("node", "scripts/build-seo-content.mjs", "--check")),
     },

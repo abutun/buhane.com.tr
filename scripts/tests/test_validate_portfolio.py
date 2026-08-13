@@ -60,6 +60,8 @@ class PortfolioValidatorTests(unittest.TestCase):
         record["validation_commands"] = []
         record["dirty_path_exclusions"] = []
         record["pending_source_rules"] = []
+        record["indexable_locales"] = ["en"]
+        record["route_locale_scopes"] = []
         record["canonical_routes"] = canonical_routes or ["/", "/guide/"]
         return record
 
