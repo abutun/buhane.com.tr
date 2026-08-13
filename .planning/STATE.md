@@ -101,6 +101,7 @@ None yet.
 | 260803-s03 | Add Lastimo product to the website | 2026-08-03 | 1e35b91 | [260803-s03-add-lastimo-product](./quick/260803-s03-add-lastimo-product/) |
 | 260803-s85 | Create README and push local repo to GitHub | 2026-08-03 | 1a413a2 | [260803-s85-publish-repo-readme](./quick/260803-s85-publish-repo-readme/) |
 | 260812-lnc | Add contextual game links, U2M footer link affordance, and Community Finance Management content | 2026-08-12 | 395788f | [260812-lnc](./quick/260812-lnc-contextual-game-links-community-finance/) |
+| 260813-kbv | Align Hive Due / Site Hesap central validation with the shared dist artifact | 2026-08-13 | a4a78c6 | [260813-kbv](./quick/260813-kbv-align-hivedue-shared-artifact-registry/) |
 
 ## Deferred Items
 
