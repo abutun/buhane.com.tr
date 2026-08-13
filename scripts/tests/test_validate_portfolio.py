@@ -963,44 +963,39 @@ class PortfolioValidatorTests(unittest.TestCase):
             "en": "https://hivedue.com/en/",
             "x-default": "https://hivedue.com/en/",
         }
+        shared_root = self.root / record["publication_variants"][0]["output_root"]
+        shared_root.mkdir(parents=True, exist_ok=True)
+        (shared_root / "en").mkdir(parents=True, exist_ok=True)
+        for locale, route, canonical in (
+            ("tr", "/", "https://sitehesap.com/"),
+            ("en", "/en/", "https://hivedue.com/en/"),
+        ):
+            markup = self.html_page(
+                title=f'{locale} Home',
+                description=f'{locale} regional product overview and workflow.',
+                canonical=canonical,
+                schema=self.product_schema(record),
+                body='<p>Use the released invoice workflow.</p><a href="https://buhane.com.tr/">A product by Buhane</a>',
+                alternates=alternates,
+            )
+            output = shared_root / route.lstrip("/") / "index.html"
+            if route == "/":
+                output = shared_root / "index.html"
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(markup, encoding="utf-8")
+
         for variant in record["publication_variants"]:
-            variant_root = self.root / variant["output_root"]
-            variant_root.mkdir(parents=True, exist_ok=True)
-            (variant_root / "en").mkdir(parents=True, exist_ok=True)
-            canonical_locale = variant["indexable_locales"][0]
-            for locale, route, canonical in (
-                ("tr", "/", "https://sitehesap.com/"),
-                ("en", "/en/", "https://hivedue.com/en/"),
-            ):
-                indexable = locale == canonical_locale
-                page_canonical = canonical
-                if variant["id"] == "hivedue" and locale == "tr":
-                    page_canonical = "https://hivedue.com/en/"
-                markup = self.html_page(
-                    title=f'{variant["id"]} {locale} Home',
-                    description=f'{variant["id"]} {locale} regional product overview and workflow.',
-                    canonical=page_canonical,
-                    schema=self.product_schema(record),
-                    body='<p>Use the released invoice workflow.</p><a href="https://buhane.com.tr/">A product by Buhane</a>',
-                    alternates=alternates if indexable else None,
-                    extra_head='' if indexable else '<meta name="robots" content="noindex,follow">',
-                )
-                output = variant_root / route.lstrip("/") / "index.html"
-                if route == "/":
-                    output = variant_root / "index.html"
-                output.parent.mkdir(parents=True, exist_ok=True)
-                output.write_text(markup, encoding="utf-8")
             canonical_url = (
                 "https://hivedue.com/en/"
                 if variant["id"] == "hivedue"
                 else "https://sitehesap.com/"
             )
-            (variant_root / "sitemap.xml").write_text(
+            (shared_root / variant["source_sitemap_path"]).write_text(
                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
                 f"<url><loc>{canonical_url}</loc></url></urlset>",
                 encoding="utf-8",
             )
-            (variant_root / "robots.txt").write_text(
+            (shared_root / variant["source_robots_path"]).write_text(
                 f"User-agent: *\nAllow: /\nSitemap: {variant['sitemap_url']}\n",
                 encoding="utf-8",
             )
@@ -1022,12 +1017,12 @@ class PortfolioValidatorTests(unittest.TestCase):
         manifest = self.manifest()
         record = self.configure_hive(manifest)
         self.write_hive_variants(record)
-        sitehesap = self.root / "dist" / "sitehesap"
+        sitehesap = self.root / "dist"
         home = (sitehesap / "index.html").read_text(encoding="utf-8")
         home = home.replace("https://sitehesap.com/", "https://hivedue.com/", 2)
         home = home.replace(record["product_entity_id"], "https://sitehesap.com/#product", 1)
         (sitehesap / "index.html").write_text(home, encoding="utf-8")
-        (sitehesap / "robots.txt").write_text(
+        (sitehesap / "robots-sitehesap.txt").write_text(
             "User-agent: *\nAllow: /\nSitemap: https://hivedue.com/sitemap.xml\n",
             encoding="utf-8",
         )
@@ -1047,7 +1042,7 @@ class PortfolioValidatorTests(unittest.TestCase):
         manifest = self.manifest()
         record = self.configure_hive(manifest)
         self.write_hive_variants(record)
-        hivedue_home = self.root / "dist" / "hivedue" / "en" / "index.html"
+        hivedue_home = self.root / "dist" / "en" / "index.html"
         hivedue_home.write_text(
             hivedue_home.read_text(encoding="utf-8").replace(
                 '<link rel="alternate" hreflang="tr" href="https://sitehesap.com/">',
@@ -1063,40 +1058,15 @@ class PortfolioValidatorTests(unittest.TestCase):
         self.assertIn("LOCALE.CROSS_PUBLICATION_RECIPROCAL", rules)
         self.assertEqual(1, report["exit_status"])
 
-    def test_cross_publication_noncanonical_copy_must_stay_noindex(self) -> None:
+    def test_shared_artifact_cannot_claim_unpublished_noindex_copies(self) -> None:
         manifest = self.manifest()
         record = self.configure_hive(manifest)
         self.write_hive_variants(record)
-        sitehesap_english = self.root / "dist" / "sitehesap" / "en" / "index.html"
-        sitehesap_english.write_text(
-            sitehesap_english.read_text(encoding="utf-8").replace(
-                '<meta name="robots" content="noindex,follow">',
-                "",
-            ),
-            encoding="utf-8",
-        )
+        record["cross_publication_hreflang"]["noncanonical_copies"] = "required_noindex"
 
         report = self.validate(manifest, site="hive-due")
 
-        self.assertIn("LOCALE.CROSS_PUBLICATION_COPY_INDEXABLE", self.rules(report))
-        self.assertEqual(1, report["exit_status"])
-
-    def test_cross_publication_noncanonical_copy_requires_canonical_peer(self) -> None:
-        manifest = self.manifest()
-        record = self.configure_hive(manifest)
-        self.write_hive_variants(record)
-        sitehesap_english = self.root / "dist" / "sitehesap" / "en" / "index.html"
-        sitehesap_english.write_text(
-            sitehesap_english.read_text(encoding="utf-8").replace(
-                '<link rel="canonical" href="https://hivedue.com/en/">',
-                '<link rel="canonical" href="https://hivedue.com/missing/">',
-            ),
-            encoding="utf-8",
-        )
-
-        report = self.validate(manifest, site="hive-due")
-
-        self.assertIn("LOCALE.CROSS_PUBLICATION_COPY_TARGET", self.rules(report))
+        self.assertIn("LOCALE.CROSS_PUBLICATION_COPY_MISSING", self.rules(report))
         self.assertEqual(1, report["exit_status"])
 
     def test_cross_publication_registry_rejects_unknown_variant_and_default(self) -> None:

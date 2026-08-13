@@ -497,11 +497,13 @@
             "argv": [
               "npm",
               "run",
-              "build:hivedue"
+              "build"
             ],
             "cwd": "www"
           },
-          "output_root": "dist/hivedue",
+          "output_root": "dist",
+          "source_robots_path": "robots-hivedue.txt",
+          "source_sitemap_path": "sitemap-hivedue.xml",
           "preferred_origin": "https://hivedue.com/",
           "indexable_locales": [
             "en"
@@ -559,11 +561,13 @@
             "argv": [
               "npm",
               "run",
-              "build:sitehesap"
+              "build"
             ],
             "cwd": "www"
           },
-          "output_root": "dist/sitehesap",
+          "output_root": "dist",
+          "source_robots_path": "robots-sitehesap.txt",
+          "source_sitemap_path": "sitemap-sitehesap.xml",
           "preferred_origin": "https://sitehesap.com/",
           "indexable_locales": [
             "tr"
@@ -628,10 +632,10 @@
           }
         },
         "x_default": "en",
-        "noncanonical_copies": "required_noindex"
+        "noncanonical_copies": "not_published"
       },
       "evidence_notes": [
-        "Both regional variants share the single product identity https://hivedue.com/#product."
+        "Both regional variants share one www/dist artifact, one _astro asset tree, and the single product identity https://hivedue.com/#product."
       ]
     },
     "astral-post": {

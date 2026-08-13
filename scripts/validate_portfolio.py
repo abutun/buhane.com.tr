@@ -167,8 +167,7 @@ APPROVED_COMMAND_CONTRACTS = {
     "hive-due": {
         ("www", ("npm", "run", "check")),
         ("www", ("npm", "test")),
-        ("www", ("npm", "run", "build:hivedue")),
-        ("www", ("npm", "run", "build:sitehesap")),
+        ("www", ("npm", "run", "build")),
     },
     "astral-post": {
         ("www", ("node", "scripts/build-content-pages.mjs")),
@@ -1301,7 +1300,7 @@ class PortfolioValidator:
             or set(locale_variants) != allowed_locales
             or not isinstance(x_default, str)
             or x_default not in locale_variants
-            or copy_policy != "required_noindex"
+            or copy_policy not in {"required_noindex", "not_published"}
             or len(set(used_variants)) != len(used_variants)
             or set(used_variants) != set(variants)
             or len(set(prefixes)) != len(prefixes)
@@ -1504,6 +1503,35 @@ class PortfolioValidator:
                     {"actual": output_root},
                     publication_variant=variant_id,
                 )
+            for source_field in ("source_robots_path", "source_sitemap_path"):
+                source_path = variant.get(source_field)
+                if source_path is None:
+                    continue
+                parsed_source_path = (
+                    urllib.parse.urlsplit(source_path)
+                    if isinstance(source_path, str)
+                    else None
+                )
+                if (
+                    not isinstance(source_path, str)
+                    or not source_path
+                    or Path(source_path).is_absolute()
+                    or (parsed_source_path is not None and (
+                        parsed_source_path.scheme
+                        or parsed_source_path.netloc
+                        or parsed_source_path.query
+                        or parsed_source_path.fragment
+                    ))
+                    or ".." in Path(source_path).parts
+                ):
+                    self.collector.add(
+                        "REG.VARIANT_DISCOVERY_SOURCE",
+                        product_id,
+                        "high",
+                        "Variant discovery source path must be a safe relative artifact path",
+                        {"field": source_field, "actual": source_path},
+                        publication_variant=variant_id,
+                    )
             for url_field in ("preferred_origin", "robots_url", "sitemap_url"):
                 value = variant.get(url_field)
                 if url_field == "preferred_origin":
@@ -1539,6 +1567,11 @@ class PortfolioValidator:
             if variants:
                 variant_inspections: list[dict[str, Any]] = []
                 cross_publication = isinstance(record.get("cross_publication_hreflang"), dict)
+                output_root_counts = Counter(
+                    str(variant.get("output_root", ""))
+                    for variant in variants
+                    if isinstance(variant, dict)
+                )
                 for variant in variants:
                     if not isinstance(variant, dict) or not isinstance(variant.get("id"), str):
                         continue
@@ -1560,7 +1593,12 @@ class PortfolioValidator:
                             "indexable_locales": variant.get("indexable_locales"),
                             "robots_url": variant.get("robots_url"),
                             "sitemap_url": variant.get("sitemap_url"),
+                            "source_robots_path": variant.get("source_robots_path"),
+                            "source_sitemap_path": variant.get("source_sitemap_path"),
                             "canonical_routes": variant.get("canonical_routes", ["/"]),
+                            "_inspect_declared_routes_only": output_root_counts[
+                                str(variant.get("output_root", ""))
+                            ] > 1,
                         }
                     )
                     inspection = self._inspect_output(
@@ -1817,7 +1855,16 @@ class PortfolioValidator:
             and path.name not in SOURCE_HTML_EXCLUSIONS.get(site_id, set())
         )
         pages: list[dict[str, Any]] = []
+        scoped_routes = {
+            route
+            for route in ensure_list(contract.get("canonical_routes"))
+            if isinstance(route, str)
+        }
+        inspect_declared_routes_only = bool(contract.get("_inspect_declared_routes_only"))
         for html_file in html_files:
+            route = self._file_route(html_file, root)
+            if inspect_declared_routes_only and route not in scoped_routes:
+                continue
             try:
                 raw = html_file.read_text(encoding="utf-8")
             except (OSError, UnicodeError) as exc:
@@ -1846,7 +1893,6 @@ class PortfolioValidator:
                     route=str(html_file.relative_to(root)),
                 )
                 continue
-            route = self._file_route(html_file, root)
             noindex = any("noindex" in value for value in parser.robots)
             redirect_shell = bool(re.search(r"http-equiv\s*=\s*[\"']?refresh", raw, re.IGNORECASE))
             page = {
@@ -2430,6 +2476,23 @@ class PortfolioValidator:
                         route="|".join(sorted(routes)),
                     )
 
+    @staticmethod
+    def _source_discovery_file(
+        root: Path,
+        contract: Mapping[str, Any],
+        kind: str,
+        public_url: str,
+    ) -> Path | None:
+        """Resolve a host-qualified discovery source without changing its public URL."""
+        source_path = contract.get(f"source_{kind}_path")
+        if isinstance(source_path, str):
+            candidate = (root / source_path).resolve()
+            return candidate if is_path_within(candidate, root) else None
+        return PortfolioValidator._url_to_local_file(
+            root,
+            urllib.parse.urlsplit(public_url).path,
+        )
+
     def _validate_sitemap(
         self,
         site_id: str,
@@ -2442,7 +2505,7 @@ class PortfolioValidator:
         sitemap_url = contract.get("sitemap_url")
         if not isinstance(sitemap_url, str):
             return set()
-        sitemap_path = self._url_to_local_file(root, urllib.parse.urlsplit(sitemap_url).path)
+        sitemap_path = self._source_discovery_file(root, contract, "sitemap", sitemap_url)
         if sitemap_path is None or not sitemap_path.is_file():
             self.collector.add(
                 "SRC.MISSING_SITEMAP",
@@ -2643,7 +2706,7 @@ class PortfolioValidator:
         sitemap_url = contract.get("sitemap_url")
         if not isinstance(robots_url, str):
             return
-        robots_path = self._url_to_local_file(root, urllib.parse.urlsplit(robots_url).path)
+        robots_path = self._source_discovery_file(root, contract, "robots", robots_url)
         if robots_path is None or not robots_path.is_file():
             self.collector.add(
                 "SRC.MISSING_ROBOTS",
