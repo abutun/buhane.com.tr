@@ -527,17 +527,19 @@ nav {
     flex: 1;
 }
 
-.product-monogram {
+.product-logo {
     width: 56px;
     height: 56px;
     flex: 0 0 56px;
-    display: grid;
-    place-items: center;
+    display: block;
+    object-fit: contain;
     border-radius: var(--radius-md);
     background: var(--gradient-secondary);
-    color: var(--text-primary);
-    font-size: 1.35rem;
-    font-weight: 800;
+}
+
+.product-logo--unavailable {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-subtle);
 }
 
 .portfolio-more {
