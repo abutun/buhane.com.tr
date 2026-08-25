@@ -243,6 +243,34 @@
     }
 
     // ============================================
+    // Product Portfolio Filters
+    // ============================================
+    function initProductFilters() {
+        const filterButtons = document.querySelectorAll('[data-product-filter]');
+        const productCards = document.querySelectorAll('[data-product-category]');
+
+        if (!filterButtons.length || !productCards.length) return;
+
+        filterButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const filter = button.getAttribute('data-product-filter') || 'all';
+
+                filterButtons.forEach(function(item) {
+                    const isActive = item === button;
+                    item.classList.toggle('is-active', isActive);
+                    item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+
+                productCards.forEach(function(card) {
+                    const category = card.getAttribute('data-product-category');
+                    const shouldShow = filter === 'all' || category === filter;
+                    card.classList.toggle('is-filtered-out', !shouldShow);
+                });
+            });
+        });
+    }
+
+    // ============================================
     // Counter Animation for Stats
     // ============================================
     function animateCounters() {
@@ -296,26 +324,24 @@
     }
 
     // ============================================
-    // Tilt Effect for Cards
+    // Pointer Feedback for Cards
     // ============================================
-    function initTiltEffect() {
-        const cards = document.querySelectorAll('.service-card, .product-card, .app-card, .stat-card');
+    function initCardPointerFeedback() {
+        const cards = document.querySelectorAll('.service-card, .product-card, .stat-card, .portfolio-index-card');
 
         cards.forEach(function(card) {
             card.addEventListener('mousemove', function(e) {
                 const rect = this.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = (y - centerY) / 20;
-                const rotateY = (centerX - x) / 20;
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-                this.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-8px)';
+                this.style.setProperty('--pointer-x', x + '%');
+                this.style.setProperty('--pointer-y', y + '%');
             });
 
             card.addEventListener('mouseleave', function() {
-                this.style.transform = '';
+                this.style.removeProperty('--pointer-x');
+                this.style.removeProperty('--pointer-y');
             });
         });
     }
@@ -328,7 +354,8 @@
         initParallax();
         initRippleEffect();
         animateCounters();
-        initTiltEffect();
+        initProductFilters();
+        initCardPointerFeedback();
     }
 
     // Run initialization when DOM is ready
