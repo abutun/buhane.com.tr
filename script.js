@@ -6,6 +6,8 @@
 (function() {
     'use strict';
 
+    document.documentElement.classList.add('js-enabled');
+
     // DOM Elements
     const header = document.getElementById('header');
     const hamburger = document.getElementById('hamburger');
@@ -180,20 +182,20 @@
     }
 
     // ============================================
-    // Parallax Effect for Hero Orbs
+    // Parallax Effect for Hero Geometry
     // ============================================
     function initParallax() {
-        const heroOrb = document.querySelector('.hero-orb');
-        if (!heroOrb) return;
+        const heroGeometry = document.querySelector('.hero-geometry');
+        if (!heroGeometry) return;
 
         window.addEventListener('mousemove', function(e) {
             const mouseX = e.clientX / window.innerWidth;
             const mouseY = e.clientY / window.innerHeight;
 
-            const moveX = (mouseX - 0.5) * 30;
-            const moveY = (mouseY - 0.5) * 30;
+            const moveX = (mouseX - 0.5) * 18;
+            const moveY = (mouseY - 0.5) * 18;
 
-            heroOrb.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
+            heroGeometry.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
         });
     }
 

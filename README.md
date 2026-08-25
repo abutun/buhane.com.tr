@@ -7,29 +7,29 @@ Static bilingual company website for Buhane Information Technologies. The site p
 | Metric | Value |
 |--------|-------|
 | Founded | 2018 |
-| Products launched | 10 |
-| Platforms | 3 |
+| Products launched | 11 |
+| Platforms and publications | 3 |
 | Apps | 4 |
-| Games | 3 |
-| Service areas | 6 |
+| Games | 4 |
+| Service areas | 3 |
 | Languages | English, Turkish |
 
 ## Live Products
 
-### Platforms
+### Platforms and Publications
 
 | Product | URL | Summary |
 |---------|-----|---------|
-| THECOSMICMETA.com | https://thecosmicmeta.com/ | AI-powered technology content platform. |
-| U2M.io | https://u2m.io | Smart URL shortener for clean, trackable links. |
-| HiveDue | https://hivedue.com/ | Community finance management platform. |
+| Hive Due / Site Hesap | https://hivedue.com/ | Community finance management for dues, shared expenses, resident records, and related communication. |
+| THECOSMICMETA.com | https://thecosmicmeta.com/ | Public technology-and-culture publication in the Buhane portfolio. |
+| U2M.io | https://u2m.io/ | URL-shortening service with public API documentation and link statistics. |
 
 ### Apps
 
 | Product | URL | Summary |
 |---------|-----|---------|
-| Vynix | https://vynix.app | AI video and art studio with access to premium AI models. |
-| MoodJot | https://moodjot.app | Mood tracking journal with AI-powered emotional insights. |
+| MoodJot | https://moodjot.app/ | Mood journal for entries, notes, optional photos, and reminders without medical-care claims. |
+| Vynix | https://vynix.app/ | AI-assisted creation workflows for text, image, audio, and video in one mobile application. |
 | AstralPost | https://astralpost.app/ | Ritual journaling app for cosmic reflections and anonymous connection. |
 | Lastimo | https://lastimo.app/ | Private factual tracker for remembering the last time something happened. |
 
@@ -40,15 +40,13 @@ Static bilingual company website for Buhane Information Technologies. The site p
 | Gridzle | https://gridzle.app/ | Counts-first puzzle strategy game with offline levels. |
 | Glow Spin | https://glowspin.app/ | Rhythm reflex game with spinning ring color-matching mechanics. |
 | Swipe Slip | https://swipeslip.app/ | Fast-paced tunnel runner focused on precision and timing. |
+| Hoşkin | https://hoskin.app/ | Traditional card game with offline bot play, online quick tables, and private rooms. |
 
 ## Services
 
-- Software design and development
-- Consultancy
-- E-commerce solutions
-- AI services
-- Digital marketing
-- Digital content
+- Product and software design
+- AI-assisted experiences
+- SaaS and digital infrastructure
 
 ## Project Structure
 

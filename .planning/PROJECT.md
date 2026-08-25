@@ -23,11 +23,11 @@ Visitors can quickly understand Buhane's work and reach the correct product, ser
 - [x] Public sections cover hero, services, products, about, contact, and footer content.
 - [x] The portfolio includes platform cards and app/game cards with outbound product links.
 - [x] Browser interactions cover mobile navigation, smooth scrolling, active nav state, reveal animations, stat counters, and card effects.
-- [x] Google Analytics, OpenWidget, app advertising, and Yandex verification assets are present.
+- [x] Google Analytics, app advertising, and Yandex verification assets are present.
 
 ### Active
 
-- [ ] Keep the current ten launched products synchronized across English and Turkish pages.
+- [ ] Keep the current eleven launched products synchronized across English and Turkish pages.
 - [ ] Harden product, social, footer, and contact links so they are secure and correct.
 - [ ] Add lightweight static validation for links, local assets, anchor targets, and language parity.
 - [ ] Document repository, deployment, and content-update ownership so commit/push/deploy work is repeatable.
@@ -37,14 +37,14 @@ Visitors can quickly understand Buhane's work and reach the correct product, ser
 - Static site generator or framework migration - useful later, but v1 should stabilize the current static site first.
 - CMS/admin editing - too much infrastructure for the current maintenance workflow.
 - Backend services, auth, forms, or databases - the current site is a static public website.
-- Visual redesign - not required to make current portfolio maintenance safe.
+- Full framework redesign - not required to keep the static portfolio maintainable.
 - New product launches - product creation is separate from this website maintenance milestone.
 
 ## Context
 
-The codebase is a static HTML/CSS/JavaScript site with no package manager, build step, test runner, or deployment metadata. English content lives in `index.html`; Turkish content lives in `tr/index.html`; shared styling and behavior live in `styles.css` and `script.js`. A GSD codebase map exists under `.planning/codebase/` and identifies three important risks: no Git metadata in this workspace, manual bilingual duplication, and no automated validation pipeline.
+The codebase is a static HTML/CSS/JavaScript site with no package manager, build step, or server runtime. English content lives in `index.html`; Turkish content lives in `tr/index.html`; shared styling and behavior live in `styles.css` and `script.js`. A GSD codebase map exists under `.planning/codebase/` and identifies three important risks: deployment ownership must stay explicit, manual bilingual duplication is easy to drift, and validation must keep covering links, assets, anchors, and portfolio truth.
 
-Recent portfolio updates added Gridzle, AstralPost, HiveDue, Lastimo, THECOSMICMETA.com naming, local icons for AstralPost/Glow Spin/Swipe Slip/Lastimo, the Products Launched stat of 10, and corrected Glow Spin and Swipe Slip URLs.
+Recent portfolio updates added Gridzle, AstralPost, HiveDue, Lastimo, Hoşkin, THECOSMICMETA.com naming, local icons for the product cards, the Products Launched stat of 11, and corrected preferred product URLs.
 
 ## Constraints
 
@@ -65,4 +65,4 @@ Recent portfolio updates added Gridzle, AstralPost, HiveDue, Lastimo, THECOSMICM
 | Skip external research during init | The brownfield codebase map is current and enough for a maintenance roadmap | Pending |
 
 ---
-*Last updated: 2026-08-03 after quick task 260803-s85*
+*Last updated: 2026-08-25 after visual portfolio refresh*
