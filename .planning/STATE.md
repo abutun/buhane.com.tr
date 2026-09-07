@@ -4,10 +4,10 @@ milestone: v1.0
 current_phase: 1
 current_phase_name: Planning and Repository Baseline
 status: planning
-stopped_at: Completed quick task 260815-sx4 for verified product-card logos
-last_updated: "2026-08-15T00:00:00Z"
-last_activity: 2026-08-15
-last_activity_desc: Completed quick task 260815-sx4 for verified product-card logos
+stopped_at: Completed quick task 260907-uzv to add RULR to the bilingual portfolio
+last_updated: "2026-09-07T19:34:44Z"
+last_activity: 2026-09-07
+last_activity_desc: Completed quick task 260907-uzv; portfolio now has 12 products and 5 games
 progress:
   total_phases: 5
   completed_phases: 1
@@ -20,7 +20,7 @@ milestone_name: milestone
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-28)
+See: .planning/PROJECT.md (updated 2026-09-07)
 
 **Core value:** Visitors can quickly understand Buhane's work and reach the correct product, service, or contact destination without stale content or broken links.
 **Current focus:** Phase 5 — Portfolio Discovery, Content, and Brand Network
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-07-28)
 Phase: 1 — Planning and Repository Baseline
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-08-15 — Completed quick task 260815-sx4: verified product-card logos
+Last activity: 2026-09-07 — Completed quick task 260907-uzv: added RULR to the bilingual portfolio
 
 Progress: [██████████] 100%
 
@@ -73,6 +73,7 @@ Recent decisions affecting current work:
 - Init: Use `AGENTS.md` as the Codex project instruction file.
 - [Phase 05]: Buhane remains the authoritative organization and discovery hub while each detail page preserves the registry product identity and preferred origin.
 - [Phase 05]: The bilingual Buhane public inventory is fixed at 26 canonical routes: two roots, two indexes, and eleven EN/TR product pairs.
+- [Quick 260907-uzv]: RULR extends the current inventory to 28 canonical routes: two roots, two indexes and twelve EN/TR product pairs. Current product totals are 12 products, 4 apps, 5 games and 3 platforms/publications.
 - [Phase 05]: Hive Due and Site Hesap expose separate ROW and Türkiye destinations while reusing the one https://hivedue.com/#product identity.
 - [Phase 05]: Static verification HTML remains at the hosting root but is excluded from the indexable source inventory.
 - [Phase 05]: The Cosmic Meta remains externally blocked; the three similarly named local directories are immutable non-source evidence. — No verified WordPress administration, deploy source, or hosting ownership maps those directories to the live property.
@@ -93,6 +94,7 @@ None yet.
 - Quick 260803-s85: GitHub remote is configured as `origin` and `main` tracks `origin/main`.
 - Init: No automated validation command exists yet.
 - Init: English and Turkish pages duplicate content manually.
+- Quick 260907-uzv: Existing email-signature and Google Play banner documents produce nine source metadata findings. RULR adds no new findings; registry checks, 57 tests and bilingual desktop/mobile browser checks pass.
 
 ### Quick Tasks Completed
 
@@ -107,6 +109,7 @@ None yet.
 | 260814-csm | Portfolio-wide website audit and verified improvements | 2026-08-14 | 8cc4344, c8aeadcf, e19d6d1, 30edca9e | Verified | [260814-csm](./quick/260814-csm-t-m-buhane-portf-y-web-sitelerini-ayr-nt/) |
 | 260814-igz | Portfolio SEO, useful content, and AI discovery improvements | 2026-08-14 | source: none | Verified | [260814-igz](./quick/260814-igz-t-m-buhane-portf-y-nde-seo-faydal-i-erik/) |
 | 260815-sx4 | Replace Buhane product-card initials with verified local product logos | 2026-08-15 | 802b0f6 | Complete | [260815-sx4](./quick/260815-sx4-buhane-com-tr-en-ve-tr-r-n-kartlar-ndaki/) |
+| 260907-uzv | Add RULR to the bilingual portfolio and synchronize totals | 2026-09-07 | Not committed | Complete | [260907-uzv](./quick/260907-uzv-add-rulr-to-the-bilingual-portfolio-prod/) |
 
 ## Deferred Items
 
@@ -118,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-11T18:40:43.232Z
-Stopped at: Completed 05-14-PLAN.md; independent Phase 05 verification remains
+Last session: 2026-09-07T19:34:44Z
+Stopped at: Completed quick task 260907-uzv; independent Phase 05 verification remains
 Resume file: None

@@ -501,10 +501,10 @@ class PortfolioValidatorTests(unittest.TestCase):
         )
         contract = validator._source_contract("buhane", manifest["properties"]["buhane"])
 
-        self.assertEqual(26, len(contract["canonical_routes"]))
+        self.assertEqual(28, len(contract["canonical_routes"]))
         self.assertEqual("https://buhane.com.tr/robots.txt", contract["robots_url"])
         self.assertEqual("https://buhane.com.tr/sitemap.xml", contract["sitemap_url"])
-        self.assertEqual(22, len(contract["product_detail_routes"]))
+        self.assertEqual(24, len(contract["product_detail_routes"]))
         self.assertEqual(
             set(record["product_entity_id"] for record in manifest["products"].values()),
             set(contract["product_detail_routes"].values()),

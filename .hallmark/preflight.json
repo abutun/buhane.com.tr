@@ -1,0 +1,42 @@
+{
+  "project": "Buhane.com.tr",
+  "date": "2026-08-28",
+  "scope": "whole static bilingual website redesign",
+  "audience": "prospective clients, partners, and product visitors",
+  "use": "understand Buhane's shipped product network and reach the right product or contact route",
+  "tone": "technical, editorial, independent product foundry",
+  "routes": [
+    "/",
+    "/tr/",
+    "/products/",
+    "/tr/urunler/",
+    "/products/*/",
+    "/tr/urunler/*/"
+  ],
+  "will_modify": [
+    "design.md",
+    "tokens.css",
+    "styles.css",
+    "script.js",
+    "index.html",
+    "tr/index.html",
+    ".hallmark/preflight.json",
+    ".hallmark/log.json"
+  ],
+  "will_preserve": [
+    "app-ads.txt",
+    "robots.txt",
+    "sitemap.xml",
+    "yandex_abc334285efd6c2e.html",
+    "product detail route content and links"
+  ],
+  "selected_system": {
+    "genre": "modern-minimal plus editorial product-foundry discipline",
+    "home_macrostructure": "Map / Diagram",
+    "index_macrostructure": "Ecosystem Index",
+    "detail_macrostructure": "Long Document",
+    "navigation": "N11 Mega-menu",
+    "footer": "Ft5 Statement",
+    "theme": "warm paper, ink typography, fine rules, Buhane signal orange"
+  }
+}

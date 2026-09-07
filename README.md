@@ -7,10 +7,10 @@ Static bilingual company website for Buhane Information Technologies. The site p
 | Metric | Value |
 |--------|-------|
 | Founded | 2018 |
-| Products launched | 11 |
+| Products launched | 12 |
 | Platforms and publications | 3 |
 | Apps | 4 |
-| Games | 4 |
+| Games | 5 |
 | Service areas | 3 |
 | Languages | English, Turkish |
 
@@ -41,6 +41,7 @@ Static bilingual company website for Buhane Information Technologies. The site p
 | Glow Spin | https://glowspin.app/ | Rhythm reflex game with spinning ring color-matching mechanics. |
 | Swipe Slip | https://swipeslip.app/ | Fast-paced tunnel runner focused on precision and timing. |
 | Hoşkin | https://hoskin.app/ | Traditional card game with offline bot play, online quick tables, and private rooms. |
+| RULR | https://rulr.lol/ | Browser game of fictional country thrones, public challenges, and leaderboards. |
 
 ## Services
 

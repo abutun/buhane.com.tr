@@ -1,0 +1,24 @@
+[
+  {
+    "date": "2026-08-28",
+    "skill": "hallmark",
+    "task": "redesign website",
+    "macrostructure": "Map / Diagram + Ecosystem Index + Long Document",
+    "theme": "Buhane signal-orange product foundry",
+    "genre": "modern-minimal/editorial",
+    "variation_knobs": [
+      "product-network hero as primary evidence",
+      "grouped product mega-menu",
+      "editorial fact-led product detail pages",
+      "neutral gallery with product-specific local identity tokens"
+    ],
+    "routes": [
+      "/",
+      "/tr/",
+      "/products/",
+      "/tr/urunler/",
+      "/products/*/",
+      "/tr/urunler/*/"
+    ]
+  }
+]

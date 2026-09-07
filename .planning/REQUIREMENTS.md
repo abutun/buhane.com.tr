@@ -13,8 +13,8 @@
 
 ### Portfolio Content
 
-- [ ] **PORT-01**: The English page lists the current eleven launched products: The Cosmic Meta, U2M, Hive Due, Vynix, MoodJot, Astral Post, Lastimo, Gridzle, Glow Spin, Swipe Slip, and Hoşkin.
-- [ ] **PORT-02**: The Turkish page exposes the same eleven products with localized copy and the same preferred target URLs.
+- [ ] **PORT-01**: The English page lists the current twelve launched products: The Cosmic Meta, U2M, Hive Due, Vynix, MoodJot, Astral Post, Lastimo, Gridzle, Glow Spin, Swipe Slip, Hoşkin, and RULR.
+- [ ] **PORT-02**: The Turkish page exposes the same twelve products with localized copy and the same preferred target URLs.
 - [ ] **PORT-03**: Product cards use stable local assets where practical and document any deliberate remote icon dependencies.
 
 ### Localization

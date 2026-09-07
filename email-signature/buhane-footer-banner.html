@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buhane Gmail Footer Banner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: oklch(97% 0.012 76);
+      --paper-2: oklch(94% 0.014 76);
+      --ink: oklch(17% 0.01 70);
+      --ink-2: oklch(36% 0.012 70);
+      --muted: oklch(45% 0.012 70);
+      --rule: oklch(83% 0.012 76);
+      --rule-strong: oklch(66% 0.016 76);
+      --accent: oklch(63% 0.22 35);
+      --accent-soft: oklch(72% 0.18 35 / 0.16);
+      --shadow: oklch(18% 0.012 70 / 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 1200px;
+      height: 320px;
+      margin: 0;
+      overflow: hidden;
+      background: transparent;
+      color: var(--ink);
+      font-family: "IBM Plex Sans", Arial, sans-serif;
+    }
+
+    .banner {
+      position: relative;
+      width: 1200px;
+      height: 320px;
+      overflow: hidden;
+      border: 1px solid var(--rule);
+      background:
+        linear-gradient(to right, var(--rule) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--rule) 1px, transparent 1px),
+        var(--paper);
+      background-size: 80px 80px;
+      box-shadow: 0 24px 72px var(--shadow);
+    }
+
+    .banner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, var(--paper) 0 44%, transparent 58%),
+        radial-gradient(circle at 76% 42%, var(--accent-soft), transparent 24%);
+      pointer-events: none;
+    }
+
+    .brand {
+      position: absolute;
+      top: 58px;
+      left: 72px;
+      width: 540px;
+      display: grid;
+      gap: 28px;
+    }
+
+    .brand-lockup {
+      display: grid;
+      gap: 18px;
+    }
+
+    .logo {
+      width: 318px;
+      height: auto;
+    }
+
+    .statement {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: var(--ink);
+      font-family: "Space Grotesk", Arial, sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .statement::before {
+      content: "";
+      width: 54px;
+      height: 5px;
+      display: block;
+      background: var(--accent);
+    }
+
+    .links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      color: var(--ink-2);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .link-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .link-item svg {
+      width: 28px;
+      height: 28px;
+      color: var(--accent);
+    }
+
+    .divider {
+      width: 1px;
+      height: 194px;
+      position: absolute;
+      top: 63px;
+      left: 650px;
+      background: var(--rule-strong);
+    }
+
+    .network {
+      position: absolute;
+      inset: 36px 48px 36px 680px;
+    }
+
+    .network-line {
+      position: absolute;
+      height: 1px;
+      background: var(--rule-strong);
+      transform-origin: left center;
+    }
+
+    .line-a {
+      width: 350px;
+      top: 78px;
+      left: 42px;
+    }
+
+    .line-b {
+      width: 320px;
+      top: 174px;
+      left: 88px;
+    }
+
+    .line-c {
+      width: 250px;
+      top: 96px;
+      left: 144px;
+      transform: rotate(33deg);
+    }
+
+    .line-d {
+      width: 250px;
+      top: 194px;
+      left: 114px;
+      transform: rotate(-31deg);
+    }
+
+    .node {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 3px solid var(--paper);
+      border-radius: 50%;
+      background: var(--ink);
+      box-shadow: 0 0 0 1px var(--rule-strong);
+    }
+
+    .node-main {
+      width: 34px;
+      height: 34px;
+      top: 132px;
+      left: 252px;
+      background: var(--accent);
+    }
+
+    .node-a {
+      top: 70px;
+      left: 40px;
+    }
+
+    .node-b {
+      top: 168px;
+      left: 82px;
+    }
+
+    .node-c {
+      top: 70px;
+      right: 36px;
+      background: var(--accent);
+    }
+
+    .node-d {
+      right: 88px;
+      bottom: 42px;
+    }
+
+    .tile {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--rule-strong);
+      border-radius: 8px;
+      background: oklch(98% 0.01 76 / 0.78);
+      color: var(--ink);
+      box-shadow: 0 12px 40px var(--shadow);
+    }
+
+    .tile svg {
+      width: 45px;
+      height: 45px;
+    }
+
+    .tile-one {
+      top: 14px;
+      left: 310px;
+    }
+
+    .tile-two {
+      top: 126px;
+      left: 402px;
+    }
+
+    .tile-three {
+      right: 82px;
+      bottom: 18px;
+    }
+
+    .dot-matrix {
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      width: 76px;
+      height: 76px;
+      background-image: radial-gradient(var(--rule-strong) 2px, transparent 2px);
+      background-size: 16px 16px;
+      opacity: 0.9;
+    }
+
+    .caption {
+      position: absolute;
+      right: 58px;
+      bottom: 48px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", "Courier New", monospace;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner" role="img" aria-label="Buhane Information Technologies, Independent Product Foundry, buhane.com.tr">
+    <div class="brand">
+      <div class="brand-lockup">
+        <img class="logo" src="../images/logo-dark.png" alt="Buhane Information Technologies">
+        <div class="statement">Independent Product Foundry</div>
+      </div>
+      <div class="links">
+        <div class="link-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+            <path d="M3.6 12h16.8M12 3.2c2.2 2.4 3.3 5.3 3.3 8.8S14.2 18.4 12 20.8C9.8 18.4 8.7 15.5 8.7 12S9.8 5.6 12 3.2Z" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+          </svg>
+          <span>buhane.com.tr</span>
+        </div>
+        <div class="link-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6.5h16v11H4z" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+            <path d="m4.8 7.4 7.2 5 7.2-5" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+          </svg>
+          <span>info@buhane.com.tr</span>
+        </div>
+      </div>
+    </div>
+    <div class="divider" aria-hidden="true"></div>
+    <div class="network" aria-hidden="true">
+      <span class="network-line line-a"></span>
+      <span class="network-line line-b"></span>
+      <span class="network-line line-c"></span>
+      <span class="network-line line-d"></span>
+      <span class="node node-main"></span>
+      <span class="node node-a"></span>
+      <span class="node node-b"></span>
+      <span class="node node-c"></span>
+      <span class="node node-d"></span>
+      <span class="dot-matrix"></span>
+      <span class="tile tile-one">
+        <svg viewBox="0 0 48 48">
+          <path d="M24 5 40 14v20L24 43 8 34V14L24 5Z" fill="none" stroke="currentColor" stroke-width="2.4"></path>
+          <path d="M8 14 24 23l16-9M24 23v20M16 18.5l16 9" fill="none" stroke="currentColor" stroke-width="2.4"></path>
+        </svg>
+      </span>
+      <span class="tile tile-two">
+        <svg viewBox="0 0 48 48">
+          <path d="M13 13h8v8h-8zM27 13h8v8h-8zM13 27h8v8h-8zM27 27h8v8h-8z" fill="currentColor"></path>
+          <circle cx="24" cy="24" r="4.5" fill="var(--accent)"></circle>
+        </svg>
+      </span>
+      <span class="tile tile-three">
+        <svg viewBox="0 0 48 48">
+          <path d="M12 30c12 0 20-8 20-20-12 0-20 8-20 20Z" fill="none" stroke="currentColor" stroke-width="2.4"></path>
+          <path d="M23 38c0-12 7-19 18-20 0 12-7 19-18 20Z" fill="none" stroke="currentColor" stroke-width="2.4"></path>
+          <path d="M23 38V20" fill="none" stroke="currentColor" stroke-width="2.4"></path>
+        </svg>
+      </span>
+    </div>
+    <div class="caption">Apps / SaaS / Games / Publications</div>
+  </div>
+</body>
+</html>

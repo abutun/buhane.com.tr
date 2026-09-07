@@ -1,0 +1,130 @@
+/* Hallmark · pre-emit critique: P5 H4 E5 S5 R5 V5 */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+:root {
+  --color-paper: oklch(97% 0.012 76);
+  --color-paper-2: oklch(94% 0.014 76);
+  --color-paper-3: oklch(90% 0.016 76);
+  --color-paper-veil: oklch(98% 0.01 76 / 0.92);
+  --color-paper-soft: oklch(98% 0.01 76 / 0.72);
+  --color-ink: oklch(17% 0.01 70);
+  --color-ink-2: oklch(36% 0.012 70);
+  --color-muted: oklch(45% 0.012 70);
+  --color-rule: oklch(83% 0.012 76);
+  --color-rule-strong: oklch(66% 0.016 76);
+  --color-grid: oklch(84% 0.012 76 / 0.56);
+  --color-accent: oklch(63% 0.22 35);
+  --color-accent-ink: oklch(98% 0.012 76);
+  --color-accent-soft: oklch(72% 0.18 35 / 0.18);
+  --color-accent-rule: oklch(63% 0.22 35 / 0.36);
+  --color-focus: oklch(55% 0.2 35);
+  --color-dark: oklch(18% 0.012 70);
+  --color-dark-2: oklch(24% 0.014 70);
+  --color-dark-rule: oklch(43% 0.014 70);
+  --color-dark-muted: oklch(82% 0.014 76);
+  --color-scrim: oklch(18% 0.012 70 / 0.28);
+  --color-shadow: oklch(18% 0.012 70 / 0.08);
+  --color-shadow-strong: oklch(18% 0.012 70 / 0.16);
+
+  --product-moodjot: oklch(55% 0.16 156);
+  --product-moodjot-soft: oklch(86% 0.08 156);
+  --product-vynix: oklch(57% 0.22 286);
+  --product-vynix-soft: oklch(86% 0.08 286);
+  --product-swipe-slip: oklch(61% 0.23 26);
+  --product-swipe-slip-soft: oklch(86% 0.08 26);
+  --product-glow-spin: oklch(72% 0.18 78);
+  --product-glow-spin-soft: oklch(90% 0.09 78);
+  --product-hive-due: oklch(53% 0.17 256);
+  --product-hive-due-soft: oklch(87% 0.07 256);
+  --product-astral-post: oklch(58% 0.18 300);
+  --product-astral-post-soft: oklch(86% 0.08 300);
+  --product-gridzle: oklch(63% 0.18 190);
+  --product-gridzle-soft: oklch(87% 0.08 190);
+  --product-hoskin: oklch(50% 0.13 146);
+  --product-hoskin-soft: oklch(86% 0.07 146);
+  --product-rulr: oklch(52% 0.13 125);
+  --product-rulr-soft: oklch(91% 0.18 125);
+  --product-lastimo: oklch(60% 0.18 250);
+  --product-lastimo-soft: oklch(87% 0.08 250);
+  --product-cosmic: oklch(64% 0.2 35);
+  --product-cosmic-soft: oklch(88% 0.08 35);
+  --product-u2m: oklch(61% 0.16 273);
+  --product-u2m-soft: oklch(88% 0.07 273);
+
+  --font-display: "Space Grotesk", "Arial", sans-serif;
+  --font-body: "IBM Plex Sans", "Arial", sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+
+  --space-3xs: 4px;
+  --space-2xs: 8px;
+  --space-xs: 12px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 32px;
+  --space-xl: 40px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 80px;
+  --space-5xl: 96px;
+  --space-section: var(--space-5xl);
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: 36px;
+  --text-4xl: 48px;
+  --text-5xl: 60px;
+  --text-6xl: 72px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-instant: 100ms;
+  --dur-short: 180ms;
+  --dur-base: 260ms;
+  --dur-long: 420ms;
+
+  --rule-hair: 1px;
+  --rule-strong: 2px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --container-width: 1240px;
+  --header-height: 68px;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-overlay: 400;
+
+  --shadow-soft: 0 24px 72px var(--color-shadow);
+  --shadow-strong: 0 32px 96px var(--color-shadow-strong);
+  --shadow-header: 0 12px 44px var(--color-shadow);
+
+  --bg-primary: var(--color-paper);
+  --bg-secondary: var(--color-paper-2);
+  --bg-tertiary: var(--color-paper-3);
+  --bg-ink: var(--color-dark);
+  --bg-card: var(--color-paper-veil);
+  --bg-card-hover: var(--color-paper);
+  --accent-orange: var(--color-accent);
+  --accent-red: var(--product-swipe-slip);
+  --accent-blue: var(--product-hive-due);
+  --accent-green: var(--product-moodjot);
+  --accent-purple: var(--product-vynix);
+  --accent-yellow: var(--product-glow-spin);
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-ink-2);
+  --text-muted: var(--color-muted);
+  --text-inverse: var(--color-accent-ink);
+  --border-subtle: var(--color-rule);
+  --border-medium: var(--color-rule-strong);
+  --shadow-sm: var(--shadow-soft);
+  --shadow-md: var(--shadow-soft);
+  --shadow-lg: var(--shadow-strong);
+  --transition-fast: var(--dur-short) var(--ease-out);
+  --transition-base: var(--dur-base) var(--ease-out);
+  --transition-slow: var(--dur-long) var(--ease-out);
+}

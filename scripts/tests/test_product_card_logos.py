@@ -15,6 +15,7 @@ PRODUCT_IDS = (
     "astral-post",
     "gridzle",
     "hoskin",
+    "rulr",
     "lastimo",
     "the-cosmic-meta",
     "u2m",
@@ -29,6 +30,7 @@ LOGO_PRODUCTS = {
     "astral-post": "Astral Post",
     "gridzle": "Gridzle",
     "hoskin": "Hoşkin",
+    "rulr": "RULR",
     "lastimo": "Lastimo",
     "u2m": "U2M URL Shortener",
 }
