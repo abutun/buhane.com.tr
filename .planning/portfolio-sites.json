@@ -80,7 +80,9 @@
         "rulr",
         "lastimo",
         "the-cosmic-meta",
-        "u2m"
+        "u2m",
+        "mintropolis",
+        "leaselore"
       ],
       "generation_model": "direct_static",
       "validation_commands": [],
@@ -1711,6 +1713,131 @@
       "evidence_notes": [
         "Central source validation inspects the ignored frontend/dist Vite publish artifact; frontend/public is generator input rather than a complete deploy root.",
         "Legacy aliases, auth, recovery, dashboard, profile, stats, tokens, and frontend aliases are redirects, private, or noindex and must stay outside canonical_routes and the sitemap."
+      ]
+    },
+    "mintropolis": {
+      "display_name": "Mintropolis",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "beta",
+      "category": "nft_discovery_and_community",
+      "schema_type": "WebApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/mintropolis.lol",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/mintropolis.lol/web/dist",
+      "preferred_origin": "https://mintropolis.io/",
+      "product_entity_id": "https://mintropolis.io/#product",
+      "legacy_origins": [],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/",
+        "/drops",
+        "/passport",
+        "/roadmap",
+        "/genesis",
+        "/about",
+        "/release-notes",
+        "/terms",
+        "/privacy",
+        "/creator-agreement",
+        "/content-policy",
+        "/report-and-takedown"
+      ],
+      "sitemap_url": null,
+      "robots_url": "https://mintropolis.io/robots.txt",
+      "store_urls": [],
+      "support_url": "https://mintropolis.io/about",
+      "contact_url": null,
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [],
+      "verified_features": [
+        "city_and_embassy_discovery",
+        "official_drop_discovery",
+        "free_wallet_linked_passport",
+        "public_product_roadmap"
+      ],
+      "excluded_claims": [
+        "guaranteed_mint_eligibility",
+        "investment_returns_or_yield",
+        "transferable_passport_value",
+        "released_token_or_governance_rights"
+      ],
+      "claim_reviewed_at": "2026-09-19",
+      "generation_model": "server_rendered",
+      "validation_commands": [],
+      "dirty_path_exclusions": [],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Public beta reviewed against https://mintropolis.io/, /drops, /passport, /about, /genesis and /roadmap on 2026-09-19.",
+        "https://cosmicmeta.io/ provides Cosmic Meta NFT and Genesis context; it is distinct from the existing The Cosmic Meta publication at thecosmicmeta.com. No collection supply or mint totals are repeated in the hub.",
+        "The public default is English with client-side language selection; no independent locale URLs were verified.",
+        "Public pages use a server renderer; web/dist alone is not a complete static representation. Product-source validation and deployment are outside this hub addition.",
+        "/sitemap.xml returned HTTP 404; robots.txt was reachable on 2026-09-19."
+      ]
+    },
+    "leaselore": {
+      "display_name": "LeaseLore",
+      "legal_owner": "https://buhane.com.tr/#organization",
+      "lifecycle_status": "live",
+      "category": "resident_reviews_and_rental_discovery",
+      "schema_type": "SoftwareApplication",
+      "source_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/LeaseLore",
+      "public_root": "/Users/ahmet/Documents/Workspaces/Buhane/apps/LeaseLore/www/dist",
+      "preferred_origin": "https://leaselore.com/",
+      "product_entity_id": "https://leaselore.com/#product",
+      "legacy_origins": [],
+      "regional_origins": [],
+      "default_locale": "en",
+      "indexable_locales": [
+        "en"
+      ],
+      "canonical_routes": [
+        "/",
+        "/support.html",
+        "/privacy.html",
+        "/terms.html"
+      ],
+      "sitemap_url": null,
+      "robots_url": "https://leaselore.com/robots.txt",
+      "store_urls": [
+        "https://play.google.com/store/apps/details?id=com.buhane.leaselore"
+      ],
+      "support_url": "https://leaselore.com/support.html",
+      "contact_url": "https://leaselore.com/support.html",
+      "publisher_entity_id": "https://buhane.com.tr/#organization",
+      "approved_contextual_links": [],
+      "verified_features": [
+        "address_level_search",
+        "resident_reviews",
+        "home_scores_and_confidence",
+        "saved_home_shortlist",
+        "review_moderation",
+        "android_google_play_release"
+      ],
+      "excluded_claims": [
+        "public_ios_app_store_release",
+        "complete_address_review_coverage",
+        "fabricated_ratings_or_downloads",
+        "guaranteed_housing_quality"
+      ],
+      "claim_reviewed_at": "2026-10-02",
+      "generation_model": "bundled_static",
+      "validation_commands": [],
+      "dirty_path_exclusions": [
+        "admin/**"
+      ],
+      "pending_source_rules": [],
+      "external_status": "local_editable",
+      "evidence_notes": [
+        "Official https://leaselore.com/ and /support.html reviewed on 2026-10-02. Android is publicly available; iOS is an early-access request rather than an App Store release.",
+        "The official Google Play destination returned the LeaseLore listing through a read-only HTTP request. No rating, download count or price was copied.",
+        "Public landing and support pages list English, German, French, Spanish and Turkish. These are app/content language options, not verified separate localized website routes.",
+        "The live homepage is more current than the local README's older England-first/four-language scope.",
+        "The public build is www/dist. Product-source validation, private admin paths and deployment are outside this Buhane hub task.",
+        "/sitemap.xml returned HTTP 404 and robots.txt was reachable on 2026-10-02; no sitemap URL is claimed."
       ]
     }
   }

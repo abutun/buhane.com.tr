@@ -19,6 +19,8 @@ PRODUCT_IDS = (
     "lastimo",
     "the-cosmic-meta",
     "u2m",
+    "mintropolis",
+    "leaselore",
 )
 
 LOGO_PRODUCTS = {
@@ -33,6 +35,8 @@ LOGO_PRODUCTS = {
     "rulr": "RULR",
     "lastimo": "Lastimo",
     "u2m": "U2M URL Shortener",
+    "mintropolis": "Mintropolis",
+    "leaselore": "LeaseLore",
 }
 
 

@@ -48,6 +48,10 @@
   --product-lastimo-soft: oklch(87% 0.08 250);
   --product-cosmic: oklch(64% 0.2 35);
   --product-cosmic-soft: oklch(88% 0.08 35);
+  --product-leaselore: oklch(52% 0.095 191);
+  --product-leaselore-soft: oklch(89% 0.05 191);
+  --product-mintropolis: oklch(56% 0.11 169);
+  --product-mintropolis-soft: oklch(89% 0.07 169);
   --product-u2m: oklch(61% 0.16 273);
   --product-u2m-soft: oklch(88% 0.07 273);
 

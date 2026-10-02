@@ -13,8 +13,8 @@
 
 ### Portfolio Content
 
-- [ ] **PORT-01**: The English page lists the current twelve launched products: The Cosmic Meta, U2M, Hive Due, Vynix, MoodJot, Astral Post, Lastimo, Gridzle, Glow Spin, Swipe Slip, Hoşkin, and RULR.
-- [ ] **PORT-02**: The Turkish page exposes the same twelve products with localized copy and the same preferred target URLs.
+- [ ] **PORT-01**: The English page lists the current fourteen available products: The Cosmic Meta, U2M, Hive Due, Vynix, MoodJot, Astral Post, Lastimo, Gridzle, Glow Spin, Swipe Slip, Hoşkin, RULR, Mintropolis (public beta), and LeaseLore (Android live, iOS early access).
+- [ ] **PORT-02**: The Turkish page exposes the same fourteen products with localized copy and the same preferred target URLs.
 - [ ] **PORT-03**: Product cards use stable local assets where practical and document any deliberate remote icon dependencies.
 
 ### Localization
@@ -42,7 +42,7 @@
 
 - [x] **DISC-01**: A private portfolio registry records every brand's owner, lifecycle state, preferred and legacy origins, locales, approved destinations, and reviewed product claims.
 - [x] **DISC-02**: Canonical, sitemap, social, structured-data, and portfolio-link URLs use each product's preferred HTTPS origin; legacy domains are treated only as redirects.
-- [x] **HUB-01**: Buhane provides substantial crawlable English and Turkish company, portfolio, and product-detail content for all eleven products.
+- [x] **HUB-01**: Buhane provides substantial crawlable English and Turkish company, portfolio, and product-detail content for all fourteen products.
 - [x] **ENT-01**: Buhane, Ahmet, and product sites expose truthful, consistent visible ownership relationships and stable structured-data entity identifiers.
 - [x] **TECH-01**: Every editable public site has page-specific titles and descriptions, canonical metadata, appropriate structured data, robots rules, and a canonical-only sitemap for its public architecture.
 - [x] **LOCALE-03**: Only stable, independently addressable localized pages receive reciprocal self-referential `hreflang`; client-side language states are not presented as separate indexed documents.
@@ -112,4 +112,4 @@
 
 ---
 *Requirements defined: 2026-07-28*
-*Last updated: 2026-08-11 for Phase 5 portfolio discovery network*
+*Last updated: 2026-10-02 for LeaseLore portfolio parity*

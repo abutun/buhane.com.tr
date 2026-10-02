@@ -44,6 +44,8 @@ EXPECTED_PRODUCTS = {
     "lastimo": "https://lastimo.app/#product",
     "the-cosmic-meta": "https://thecosmicmeta.com/#product",
     "u2m": "https://u2m.io/#product",
+    "mintropolis": "https://mintropolis.io/#product",
+    "leaselore": "https://leaselore.com/#product",
 }
 BUHANE_PRODUCT_SLUGS = tuple(EXPECTED_PRODUCTS)
 PROPERTY_CONTEXTUAL_LINK_CONTRACTS = {
@@ -234,6 +236,8 @@ APPROVED_PUBLIC_ORIGINS = {
     "lastimo": frozenset({"https://lastimo.app", "https://getlastimo.com"}),
     "the-cosmic-meta": frozenset({"https://thecosmicmeta.com"}),
     "u2m": frozenset({"https://u2m.io", "https://www.u2m.io"}),
+    "mintropolis": frozenset({"https://mintropolis.io"}),
+    "leaselore": frozenset({"https://leaselore.com"}),
 }
 ROUTE_LOCALE_SCOPE_REQUIRED_FIELDS = {"routes", "indexable_locales"}
 CROSS_PUBLICATION_HREFLANG_REQUIRED_FIELDS = {
@@ -760,7 +764,7 @@ class PortfolioValidator:
                 "REG.PRODUCT_SET",
                 "manifest",
                 "high",
-                "Registry must contain the exact twelve approved product IDs",
+                "Registry must contain the exact fourteen approved product IDs",
                 {
                     "missing": sorted(set(EXPECTED_PRODUCTS) - set(self.products)),
                     "unexpected": sorted(set(self.products) - set(EXPECTED_PRODUCTS)),

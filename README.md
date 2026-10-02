@@ -7,9 +7,9 @@ Static bilingual company website for Buhane Information Technologies. The site p
 | Metric | Value |
 |--------|-------|
 | Founded | 2018 |
-| Products launched | 12 |
-| Platforms and publications | 3 |
-| Apps | 4 |
+| Products launched | 14 |
+| Platforms and publications | 4 |
+| Apps | 5 |
 | Games | 5 |
 | Service areas | 3 |
 | Languages | English, Turkish |
@@ -23,6 +23,7 @@ Static bilingual company website for Buhane Information Technologies. The site p
 | Hive Due / Site Hesap | https://hivedue.com/ | Community finance management for dues, shared expenses, resident records, and related communication. |
 | THECOSMICMETA.com | https://thecosmicmeta.com/ | Public technology-and-culture publication in the Buhane portfolio. |
 | U2M.io | https://u2m.io/ | URL-shortening service with public API documentation and link statistics. |
+| Mintropolis | https://mintropolis.io/ | Public-beta NFT discovery platform with city Embassies, free Passport stamps and official collection drops. |
 
 ### Apps
 
@@ -32,6 +33,7 @@ Static bilingual company website for Buhane Information Technologies. The site p
 | Vynix | https://vynix.app/ | AI-assisted creation workflows for text, image, audio, and video in one mobile application. |
 | AstralPost | https://astralpost.app/ | Ritual journaling app for cosmic reflections and anonymous connection. |
 | Lastimo | https://lastimo.app/ | Private factual tracker for remembering the last time something happened. |
+| LeaseLore | https://leaselore.com/ | Address-level resident reviews, home scores and saved homes. Android available on Google Play; iOS early-access requests open. |
 
 ### Games
 

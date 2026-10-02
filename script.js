@@ -13,6 +13,7 @@
         { slug: 'vynix', name: 'Vynix', category: 'app', icon: '/images/products/vynix.png' },
         { slug: 'astral-post', name: 'Astral Post', category: 'app', icon: '/images/products/astral-post.png' },
         { slug: 'lastimo', name: 'Lastimo', category: 'app', icon: '/images/products/lastimo.png' },
+        { slug: 'leaselore', name: 'LeaseLore', category: 'app', icon: '/images/products/leaselore.png' },
         { slug: 'swipe-slip', name: 'Swipe Slip', category: 'game', icon: '/images/products/swipe-slip.png' },
         { slug: 'glow-spin', name: 'Glow Spin', category: 'game', icon: '/images/products/glow-spin.png' },
         { slug: 'gridzle', name: 'Gridzle', category: 'game', icon: '/images/products/gridzle.png' },
@@ -20,6 +21,7 @@
         { slug: 'rulr', name: 'RULR', category: 'game', icon: '/images/products/rulr.png' },
         { slug: 'hive-due', name: 'Hive Due / Site Hesap', category: 'saas', icon: '/images/products/hive-due.png' },
         { slug: 'u2m', name: 'U2M URL Shortener', category: 'saas', icon: '/images/products/u2m.png' },
+        { slug: 'mintropolis', name: 'Mintropolis', category: 'saas', icon: '/images/products/mintropolis.png' },
         { slug: 'the-cosmic-meta', name: 'The Cosmic Meta', category: 'publication', icon: null }
     ];
 
@@ -30,7 +32,7 @@
             games: 'Games',
             platforms: 'Platforms / Publications',
             kicker: 'Product network',
-            title: 'Twelve shipped products, grouped by job.',
+            title: 'Fourteen available products, grouped by job.',
             summary: 'Open a Buhane product page first, then continue to the verified official destination from there.',
             category: {
                 app: 'App',
@@ -45,7 +47,7 @@
             games: 'Oyunlar',
             platforms: 'Platformlar / Yayınlar',
             kicker: 'Ürün ağı',
-            title: 'Yayındaki 12 ürün, işlerine göre gruplanır.',
+            title: 'Yayındaki 14 ürün, işlerine göre gruplanır.',
             summary: 'Önce Buhane ürün sayfasını açın; ardından doğrulanmış resmi adrese oradan geçin.',
             category: {
                 app: 'Uygulama',
