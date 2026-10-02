@@ -4,10 +4,10 @@ milestone: v1.0
 current_phase: 1
 current_phase_name: Planning and Repository Baseline
 status: planning
-stopped_at: Completed quick task 261002-suw to add LeaseLore to the bilingual portfolio
-last_updated: "2026-10-02T17:52:24Z"
+stopped_at: Completed quick task 261002-to7 to fix LeaseLore product-map label visibility
+last_updated: "2026-10-02T18:24:10Z"
 last_activity: 2026-10-02
-last_activity_desc: Completed quick task 261002-suw; portfolio now has 14 products and 5 apps
+last_activity_desc: Completed quick task 261002-to7; versioned homepage CSS restores visible LeaseLore map labels
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-10-02)
 Phase: 1 — Planning and Repository Baseline
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-10-02 — Completed quick task 261002-suw: added LeaseLore to the bilingual portfolio
+Last activity: 2026-10-02 - Completed quick task 261002-to7: fixed LeaseLore product-map label visibility
 
 Progress: [██████████] 100%
 
@@ -76,6 +76,7 @@ Recent decisions affecting current work:
 - [Quick 260907-uzv]: RULR extends the current inventory to 28 canonical routes: two roots, two indexes and twelve EN/TR product pairs. Current product totals are 12 products, 4 apps, 5 games and 3 platforms/publications.
 - [Quick 260919-hlw]: Mintropolis extends the current inventory to 30 canonical routes and 13 products: 4 apps, 5 games and 4 platforms/publications. It is a public-beta WebApplication at mintropolis.io, distinct from the The Cosmic Meta publication. Cosmicmeta.io provides creative context, not a second added product.
 - [Quick 261002-suw]: LeaseLore extends the current inventory to 32 canonical routes and 14 products: 5 apps, 5 games and 4 platforms/publications. Its Android release and iOS early-access request are distinct; no public iOS store release is claimed. Uncommitted Mintropolis work remains preserved.
+- [Quick 261002-to7]: Both homepage CSS references are versioned to avoid a cached pre-LeaseLore map layout. LeaseLore's existing name and App/Uygulama labels are visible at all seven tested viewport widths; product counts and destinations remain unchanged.
 - [Phase 05]: Hive Due and Site Hesap expose separate ROW and Türkiye destinations while reusing the one https://hivedue.com/#product identity.
 - [Phase 05]: Static verification HTML remains at the hosting root but is excluded from the indexable source inventory.
 - [Phase 05]: The Cosmic Meta remains externally blocked; the three similarly named local directories are immutable non-source evidence. — No verified WordPress administration, deploy source, or hosting ownership maps those directories to the live property.
@@ -116,6 +117,7 @@ None yet.
 | 260907-uzv | Add RULR to the bilingual portfolio and synchronize totals | 2026-09-07 | Not committed | Complete | [260907-uzv](./quick/260907-uzv-add-rulr-to-the-bilingual-portfolio-prod/) |
 | 260919-hlw | Add Mintropolis public beta and synchronize the bilingual portfolio | 2026-09-19 | Not committed | Complete | [260919-hlw](./quick/260919-hlw-add-mintropolis-to-the-bilingual-portfol/) |
 | 261002-suw | Add LeaseLore and synchronize the bilingual portfolio | 2026-10-02 | Not committed | Complete | [261002-suw](./quick/261002-suw-add-leaselore-to-the-bilingual-portfolio/) |
+| 261002-to7 | Fix LeaseLore product-map label visibility | 2026-10-02 | 7918a76 | Complete | [261002-to7](./quick/261002-to7-fix-leaselore-product-map-label-visibili/) |
 
 ## Deferred Items
 
@@ -127,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-02T17:52:24Z
-Stopped at: Completed quick task 261002-suw; independent Phase 05 verification remains
+Last session: 2026-10-02T18:24:10Z
+Stopped at: Completed quick task 261002-to7; independent Phase 05 verification remains
 Resume file: None
